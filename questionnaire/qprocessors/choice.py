@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _, ungettext
 @question_proc('choice', 'choice-freeform')
 def question_choice(request, question):
     choices = []
+    jstriggers = []
 
     cd = question.getcheckdict()
     key = "question_%s" % question.number
@@ -17,12 +18,17 @@ def question_choice(request, question):
     for choice in question.choices():
         choices.append( ( choice.value == val, choice, ) )
 
+    if question.type == 'choice-freeform':
+        jstriggers.append('%s_comment' % question.number)
+
     return {
         'choices'   : choices,
         'sel_entry' : val == '_entry_',
+        'qvalue'    : val or '',
         'required'  : True,
-        "nobreaks" : cd.get("nobreaks", False),
-        "comment" : request.POST.get(key2, ""),
+        'nobreaks'  : cd.get("nobreaks", False),
+        'comment'   : request.POST.get(key2, ""),
+        'jstriggers': jstriggers,
     }
 
 @answer_proc('choice', 'choice-freeform')
@@ -31,7 +37,7 @@ def process_choice(question, answer):
     if not opt:
         raise AnswerException(_(u'You must select an option'))
     if opt == '_entry_' and question.type == 'choice-freeform':
-        opt = answer['comment']
+        opt = answer.get('comment','')
         if not opt:
             raise AnswerException(_(u'Field cannot be blank'))
     else:
