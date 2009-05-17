@@ -1,0 +1,389 @@
+- fields: {
+    state: active,
+    surname: TestSurname,
+    givenname: TestGivenname,
+    email: test@example.com,
+    gender: male,
+    formtype: email,
+    language: de,
+    nextrun: 2009-05-15
+  }
+  model: questionnaire.subject
+  pk: 1
+- fields: {
+    name: Test,
+    redirect_url: /
+  }
+  model: questionnaire.questionnaire
+  pk: 1
+- fields: {
+    checks: '',
+    heading: 001_TestQS,
+    questionnaire: 1,
+    sortid: 1,
+    text_de: Test Fragebogenseite 1,
+    text_en: Test QuestionSet 1,
+    text_fr: null
+  }
+  model: questionnaire.questionset
+  pk: 1
+- fields: {
+    checks: '',
+    heading: 002_TestQS,
+    questionnaire: 1,
+    sortid: 2,
+    text_de: Test Fragebogenseite 1,
+    text_en: Test QuestionSet 1,
+    text_fr: null
+  }
+  model: questionnaire.questionset
+  pk: 2
+- fields: {
+    cookies: null,
+    created: !!timestamp '2009-05-15 10:19:03.905232',
+    emailcount: 0,
+    emailsent: !!timestamp '2009-05-16 15:05:11.775082',
+    lastemailerror: null,
+    questionset: 1,
+    random: 'test:test',
+    runid: 'test:test',
+    state: '',
+    subject: 1
+  }
+  model: questionnaire.runinfo
+  pk: 1
+- fields: {
+    completed: 2009-05-16,
+    runid: 'test:test',
+    subject: 1
+  }
+  model: questionnaire.runinfohistory
+  pk: 1
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '1',
+    questionset: 1,
+    text_de: '[de] Question 1',
+    text_en: '[en] Question 1',
+    text_fr: '[fr] Question 1',
+    type: open
+  }
+  model: questionnaire.question
+  pk: 1
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '2',
+    questionset: 1,
+    text_de: '[de] Question 2',
+    text_en: '[en] Question 2',
+    text_fr: '[fr] Question 2',
+    type: open-textfield
+  }
+  model: questionnaire.question
+  pk: 2
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '3',
+    questionset: 1,
+    text_de: '[de] Question 3',
+    text_en: '[en] Question 3',
+    text_fr: '[fr] Question 3',
+    type: choice-yesno
+  }
+  model: questionnaire.question
+  pk: 3
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '4',
+    questionset: 1,
+    text_de: '[de] Question 4',
+    text_en: '[en] Question 4',
+    text_fr: '[fr] Question 4',
+    type: choice-yesnodontknow
+  }
+  model: questionnaire.question
+  pk: 4
+- fields: {
+    checks: required-yes,
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '5',
+    questionset: 1,
+    text_de: '[de] Question 5',
+    text_en: '[en] Question 5',
+    text_fr: '[fr] Question 5',
+    type: choice-yesnocomment
+  }
+  model: questionnaire.question
+  pk: 5
+- fields: {
+    checks: required-no,
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '6',
+    questionset: 1,
+    text_de: '[de] Question 6',
+    text_en: '[en] Question 6',
+    text_fr: '[fr] Question 6',
+    type: choice-yesnocomment
+  }
+  model: questionnaire.question
+  pk: 6
+- fields: {
+    checks: 'range=5-10 requiredif=3,yes',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '7',
+    questionset: 1,
+    text_de: '[de] Question 7, requiredif 3,yes',
+    text_en: '[en] Question 7, requiredif 3,yes',
+    text_fr: '[fr] Question 7, requiredif 3,yes',
+    type: range
+  }
+  model: questionnaire.question
+  pk: 7
+- fields: {
+    checks: 'units=day,week,month,year',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '8',
+    questionset: 1,
+    text_de: '[de] Question 8',
+    text_en: '[en] Question 8',
+    text_fr: '[fr] Question 8',
+    type: timeperiod
+  }
+  model: questionnaire.question
+  pk: 8
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '9',
+    questionset: 2,
+    text_de: '[de] Question 9',
+    text_en: '[en] Question 9',
+    text_fr: '[fr] Question 9',
+    type: choice
+  }
+  model: questionnaire.question
+  pk: 9
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '10',
+    questionset: 2,
+    text_de: '[de] Question 10',
+    text_en: '[en] Question 10',
+    text_fr: '[fr] Question 10',
+    type: choice-freeform
+  }
+  model: questionnaire.question
+  pk: 10
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '11',
+    questionset: 2,
+    text_de: '[de] Question 11',
+    text_en: '[en] Question 11',
+    text_fr: '[fr] Question 11',
+    type: choice-multiple
+  }
+  model: questionnaire.question
+  pk: 11
+- fields: {
+    checks: '',
+    extra_de: '',
+    extra_en: '',
+    extra_fr: '',
+    number: '12',
+    questionset: 2,
+    text_de: '[de] Question 12',
+    text_en: '[en] Question 12',
+    text_fr: '[fr] Question 12',
+    type: choice-multiple-freeform
+  }
+  model: questionnaire.question
+  pk: 12
+- fields: {
+    question: 9,
+    sortid: 1,
+    text_de: Option 1,
+    text_en: Choice 1,
+    text_fr: null,
+    value: q9_choice1
+  }
+  model: questionnaire.choice
+  pk: 1
+- fields: {
+    question: 9,
+    sortid: 2,
+    text_de: Option 2,
+    text_en: Choice 2,
+    text_fr: null,
+    value: q9_choice2
+  }
+  model: questionnaire.choice
+  pk: 2
+- fields: {
+    question: 9,
+    sortid: 3,
+    text_de: Option 3,
+    text_en: Choice 3,
+    text_fr: null,
+    value: q9_choice3
+  }
+  model: questionnaire.choice
+  pk: 3
+- fields: {
+    question: 9,
+    sortid: 4,
+    text_de: Option 4,
+    text_en: Choice 4,
+    text_fr: null,
+    value: q9_choice4
+  }
+  model: questionnaire.choice
+  pk: 4
+- fields: {
+    question: 10,
+    sortid: 1,
+    text_de: Option 1,
+    text_en: Choice 1,
+    text_fr: null,
+    value: q10_choice1
+  }
+  model: questionnaire.choice
+  pk: 5
+- fields: {
+    question: 10,
+    sortid: 2,
+    text_de: Option 2,
+    text_en: Choice 2,
+    text_fr: null,
+    value: q10_choice2
+  }
+  model: questionnaire.choice
+  pk: 6
+- fields: {
+    question: 10,
+    sortid: 3,
+    text_de: Option 3,
+    text_en: Choice 3,
+    text_fr: null,
+    value: q10_choice3
+  }
+  model: questionnaire.choice
+  pk: 7
+- fields: {
+    question: 10,
+    sortid: 4,
+    text_de: Option 4,
+    text_en: Choice 4,
+    text_fr: null,
+    value: q10_choice4
+  }
+  model: questionnaire.choice
+  pk: 8
+- fields: {
+    question: 11,
+    sortid: 1,
+    text_de: Option 1,
+    text_en: Choice 1,
+    text_fr: null,
+    value: q11_choice1
+  }
+  model: questionnaire.choice
+  pk: 9
+- fields: {
+    question: 11,
+    sortid: 2,
+    text_de: Option 2,
+    text_en: Choice 2,
+    text_fr: null,
+    value: q11_choice2
+  }
+  model: questionnaire.choice
+  pk: 10
+- fields: {
+    question: 11,
+    sortid: 3,
+    text_de: Option 3,
+    text_en: Choice 3,
+    text_fr: null,
+    value: q11_choice3
+  }
+  model: questionnaire.choice
+  pk: 11
+- fields: {
+    question: 11,
+    sortid: 4,
+    text_de: Option 4,
+    text_en: Choice 4,
+    text_fr: null,
+    value: q11_choice4
+  }
+  model: questionnaire.choice
+  pk: 12
+- fields: {
+    question: 12,
+    sortid: 1,
+    text_de: Option 1,
+    text_en: Choice 1,
+    text_fr: null,
+    value: q12_choice1
+  }
+  model: questionnaire.choice
+  pk: 13
+- fields: {
+    question: 12,
+    sortid: 2,
+    text_de: Option 2,
+    text_en: Choice 2,
+    text_fr: null,
+    value: q12_choice2
+  }
+  model: questionnaire.choice
+  pk: 14
+- fields: {
+    question: 12,
+    sortid: 3,
+    text_de: Option 3,
+    text_en: Choice 3,
+    text_fr: null,
+    value: q12_choice3
+  }
+  model: questionnaire.choice
+  pk: 15
+- fields: {
+    question: 12,
+    sortid: 4,
+    text_de: Option 4,
+    text_en: Choice 4,
+    text_fr: null,
+    value: q12_choice4
+  }
+  model: questionnaire.choice
+  pk: 16

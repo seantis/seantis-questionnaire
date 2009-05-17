@@ -1,0 +1,6 @@
+*.pyc
+*.mo
+*~
+*.sqlite
+*.swp
+local_settings.py

@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% block after_field_sets %}
+{% for x in original.pending %}
+{% if forloop.first %}<h3>Pending:</h3><ul>{% endif %}
+<li><b>{{ x.runid }}: created {{ x.created }}, last email sent {{ x.emailsent }}</b></li>
+{% if forloop.last %}</ul>{% endif %}
+{% endfor %}
+
+{% for x in original.history %}
+{% if forloop.first %}<h3>History:</h3><ul>{% endif %}
+<li><b>{{ x.runid }}: completed {{ x.completed }}</b></li>
+{% if forloop.last %}</ul>{% endif %}
+{% endfor %}
+{% endblock %}

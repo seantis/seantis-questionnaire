@@ -1,0 +1,134 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-05-15 16:41+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: models.py:16
+msgid "Active"
+msgstr "Aktiv"
+
+#: models.py:17
+msgid "Inactive"
+msgstr "Inaktiv"
+
+#: models.py:18
+msgid "Disqualified"
+msgstr "Disqualifiziert"
+
+#: models.py:19
+msgid "Discontinued"
+msgstr "Abgebrochen"
+
+#: models.py:25
+msgid "Unset"
+msgstr "Keine Angabe"
+
+#: models.py:26
+msgid "Male"
+msgstr "Männlich"
+
+#: models.py:27
+msgid "Female"
+msgstr "Weiblich"
+
+#: models.py:32
+msgid "Subject receives emails"
+msgstr "Person bekommt Emails"
+
+#: models.py:33
+msgid "Subject is sent paper form"
+msgstr "Person bekommt Papierformular"
+
+#: qprocessors/choice.py:32 qprocessors/simple.py:61
+msgid "You must select an option"
+msgstr "Sie müssen eine Option auswählen"
+
+#: qprocessors/choice.py:36 qprocessors/simple.py:65 qprocessors/simple.py:67
+#: qprocessors/simple.py:69 qprocessors/simple.py:72
+#: qprocessors/timeperiod.py:47
+msgid "Field cannot be blank"
+msgstr "Dieses Feld muss ausgefüllt werden"
+
+#: qprocessors/choice.py:40
+msgid "Invalid option!"
+msgstr "Ungültige Angabe"
+
+#: qprocessors/choice.py:101
+#, python-format
+msgid "You must select at least %d option"
+msgid_plural "You must select at least %d options"
+msgstr[0] "Sie müssen mindestens eine Option auswählen"
+msgstr[1] "Sie müssen mindestens %d Optionen auswählen"
+
+#: qprocessors/custom.py:27
+msgid "Processor not defined for this question"
+msgstr ""
+
+#: qprocessors/range.py:35
+msgid "Out of range"
+msgstr ""
+
+#: qprocessors/timeperiod.py:5
+msgid "second(s)"
+msgstr "Sekunde(n)"
+
+#: qprocessors/timeperiod.py:6
+msgid "minute(s)"
+msgstr "Minute(n)"
+
+#: qprocessors/timeperiod.py:7
+msgid "hour(s)"
+msgstr "Stunde(n)"
+
+#: qprocessors/timeperiod.py:8
+msgid "day(s)"
+msgstr "Tag(e)"
+
+#: qprocessors/timeperiod.py:9
+msgid "week(s)"
+msgstr "Woche(n)"
+
+#: qprocessors/timeperiod.py:10
+msgid "month(s)"
+msgstr "Monat(e)"
+
+#: qprocessors/timeperiod.py:11
+msgid "year(s)"
+msgstr "Jahr(e)"
+
+#: qprocessors/timeperiod.py:33 qprocessors/timeperiod.py:49
+msgid "Invalid time period"
+msgstr "Ungültiger Zeitraum"
+
+#: qprocessors/timeperiod.py:39
+msgid "Time period must be a whole number"
+msgstr "Angabe muss aus einer ganzen Zahl bestehen"
+
+#: templates/questionnaire/choice-yesnocomment.html:20
+msgid "Yes"
+msgstr "Ja"
+
+#: templates/questionnaire/choice-yesnocomment.html:22
+msgid "No"
+msgstr "Nein"
+
+#: templates/questionnaire/choice-yesnocomment.html:25
+msgid "Don't Know"
+msgstr "Weiss nicht"
+
+#: templates/questionnaire/questionset.html:72
+msgid "Continue"
+msgstr "Weiter"

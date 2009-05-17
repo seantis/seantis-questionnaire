@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load markup %}
+{% block title %}{{ block.super }} - {{ page.title }}{% endblock %}
+{% block content %}
+{{ page.body|textile }}
+{% if user.is_authenticated %}<a href="/admin/page/page/{{ page.slug }}/">(edit)</a>{% endif %}
+{% endblock %}

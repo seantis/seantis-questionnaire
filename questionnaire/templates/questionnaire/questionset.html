@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load markup questionnaire i18n %}
+{% block headextra %}
+<script type="text/javascript" src="/media/questionset.js"></script>
+{% for x in jsinclude %}<script type="text/javascript" src="{{ x }}"></script>
+{% endfor %}
+{% for x in cssinclude %}<link rel="stylesheet" href="{{ x }}" type="text/css" />
+{% endfor %}
+{% endblock %}
+{% block styleextra %}
+.questionset_text {
+    font-size: large;
+}
+
+.qnumber {
+    color: #000;
+}
+
+.required {
+    font-style: italic;
+    color: #600;
+}
+img.percentImage {
+ background: white url(/media/progress/percentImage_back4.png) top left no-repeat;
+ padding: 0;
+ margin: 5px 0 0 0;
+ background-position: 1px 0;
+}
+{% endblock %}
+{% block content %}
+
+{% if progress %}
+<p style="text-align: center;">
+<img alt="{{ progress.0 }}" src="/media/progress/percentImage.png" class="percentImage" style="background-position: {{ progress.1 }}px 0pt;" /> {{ progress.0 }}% complete.</p>
+{% endif %}
+
+<div class="questionset_text">{{ questionset.text|textile }}</div>
+
+<form name="qform" id="qform" action="{{ request.path }}" method="POST">
+<input type="hidden" name="questionset_id" value="{{ questionset.id }}">
+{% for question, qdict in qlist %}
+{% with errors|dictget:question.number as error %}
+
+<div class="question type_{{ qdict.qtype }} container{% if error %} error prepend-top{% endif %}{{ qdict.qnum_class }}{{ qdict.qalpha_class }}" id="qc_{{ question.number }}" {{qdict.checkstring|safe}}>
+{% if error %}<b>* {{ error }}</b><br />{% endif %}
+
+{% if request.user.is_authenticated %}
+  <span style="float: right"><a href="/admin/questionnaire/question/{{ question.id }}/"><font size="xx-small">(edit {{ question.number }})</font></a></span>
+{% endif %}
+{% if qdict.custom %}
+  {% include qdict.template %}
+{% else %}
+{%     if question.newline %}
+<b class="qnumber{% if qdict.required %} required{% endif %}">{{ question.display_number|safe }}.</b> {{ question.text }}
+<br /><div class="prepend-1">
+{%     else %}
+{%         if question.text.strip %}
+<div class="span-{{ alignment }}"><b class="qnumber{% if qdict.required %} required{% endif %}">{{ question.display_number|safe }}.</b> {{ question.text }}
+</div>
+{%         else %}
+<b class="qnumber{% if qdict.required %} required{% endif %}">{{ question.display_number|safe }}.</b> {{ question.text }}
+{%         endif %}
+{%     endif %}
+{% include qdict.template %}
+{% if question.newline %}</div> <!-- /prepend-1 -->{% endif %}
+{% endif %}
+</div> <!-- /question container -->
+{% endwith %}
+{% endfor %}
+<br />
+</span>
+<div style="text-align:center; margin-bottom: 0.5em;"><input name="submit" type="submit" value="{% trans "Continue" %}"></div>
+{% with questionset.prev as prev %}
+{% if prev %}<a href="javascript:history.back();" title="">Return to previous page</a>{% endif %}
+{% endwith %}
+</form>
+
+<script type="text/javascript">
+{% for trigger in triggers %}addtrigger("{{trigger}}");
+{% endfor %}
+{% for k,v in qvalues.items %}qvalues['{{ k }}'] = '{{ v|escapejs }}';
+{% endfor %}
+for(key in qvalues) {
+  valchanged(key, qvalues[key]);
+}
+</script>
+{% endblock %}

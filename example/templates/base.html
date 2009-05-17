@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This django based questionnaire application was developed by
+Robert Thomson for Seantis GmbH of Lucerne.  With much thanks to
+Leonie Grüter for all the testing, bug reports and suggestions! -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>{% block title %}Questionnaire{% endblock title %}</title>
+    <link rel="stylesheet" href="/media/blueprint/screen.css" type="text/css" media="screen, projection" />
+    <link rel="stylesheet" href="/media/blueprint/print.css" type="text/css" media="print" />
+    <!--[if IE]><link rel="stylesheet" href="/media/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+    <style type="text/css">
+        body { background-color: #F1F1F1; }
+    
+        #wrapper {
+            background-color: #fff;
+            margin-top: 2em;
+            margin-left: auto;
+            margin-right: auto;
+            width: 800px;
+            padding: 1em;
+            border: 1px solid #ccc;
+        }
+    
+        .container { border-bottom: 1px solid #DFDFDF; }
+    
+        .aleven { background-color: #F1F1F1; }
+    
+        hr { height: 1px; }
+{% block styleextra %}{% endblock %}
+    </style>
+    {% block headextra %}{% endblock %}
+</head>
+<body>
+<div id="wrapper">
+    <div style="float: right; margin-right: 3em;" id="languages">
+      {% block language %}
+      {% for lang in LANGUAGES %}
+      {% if not forloop.first %} |{% endif %}
+      <a href="/setlang/?language={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
+      {% endfor %}
+      {% endblock language %}
+    </div> <!--/languages -->
+  <div id="header">
+    <div style="height: 60px; width: 180px; float: left"><b>Logo Goes Here. Logo Goes Here. Logo Goes Here. Logo Goes Here.</b></div>
+    <H2>Sample Django Questionnaire</H2>
+    <HR>
+  </div><!-- /header -->
+  <div id="content" class="container">
+  {% block content %}
+  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+  quis nostrud execitation ullamco laboris nisi ut aliquip ex ea commodo
+  consequat.  Duis aute irure dolor in reprehenderit in voluptate velit esse
+  cillum dolore eu fugiat nulla pariatur.</p>
+  {% endblock %}
+  </div><!-- /content -->
+</div><!-- /wrapper -->
+</body>
+</html>

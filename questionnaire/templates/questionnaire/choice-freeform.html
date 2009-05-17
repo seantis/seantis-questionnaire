@@ -1,0 +1,9 @@
+{% load i18n %}
+{% for sel, choice in qdict.choices %}
+<input onClick="document.getElementById('{{ question.number }}_comment').disabled = true; valchanged('{{ question.number }}', this.value)" type="radio" id="{{ question.number }}_{{ forloop.counter }}" name="question_{{ question.number }}" value="{{ choice.value }}" {% if sel %} checked{% endif %}>
+<label for="{{ question.number }}_{{ forloop.counter }}">{{ choice.text }}</label>
+{% if not question.getcheckdict.nobreaks %}<br />{% endif %}
+{% endfor %}
+<input onClick="document.getElementById('{{ question.number }}_comment').disabled = false; valchanged('{{ question.number }}', '_entry_');" type="radio" id="{{ question.number }}_entry" name="question_{{ question.number }}" value="_entry_"{% if qdict.sel_entry %}checked{% endif %}>
+<input id="{{ question.number }}_comment" {% if not qdict.sel_entry %}disabled="disabled"{% endif %} type="input" name="question_{{ question.number }}_comment" value="{{ qdict.comment }}">{% if question.extra %}{{ question.extra }}{% endif %}
+

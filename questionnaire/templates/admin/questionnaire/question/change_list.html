@@ -1,0 +1,36 @@
+{% extends "admin/change_list.html" %}
+{% block result_list %}
+<script language="javascript">
+function togglehide(id) {
+  obj = document.getElementById("questionnaire-" + id);
+  head = document.getElementById("qhead-" + id);
+  if(obj) {
+    if(obj.style.display == 'none') {
+      obj.style.display = 'block';
+      head.innerHTML = '&uarr;'
+    } else {
+      obj.style.display = 'none';
+      head.innerHTML = '&darr;'
+    }
+  }
+  return false;
+}
+</script>
+{% for questionnaire in cl.get_query_set %}
+
+<H2 onClick="togglehide('{{ questionnaire.id }}');">
+<span id="qhead-{{ questionnaire.id }}">&uarr;</span>{{ questionnaire.name }}
+</H2>
+
+<div id="questionnaire-{{ questionnaire.id }}" style="margin-bottom: 2em;">
+{%   for questionset in questionnaire.questionsets %}
+<H4>QuestionSet: <a href="/admin/questionnaire/questionset/{{ questionset.id }}/"><font color="#111">{{ questionset.heading }} ({{ questionset.sortid }})</font></a></H4>
+{%     for q in questionset.questions %}
+<a href="{{ q.id }}/">{{ q.number }}. {{ q.text }}</a> [{{ q.type }}]<br />
+{%     endfor %}
+&rarr; <a href="add/?questionset={{ questionset.id }}">Add Question to <tt>{{ questionset.heading }}</tt></a>
+{%   endfor %}
+<br /><br />&rarr; <a href="/admin/questionnaire/questionset/add/?questionnaire={{ questionnaire.id }}">Add QuestionSet to <tt>{{ questionnaire.name }}</tt></a>
+</div>
+{% endfor %}
+{% endblock %}

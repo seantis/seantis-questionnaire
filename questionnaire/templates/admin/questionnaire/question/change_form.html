@@ -1,0 +1,7 @@
+{% extends "admin/change_form.html" %}
+{% load questionnaire %}
+{% block object-tools %}
+{% if original %}
+<a href="{{ original|qtesturl }}">Show on Site</a>
+{% endif %}
+{% endblock %}
