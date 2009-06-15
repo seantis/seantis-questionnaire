@@ -36,7 +36,7 @@ Leonie Grüter for all the testing, bug reports and suggestions! -->
       {% block language %}
       {% for lang in LANGUAGES %}
       {% if not forloop.first %} |{% endif %}
-      <a href="/setlang/?language={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
+      <a href="/setlang/?lang={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
       {% endfor %}
       {% endblock language %}
     </div> <!--/languages -->

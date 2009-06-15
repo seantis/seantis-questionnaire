@@ -131,12 +131,15 @@ def questionnaire(request, runcode=None, qs=None):
         transaction.commit()
         return HttpResponseRedirect('/')
 
-    if runinfo and not qs:
+    if not qs:
         # Only change the language to the subjects choice for the initial
         # questionnaire page (may be a direct link from an email)
         if hasattr(request, 'session'):
             request.session['django_language'] = runinfo.subject.language
             translation.activate(runinfo.subject.language)
+
+    if 'lang' in request.GET:
+        return set_language(request, runinfo, request.path)
 
     # --------------------------------
     # --- Handle non-POST requests --- 
@@ -372,8 +375,35 @@ def show_questionnaire(request, runinfo, errors={}):
         jsinclude=jsinclude,
         cssinclude=cssinclude)
     r['Cache-Control'] = 'no-cache'
-    r['Expires'] = 'Mon, 01 Jan 2001 01:01:01 GMT'
+    r['Expires'] = "Thu, 24 Jan 1980 00:00:00 GMT"
     return r
+
+
+def set_language(request, runinfo=None, next=None):
+    """
+    Change the language, save it to runinfo if provided, and
+    redirect to the provided URL (or the last URL).
+    Can also be used by a url handler, w/o runinfo & next.
+    """
+    if not next:
+        next = request.REQUEST.get('next', None)
+    if not next:
+        next = request.META.get('HTTP_REFERER', None)
+        if not next:
+            next = '/'
+    response = HttpResponseRedirect(next)
+    response['Expires'] = "Thu, 24 Jan 1980 00:00:00 GMT"
+    if request.method == 'GET':
+        lang_code = request.GET.get('lang', None)
+        if lang_code and translation.check_for_language(lang_code):
+            if hasattr(request, 'session'):
+                request.session['django_language'] = lang_code
+            else:
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code)
+            if runinfo:
+                runinfo.subject.language = lang_code
+                runinfo.subject.save()
+    return response
 
 
 @login_required

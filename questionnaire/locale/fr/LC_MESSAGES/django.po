@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-15 16:41+0200\n"
+"POT-Creation-Date: 2009-06-04 10:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,51 +24,75 @@ msgstr ""
 msgid "Inactive"
 msgstr ""
 
-#: models.py:18
-msgid "Disqualified"
+#: models.py:22
+msgid "State"
 msgstr ""
 
-#: models.py:19
-msgid "Discontinued"
-msgstr ""
-
-#: models.py:25
-msgid "Unset"
+#: models.py:24
+msgid "Surname"
 msgstr ""
 
 #: models.py:26
-msgid "Male"
+msgid "Given name"
 msgstr ""
 
 #: models.py:27
-msgid "Female"
+msgid "Email"
+msgstr ""
+
+#: models.py:29
+msgid "Gender"
+msgstr ""
+
+#: models.py:30
+msgid "Unset"
+msgstr ""
+
+#: models.py:31
+msgid "Male"
 msgstr ""
 
 #: models.py:32
+msgid "Female"
+msgstr ""
+
+#: models.py:35
+msgid "Next Run"
+msgstr ""
+
+#: models.py:37
+msgid "Form Type"
+msgstr ""
+
+#: models.py:39
 msgid "Subject receives emails"
 msgstr ""
 
-#: models.py:33
+#: models.py:40
 msgid "Subject is sent paper form"
 msgstr ""
 
-#: qprocessors/choice.py:32 qprocessors/simple.py:61
+#: models.py:43
+msgid "Language"
+msgstr ""
+
+#: qprocessors/choice.py:38 qprocessors/simple.py:66
 msgid "You must select an option"
 msgstr "Veuillez choisir une option!"
 
-#: qprocessors/choice.py:36 qprocessors/simple.py:65 qprocessors/simple.py:67
-#: qprocessors/simple.py:69 qprocessors/simple.py:72
-#: qprocessors/timeperiod.py:47
+#: qprocessors/choice.py:42 qprocessors/simple.py:70 qprocessors/simple.py:72
+#: qprocessors/simple.py:74 qprocessors/simple.py:77
+#: qprocessors/timeperiod.py:56
 msgid "Field cannot be blank"
 msgstr ""
 "Merci de donner une réponse à cette question; ce champs ne peut rester vide."
 
-#: qprocessors/choice.py:40
+#: qprocessors/choice.py:46
 #, fuzzy
 msgid "Invalid option!"
 msgstr "Option non valable"
 
-#: qprocessors/choice.py:101
+#: qprocessors/choice.py:107
 #, python-format
 msgid "You must select at least %d option"
 msgid_plural "You must select at least %d options"
@@ -111,23 +135,23 @@ msgstr "mois"
 msgid "year(s)"
 msgstr "année(s)"
 
-#: qprocessors/timeperiod.py:33 qprocessors/timeperiod.py:49
+#: qprocessors/timeperiod.py:42 qprocessors/timeperiod.py:58
 msgid "Invalid time period"
 msgstr "Période non valable"
 
-#: qprocessors/timeperiod.py:39
+#: qprocessors/timeperiod.py:48
 msgid "Time period must be a whole number"
 msgstr "La période doit être un chiffre entier"
 
-#: templates/questionnaire/choice-yesnocomment.html:20
+#: templates/questionnaire/choice-yesnocomment.html:3
 msgid "Yes"
 msgstr "Oui"
 
-#: templates/questionnaire/choice-yesnocomment.html:22
+#: templates/questionnaire/choice-yesnocomment.html:5
 msgid "No"
 msgstr "Non"
 
-#: templates/questionnaire/choice-yesnocomment.html:25
+#: templates/questionnaire/choice-yesnocomment.html:8
 msgid "Don't Know"
 msgstr "Ne sais pas"
 

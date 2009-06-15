@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     (r'^(?P<page>.*)\.html$', 'page.views.page'),
     (r'^(?P<lang>..)/(?P<page>.*)\.html$', 'page.views.langpage'),
 
-    (r'^setlang/$', 'page.views.set_language'),
+    (r'^setlang/$', 'questionnaire.views.set_language'),
 
     (r'^media/(.*)', 'django.views.static.serve',
         { 'document_root' : settings.MEDIA_ROOT }),
