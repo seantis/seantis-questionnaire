@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 """
 Functions to send email reminders to users.
 """
@@ -7,24 +8,25 @@ from django.contrib.auth.decorators import login_required
 from django.template import Context, loader
 from django.utils import translation
 from django.conf import settings
-from models import Subject, QuestionSet, RunInfo
+from models import Subject, QuestionSet, RunInfo, Questionnaire
 from datetime import datetime
 from django.shortcuts import render_to_response, get_object_or_404
 import random, time, smtplib, rfc822
+from email.Header import Header
+from email.Utils import formataddr, parseaddr
 try: from hashlib import md5
 except: from md5 import md5
 
 
-class SmarterEmailMessage(EmailMessage):
+def encode_emailaddress(address):
     """
-    SmarterEmailMessage allows rfc822 valid To addresses
+    Encode an email address as ASCII using the Encoded-Word standard.
+    Needed to work around http://code.djangoproject.com/ticket/11144
     """
-    def recipients(self):
-        """
-        For all recipients, convert to plain email address.
-        ie. Given "Joe Bloggs "<joe@example.com>, return joe@example.com
-        """
-        return map(lambda x: rfc822.parseaddr(x)[1], self.to + self.bcc)
+    try: return address.encode('ascii')
+    except UnicodeEncodeError: pass
+    nm, addr = parseaddr(address)
+    return formataddr( (str(Header(nm, settings.DEFAULT_CHARSET)), addr) )
 
 
 def _new_random(subject):
@@ -85,10 +87,13 @@ def _send_email(runinfo):
     emailFrom = emailFrom.replace("$RUNINFO", runinfo.random)
     emailTo = '"%s, %s" <%s>' % (subject.surname, subject.givenname, subject.email)
 
+    emailTo = encode_emailaddress(emailTo)
+    emailFrom = encode_emailaddress(emailFrom)
+
     try:
         conn = SMTPConnection()
-        msg = SmarterEmailMessage(emailSubject, email, emailFrom, [ emailTo ],
-                                  connection=conn)
+        msg = EmailMessage(emailSubject, email, emailFrom, [ emailTo ],
+            connection=conn)
         msg.send()
         runinfo.emailcount = 1 + runinfo.emailcount
         runinfo.emailsent = datetime.now()
@@ -122,6 +127,7 @@ def send_emails(request=None, qname=None):
         qname = getattr(settings, 'QUESTIONNAIRE_DEFAULT', None)
     if not qname:
         raise Exception("QUESTIONNAIRE_DEFAULT not in settings")
+    questionnaire = Questionnaire.objects.get(name=qname)
     questionset = QuestionSet.objects.filter(questionnaire__name=qname).order_by('sortid')
     if not questionset:
         raise Exception("No questionsets for questionnaire '%s' (in settings.py)" % qname)
@@ -131,7 +137,7 @@ def send_emails(request=None, qname=None):
     viablesubjects = Subject.objects.filter(nextrun__lte = datetime.now(), state='active')
     for s in viablesubjects:
         r = _new_runinfo(s, questionset)
-    runinfos = RunInfo.objects.filter(subject__formtype='email', questionset__questionnaire=questionset)
+    runinfos = RunInfo.objects.filter(subject__formtype='email', questionset__questionnaire=questionnaire)
     WEEKAGO = time.time() - (60 * 60 * 24 * 7) # one week ago
     outlog = []
     for r in runinfos:

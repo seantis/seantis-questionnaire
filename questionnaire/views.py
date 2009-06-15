@@ -31,7 +31,7 @@ def r2r(tpl, request, **contextdict):
 
 def get_runinfo(random):
     "Return the RunInfo entry with the provided random key"
-    res = RunInfo.objects.filter(random=random)
+    res = RunInfo.objects.filter(random=random.lower())
     if res:
         return res[0]
     return None

@@ -1,6 +1,6 @@
 from django.db import models
 from transmeta import TransMeta
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from questionnaire import QuestionChoices
 import re
 from utils import split_numal
@@ -12,29 +12,35 @@ _numre = re.compile("(\d+)([a-z]+)", re.I)
 
 
 class Subject(models.Model):
-    state = models.CharField(max_length=16, default="inactive", choices = (
+    STATE_CHOICES = [
         ("active", _("Active")),
         ("inactive", _("Inactive")),
-        ("disqualified", _("Disqualified")),
-        ("discontinued", _("Discontinued")),
-    ))
-    surname = models.CharField(max_length=64, blank=True, null=True)
-    givenname = models.CharField(max_length=64, blank=True, null=True)
-    email = models.EmailField(null=True, blank=True)
+        # Can be changed from elsewhere with
+        # Subject.STATE_CHOICES[:] = [ ('blah', 'Blah') ]
+    ]
+    state = models.CharField(max_length=16, default="inactive",
+        choices = STATE_CHOICES, verbose_name=_('State'))
+    surname = models.CharField(max_length=64, blank=True, null=True,
+        verbose_name=_('Surname'))
+    givenname = models.CharField(max_length=64, blank=True, null=True,
+        verbose_name=_('Given name'))
+    email = models.EmailField(null=True, blank=True, verbose_name=_('Email'))
     gender = models.CharField(max_length=8, default="unset", blank=True,
+        verbose_name=_('Gender'),
         choices = ( ("unset", _("Unset")),
                     ("male", _("Male")),
                     ("female", _("Female")),
         )
     )
-    nextrun = models.DateField()
-    formtype = models.CharField(max_length=16, default='email', choices = (
-        ("email", _("Subject receives emails")),
-        ("paperform", _("Subject is sent paper form"),
-    )))
-    language = models.CharField(max_length=2, default=settings.LANGUAGE_CODE,
-        choices = settings.LANGUAGES
+    nextrun = models.DateField(verbose_name=_('Next Run'), blank=True, null=True)
+    formtype = models.CharField(max_length=16, default='email',
+        verbose_name = _('Form Type'),
+        choices = (
+            ("email", _("Subject receives emails")),
+            ("paperform", _("Subject is sent paper form"),))
     )
+    language = models.CharField(max_length=2, default=settings.LANGUAGE_CODE,
+        verbose_name = _('Language'), choices = settings.LANGUAGES)
 
     def __unicode__(self):
         return u'%s, %s (%s)' % (self.surname, self.givenname, self.email)
@@ -131,12 +137,16 @@ class RunInfo(models.Model):
     emailcount = models.IntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)
-    emailsent = models.DateTimeField(auto_now=True)
+    emailsent = models.DateTimeField()
 
     lastemailerror = models.CharField(max_length=64, null=True, blank=True)
 
     state = models.CharField(max_length=16, null=True, blank=True)
     cookies = models.CharField(max_length=512, null=True, blank=True)
+
+    def save(self):
+        self.random = (self.random or '').lower()
+        super(RunInfo, self).save()
 
     def set_cookie(self, key, value):
         "runinfo.set_cookie(key, value). If value is None, delete cookie"
