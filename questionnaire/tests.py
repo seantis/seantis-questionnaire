@@ -61,11 +61,17 @@ class TypeTest(TestCase):
     def test030_language_setting(self):
         "Set the language and confirm it is set in DB"
         response = self.client.get('/q/test:test/1/', {"lang" : "en"})
+        assert response.status_code == 302
+        assert response['Location'] == 'http://testserver/q/test:test/1/'
+        response = self.client.get('/q/test:test/1/')
         assert "Don't Know" in response.content
         assert response.status_code == 200
         runinfo = RunInfo.objects.get(runid='test:test')
         assert runinfo.subject.language == 'en'
         response = self.client.get('/q/test:test/1/', {"lang" : "de"})
+        assert response.status_code == 302
+        assert response['Location'] == 'http://testserver/q/test:test/1/'
+        response = self.client.get('/q/test:test/1/')
         assert "Weiss nicht" in response.content
         assert response.status_code == 200
         runinfo = RunInfo.objects.get(runid='test:test')
