@@ -7,6 +7,11 @@
 {% for x in cssinclude %}<link rel="stylesheet" href="{{ x }}" type="text/css" />
 {% endfor %}
 {% endblock %}
+{% block language %}
+{% for lang in LANGUAGES %}{% if not forloop.first %} |{% endif %}
+<a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>
+{% endfor %}
+{% endblock %}
 {% block styleextra %}
 .questionset_text {
     font-size: large;
