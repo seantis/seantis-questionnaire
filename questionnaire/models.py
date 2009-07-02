@@ -137,7 +137,7 @@ class RunInfo(models.Model):
     emailcount = models.IntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)
-    emailsent = models.DateTimeField()
+    emailsent = models.DateTimeField(null=True, blank=True)
 
     lastemailerror = models.CharField(max_length=64, null=True, blank=True)
 
