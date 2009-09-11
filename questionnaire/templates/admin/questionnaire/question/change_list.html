@@ -16,7 +16,7 @@ function togglehide(id) {
   return false;
 }
 </script>
-{% for questionnaire in cl.get_query_set %}
+{% for questionnaire in questionnaires %}
 
 <H2 onClick="togglehide('{{ questionnaire.id }}');">
 <span id="qhead-{{ questionnaire.id }}">&uarr;</span>{{ questionnaire.name }}

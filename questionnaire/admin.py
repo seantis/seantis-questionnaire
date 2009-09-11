@@ -28,10 +28,12 @@ class QuestionAdmin(admin.ModelAdmin):
     ordering = ['questionset__questionnaire', 'questionset', 'number']
     inlines = [ChoiceInline]
 
-    def queryset(self, request):
-        # we have a custom template
-        qs = Questionnaire.objects.all().order_by('name')
-        return qs
+    def changelist_view(self, request, extra_context=None):
+        "Hack to have Questionnaire list accessible for custom changelist template"
+        if not extra_context:
+            extra_context = {}
+        extra_context['questionnaires'] = Questionnaire.objects.all().order_by('name')
+        return super(QuestionAdmin, self).changelist_view(request, extra_context)
 
 class QuestionnaireAdmin(admin.ModelAdmin):
     pass
