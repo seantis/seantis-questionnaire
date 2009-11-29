@@ -6,7 +6,7 @@ from django.http import HttpResponse, Http404, \
 from django.template import RequestContext, Context, Template, loader
 from django.views.decorators.cache import cache_control
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.sites.models import Site
 from django.db import transaction
@@ -406,7 +406,7 @@ def set_language(request, runinfo=None, next=None):
     return response
 
 
-@login_required
+@user_passes_test(lambda u: u.has_perm('questionnaire.change_answer'))
 def export_csv(request, qid): # questionnaire_id
     """
     For a given questionnaire id, generaete a CSV containing all the
