@@ -69,6 +69,12 @@ class Questionnaire(models.Model):
               QuestionSet.objects.filter(questionnaire=self).order_by('sortid')
         return self.__qscache
 
+    class Meta:
+        permissions = (
+            ("export", "Can export questionnaire answers"),
+            ("management", "Management Tools")
+        )
+
 class QuestionSet(models.Model):
     __metaclass__ = TransMeta
 

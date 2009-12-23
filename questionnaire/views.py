@@ -6,7 +6,7 @@ from django.http import HttpResponse, Http404, \
 from django.template import RequestContext, Context, Template, loader
 from django.views.decorators.cache import cache_control
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.sites.models import Site
 from django.db import transaction
@@ -119,8 +119,9 @@ def questionnaire(request, runcode=None, qs=None):
     """
 
     # if runcode provided as query string, redirect to the proper page
-    if not runcode and request.GET.has_key("runcode"):
-        transaction.commit()
+    if not runcode:
+        if not request.GET.get('runcode', None):
+            return HttpResponseRedirect("/")
         return HttpResponseRedirect(
             reverse("questionnaire",
                 args=[request.GET['runcode']]))
@@ -406,7 +407,7 @@ def set_language(request, runinfo=None, next=None):
     return response
 
 
-@login_required
+@permission_required("questionnaire.export")
 def export_csv(request, qid): # questionnaire_id
     """
     For a given questionnaire id, generaete a CSV containing all the
@@ -520,7 +521,7 @@ def dep_check(expr, runinfo, answerdict):
         return check_answer[1:].strip() != actual_answer.strip()
     return check_answer.strip() == actual_answer.strip()
 
-@login_required
+@permission_required("questionnaire.management")
 def send_email(request, runinfo_id):
     if request.method != "POST":
         return HttpResponse("This page MUST be called as a POST request.")
