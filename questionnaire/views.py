@@ -11,16 +11,24 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.sites.models import Site
 from django.db import transaction
 from django.conf import settings
-from models import *
-from questionnaire import QuestionProcessors, Processors, AnswerException, \
-    questionset_done, questionnaire_done
 from datetime import datetime
 from django.utils import translation
-import time, os, smtplib, rfc822
-from parsers import *
-from utils import numal_sort, split_numal, calc_alignment
-from emails import send_emails, _send_email
+from questionnaire import QuestionProcessors
+from questionnaire import questionnaire_done
+from questionnaire import questionset_done
+from questionnaire import AnswerException
+from questionnaire import Processors
+from questionnaire.models import *
+from questionnaire.parsers import *
+from questionnaire.emails import send_emails, _send_email
+from questionnaire.utils import numal_sort, split_numal, calc_alignment
+import smtplib
 import logging
+import random
+import rfc822
+import time
+import md5
+import os
 
 
 def r2r(tpl, request, **contextdict):
@@ -528,3 +536,33 @@ def send_email(request, runinfo_id):
     runinfo = get_object_or_404(RunInfo, pk=int(runinfo_id))
     successful = _send_email(runinfo)
     return r2r("emailsent.html", request, runinfo=runinfo, successful=successful)
+
+
+def generate_run(request, questionnaire_id):
+    """
+    A view that can generate a RunID instance anonymously,
+    and then redirect to the questionnaire itself.
+
+    It uses a Subject with the givenname of 'Anonymous' and the
+    surname of 'User'.  If this Subject does not exist, it will
+    be created.
+
+    This can be used with a URL pattern like:
+    (r'^take/(?P<questionnaire_id>[0-9]+)/$', 'questionnaire.views.generate_run'),
+    """
+    qu = get_object_or_404(Questionnaire, id=questionnaire_id)
+    qs = qu.questionsets()[0]
+    su = Subject.objects.filter(givenname='Anonymous', surname='User')[0:1]
+    if su:
+        su = su[0]
+    else:
+        su = Subject(givenname='Anonymous', surname='User')
+        su.save()
+    hash = md5.new()
+    hash.update("".join(map(lambda i: chr(random.randint(0, 255)), range(16))))
+    hash.update(settings.SECRET_KEY)
+    key = hash.hexdigest()
+    run = RunInfo(subject=su, random=key, runid=key, questionset=qs)
+    run.save()
+    return HttpResponseRedirect(reverse('questionnaire', kwargs={'runcode': key}))
+

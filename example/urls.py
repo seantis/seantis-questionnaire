@@ -5,6 +5,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'q/', include('questionnaire.urls')),
+    (r'^take/(?P<questionnaire_id>[0-9]+)/$', 'questionnaire.views.generate_run'),
     (r'^$', 'page.views.page', {'page' : 'index'}),
     (r'^(?P<page>.*)\.html$', 'page.views.page'),
     (r'^(?P<lang>..)/(?P<page>.*)\.html$', 'page.views.langpage'),
