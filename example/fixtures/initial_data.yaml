@@ -1,1 +1,113 @@
-[{"pk": 1, "model": "questionnaire.subject", "fields": {"surname": "Test", "language": "de", "gender": "unset", "nextrun": "2011-05-16", "state": "active", "formtype": "email", "givenname": "Test", "email": "test@example.com"}}, {"pk": 1, "model": "questionnaire.questionnaire", "fields": {"name": "example", "redirect_url": "/"}}, {"pk": 1, "model": "questionnaire.questionset", "fields": {"text_de": "Bierpreferenze", "sortid": 1, "text_en": "Beer Preferences", "heading": "Page 1", "questionnaire": 1, "checks": ""}}, {"pk": 2, "model": "questionnaire.questionset", "fields": {"text_de": "Python Web Frameworks", "sortid": 2, "text_en": "Python Web Frameworks", "heading": "Page 2", "questionnaire": 1, "checks": ""}}, {"pk": 3, "model": "questionnaire.questionset", "fields": {"text_de": "Danke sehr, dass Sie diese Fragebogen ausgef\u00fcllt haben! Wir hoffen, dass Sie uns in Zukunft wieder besuchen!", "sortid": 99, "text_en": "Thankyou very much for completing this questionnaire!  We hope that you visit us again in the future!", "heading": "Thankyou", "questionnaire": 1, "checks": ""}}, {"pk": 1, "model": "questionnaire.runinfo", "fields": {"cookies": "", "emailsent": "2009-05-16 21:27:33", "lastemailerror": "", "emailcount": -1, "random": "test:1", "created": "2009-05-16 20:10:04", "state": "", "runid": "test:1", "questionset": 1, "subject": 1}}, {"pk": 1, "model": "questionnaire.runinfohistory", "fields": {"completed": "2009-05-16", "runid": "test:1", "subject": 1}}, {"pk": 2, "model": "questionnaire.runinfohistory", "fields": {"completed": "2009-05-16", "runid": "test:1", "subject": 1}}, {"pk": 1, "model": "questionnaire.question", "fields": {"extra_de": "", "text_de": "Trinken Sie Bier?", "extra_en": "", "number": "1", "text_en": "Do you drink beer?", "questionset": 1, "type": "choice-yesno", "checks": ""}}, {"pk": 2, "model": "questionnaire.question", "fields": {"extra_de": "", "text_de": "Was Art von Bier trinken Sie am meisten?", "extra_en": "", "number": "2", "text_en": "What type of beer do you drink predominantly?", "questionset": 1, "type": "choice-freeform", "checks": "requiredif=\"1,yes\""}}, {"pk": 3, "model": "questionnaire.question", "fields": {"extra_de": "", "text_de": "Welche von dieser Bieren haben Sie probiert?", "extra_en": "", "number": "3", "text_en": "Which of these brands of beer have you tried?", "questionset": 1, "type": "choice-multiple", "checks": ""}}, {"pk": 4, "model": "questionnaire.question", "fields": {"extra_de": "", "text_de": "Which Python Web Frameworks have you tried?", "extra_en": "", "number": "4", "text_en": "Which Python Web Frameworks have you tried?", "questionset": 2, "type": "choice-multiple-freeform", "checks": ""}}, {"pk": 5, "model": "questionnaire.question", "fields": {"extra_de": "", "text_de": "Welche m\u00f6gen Sie am liebsten?", "extra_en": "", "number": "5", "text_en": "Which do you like the most?", "questionset": 2, "type": "choice-freeform", "checks": ""}}, {"pk": 1, "model": "questionnaire.choice", "fields": {"text_en": "Pils/Bitter", "text_de": "Pils", "question": 2, "sortid": 1, "value": "pils"}}, {"pk": 2, "model": "questionnaire.choice", "fields": {"text_en": "Lager", "text_de": "Helles", "question": 2, "sortid": 2, "value": "helles"}}, {"pk": 3, "model": "questionnaire.choice", "fields": {"text_en": "Wheat-beer", "text_de": "Weizen", "question": 2, "sortid": 3, "value": "weizen"}}, {"pk": 4, "model": "questionnaire.choice", "fields": {"text_en": "Heineken", "text_de": "Heineken", "question": 3, "sortid": 1, "value": "heineken"}}, {"pk": 5, "model": "questionnaire.choice", "fields": {"text_en": "Becks", "text_de": "Becks", "question": 3, "sortid": 2, "value": "becks"}}, {"pk": 6, "model": "questionnaire.choice", "fields": {"text_en": "L\u00f6wenbr\u00e4u", "text_de": "L\u00f6wenbr\u00e4u", "question": 3, "sortid": 3, "value": "lowenbrau"}}, {"pk": 7, "model": "questionnaire.choice", "fields": {"text_en": "Altbier", "text_de": "Altbier/D\u00fcssel", "question": 2, "sortid": 4, "value": "altbier"}}, {"pk": 8, "model": "questionnaire.choice", "fields": {"text_en": "K\u00f6lsch", "text_de": "K\u00f6lsch", "question": 2, "sortid": 5, "value": "koelsch"}}, {"pk": 9, "model": "questionnaire.choice", "fields": {"text_en": "Django", "text_de": "Django", "question": 4, "sortid": 1, "value": "django"}}, {"pk": 10, "model": "questionnaire.choice", "fields": {"text_en": "Pylons", "text_de": "Pylons", "question": 4, "sortid": 2, "value": "pylons"}}, {"pk": 11, "model": "questionnaire.choice", "fields": {"text_en": "Turbogears", "text_de": "Turbogears", "question": 4, "sortid": 3, "value": "turbogears"}}, {"pk": 12, "model": "questionnaire.choice", "fields": {"text_en": "CherryPy", "text_de": "CherryPy", "question": 4, "sortid": 4, "value": "cherrypy"}}, {"pk": 13, "model": "questionnaire.choice", "fields": {"text_en": "Django", "text_de": "Django", "question": 5, "sortid": 1, "value": "django"}}, {"pk": 14, "model": "questionnaire.choice", "fields": {"text_en": "Pylons", "text_de": "Pylons", "question": 5, "sortid": 2, "value": "pylons"}}, {"pk": 15, "model": "questionnaire.choice", "fields": {"text_en": "Turbogears", "text_de": "Turbogears", "question": 5, "sortid": 3, "value": "turbogears"}}, {"pk": 16, "model": "questionnaire.choice", "fields": {"text_en": "CherryPy", "text_de": "CherryPy", "question": 5, "sortid": 4, "value": "cherrypy"}}, {"pk": 4, "model": "questionnaire.answer", "fields": {"answer": "yes", "question": 1, "runid": "test:1", "subject": 1}}, {"pk": 5, "model": "questionnaire.answer", "fields": {"answer": "weizen", "question": 2, "runid": "test:1", "subject": 1}}, {"pk": 6, "model": "questionnaire.answer", "fields": {"answer": "lowenbrau; becks; heineken", "question": 3, "runid": "test:1", "subject": 1}}, {"pk": 7, "model": "questionnaire.answer", "fields": {"answer": "pylons; django; cherrypy", "question": 4, "runid": "test:1", "subject": 1}}, {"pk": 8, "model": "questionnaire.answer", "fields": {"answer": "django", "question": 5, "runid": "test:1", "subject": 1}}, {"pk": "index", "model": "page.page", "fields": {"title_de": "", "public": true, "title_en": "Welcome", "body_de": "Wilkommen zu der Fragebogenbeispielseite!\r\n\r\nWenn Sie einen einfachen Fragebogen sehen wollen, \"mach's!\":/q/test:1/", "body_en": "Welcome to the example Questionnaire website!\r\n\r\nIf you wish to see a simple sample questionnaire, \"go for it!\":/q/test:1/"}}]
+-   fields: {email: test@example.com, formtype: email, gender: unset, givenname: Test,
+        language: de, nextrun: 2011-05-16, state: active, surname: Test}
+    model: questionnaire.subject
+    pk: 1
+-   fields: {email: null, formtype: email, gender: unset, givenname: Anonymous, language: en,
+        nextrun: null, state: inactive, surname: User}
+    model: questionnaire.subject
+    pk: 2
+-   fields: {name: example, redirect_url: /}
+    model: questionnaire.questionnaire
+    pk: 1
+-   fields: {checks: '', heading: Page 1, questionnaire: 1, sortid: 1, text_de: Bierpreferenze,
+        text_en: Beer Preferences}
+    model: questionnaire.questionset
+    pk: 1
+-   fields: {checks: '', heading: Page 2, questionnaire: 1, sortid: 2, text_de: Python
+            Web Frameworks, text_en: Python Web Frameworks}
+    model: questionnaire.questionset
+    pk: 2
+-   fields: {checks: '', heading: Thankyou, questionnaire: 1, sortid: 99, text_de: "Danke\
+            \ sehr, dass Sie diese Fragebogen ausgef\xFCllt haben! Wir hoffen, dass\
+            \ Sie uns in Zukunft wieder besuchen!", text_en: Thankyou very much for
+            completing this questionnaire!  We hope that you visit us again in the
+            future!}
+    model: questionnaire.questionset
+    pk: 3
+-   fields: {checks: '', extra_de: '', extra_en: '', number: '1', questionset: 1,
+        text_de: 'Trinken Sie Bier?', text_en: 'Do you drink beer?', type: choice-yesno}
+    model: questionnaire.question
+    pk: 1
+-   fields: {checks: 'requiredif="1,yes"', extra_de: '', extra_en: '', number: '2',
+        questionset: 1, text_de: 'Was Art von Bier trinken Sie am meisten?', text_en: 'What
+            type of beer do you drink predominantly?', type: choice-freeform}
+    model: questionnaire.question
+    pk: 2
+-   fields: {checks: '', extra_de: '', extra_en: '', number: '3', questionset: 1,
+        text_de: 'Welche von dieser Bieren haben Sie probiert?', text_en: 'Which of
+            these brands of beer have you tried?', type: choice-multiple}
+    model: questionnaire.question
+    pk: 3
+-   fields: {checks: '', extra_de: '', extra_en: '', number: '4', questionset: 2,
+        text_de: 'Which Python Web Frameworks have you tried?', text_en: 'Which Python
+            Web Frameworks have you tried?', type: choice-multiple-freeform}
+    model: questionnaire.question
+    pk: 4
+-   fields: {checks: '', extra_de: '', extra_en: '', number: '5', questionset: 2,
+        text_de: "Welche m\xF6gen Sie am liebsten?", text_en: 'Which do you like the
+            most?', type: choice-freeform}
+    model: questionnaire.question
+    pk: 5
+-   fields: {question: 2, sortid: 1, text_de: Pils, text_en: Pils/Bitter, value: pils}
+    model: questionnaire.choice
+    pk: 1
+-   fields: {question: 2, sortid: 2, text_de: Helles, text_en: Lager, value: helles}
+    model: questionnaire.choice
+    pk: 2
+-   fields: {question: 2, sortid: 3, text_de: Weizen, text_en: Wheat-beer, value: weizen}
+    model: questionnaire.choice
+    pk: 3
+-   fields: {question: 3, sortid: 1, text_de: Heineken, text_en: Heineken, value: heineken}
+    model: questionnaire.choice
+    pk: 4
+-   fields: {question: 3, sortid: 2, text_de: Becks, text_en: Becks, value: becks}
+    model: questionnaire.choice
+    pk: 5
+-   fields: {question: 3, sortid: 3, text_de: "L\xF6wenbr\xE4u", text_en: "L\xF6wenbr\xE4\
+            u", value: lowenbrau}
+    model: questionnaire.choice
+    pk: 6
+-   fields: {question: 2, sortid: 4, text_de: "Altbier/D\xFCssel", text_en: Altbier,
+        value: altbier}
+    model: questionnaire.choice
+    pk: 7
+-   fields: {question: 2, sortid: 5, text_de: "K\xF6lsch", text_en: "K\xF6lsch", value: koelsch}
+    model: questionnaire.choice
+    pk: 8
+-   fields: {question: 4, sortid: 1, text_de: Django, text_en: Django, value: django}
+    model: questionnaire.choice
+    pk: 9
+-   fields: {question: 4, sortid: 2, text_de: Pylons, text_en: Pylons, value: pylons}
+    model: questionnaire.choice
+    pk: 10
+-   fields: {question: 4, sortid: 3, text_de: Turbogears, text_en: Turbogears, value: turbogears}
+    model: questionnaire.choice
+    pk: 11
+-   fields: {question: 4, sortid: 4, text_de: CherryPy, text_en: CherryPy, value: cherrypy}
+    model: questionnaire.choice
+    pk: 12
+-   fields: {question: 5, sortid: 1, text_de: Django, text_en: Django, value: django}
+    model: questionnaire.choice
+    pk: 13
+-   fields: {question: 5, sortid: 2, text_de: Pylons, text_en: Pylons, value: pylons}
+    model: questionnaire.choice
+    pk: 14
+-   fields: {question: 5, sortid: 3, text_de: Turbogears, text_en: Turbogears, value: turbogears}
+    model: questionnaire.choice
+    pk: 15
+-   fields: {question: 5, sortid: 4, text_de: CherryPy, text_en: CherryPy, value: cherrypy}
+    model: questionnaire.choice
+    pk: 16
+-   fields: {body_de: "Wilkommen zu der Fragebogenbeispielseite!\r\n\r\nWenn Sie einen\
+            \ einfachen Fragebogen sehen wollen, \"mach's!\":/q/test:1/\r\n\r\nEs\
+            \ gibt auch die m\xF6glichkeit, ein anonym RunInfo zu generieren: \"Tu's!\"\
+            :/take/1\r\n\r\nSie k\xF6nnen auch das \"Admin Interface\":/admin/ benutzen,\
+            \ um den Fragebogen zu \xE4ndern.", body_en: "Welcome to the example Questionnaire\
+            \ website!\r\n\r\nIf you wish to see a simple sample questionnaire, \"\
+            go for it!\":/q/test:1/\r\n\r\nThere is also the possibility to generate\
+            \ a new anonymous RunInfo: \"do it!\":/take/1\r\n\r\nYou can also use\
+            \ the \"Admin Interface\":/admin/, to change the questionnaire.", public: true,
+        title_de: '', title_en: Welcome}
+    model: page.page
+    pk: index
+
