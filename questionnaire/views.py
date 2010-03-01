@@ -369,7 +369,9 @@ def show_questionnaire(request, runinfo, errors={}):
         for k,v in request.POST.items():
             if k.startswith("question_"):
                 s = k.split("_")
-                if len(s) == 2:
+                if len(s) == 4:
+                    qvalues[s[1]+'_'+v] = '1' # evaluates true in JS
+                else:
                     qvalues[s[1]] = v
 
     r = r2r("questionnaire/questionset.html", request,
@@ -492,6 +494,16 @@ def dep_check(expr, runinfo, answerdict):
     except Question.DoesNotExist:
         return False
     if check_question in answerdict:
+        # test for membership in multiple choice questions
+        # FIXME: only checking answerdict
+        for k, v in answerdict[check_question].items():
+            if not k.startswith('multiple_'):
+                continue
+            if check_answer.startswith("!"):
+                if check_answer[1:].strip() == v.strip():
+                    return False
+            elif check_answer.strip() == v.strip():
+                return True
         actual_answer = answerdict[check_question].get('ANSWER', '')
     elif runinfo.get_cookie(check_questionnum, False):
         actual_answer = runinfo.get_cookie(check_questionnum)
