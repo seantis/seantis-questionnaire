@@ -1,5 +1,6 @@
 from questionnaire import *
 from django.utils.translation import ugettext as _, ungettext
+from django.utils.simplejson import dumps
 
 @question_proc('choice', 'choice-freeform')
 def question_choice(request, question):
@@ -40,11 +41,12 @@ def process_choice(question, answer):
         opt = answer.get('comment','')
         if not opt:
             raise AnswerException(_(u'Field cannot be blank'))
+        return dumps([[opt]])
     else:
         valid = [c.value for c in question.choices()]
         if opt not in valid:
             raise AnswerException(_(u'Invalid option!'))
-    return opt
+    return dumps([opt])
 add_type('choice', 'Choice [radio]')
 add_type('choice-freeform', 'Choice with a freeform option [radio]')
 
@@ -86,6 +88,7 @@ def template_multiple(request, question):
 @answer_proc('choice-multiple', 'choice-multiple-freeform')
 def process_multiple(question, answer):
     multiple = []
+    multiple_freeform = []
 
     requiredcount = 0
     required = question.getcheckdict().get('required', 0)
@@ -101,13 +104,16 @@ def process_multiple(question, answer):
         if k.startswith('multiple'):
             multiple.append(v)
         if k.startswith('more') and len(v.strip()) > 0:
-            multiple.append(v)
+            multiple_freeform.append(v)
 
-    if len(multiple) < requiredcount:
+    if len(multiple) + len(multiple_freeform) < requiredcount:
         raise AnswerException(ungettext(u"You must select at least %d option",
                                         u"You must select at least %d options",
                                         requiredcount) % requiredcount)
-    return "; ".join(multiple)
+    multiple.sort()
+    if multiple_freeform:
+        multiple.append(multiple_freeform)
+    return dumps(multiple)
 add_type('choice-multiple', 'Multiple-Choice, Multiple-Answers [checkbox]')
 add_type('choice-multiple-freeform', 'Multiple-Choice, Multiple-Answers, plus freeform [checkbox, input]')
 
