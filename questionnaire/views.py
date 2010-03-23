@@ -13,6 +13,7 @@ from django.db import transaction
 from django.conf import settings
 from datetime import datetime
 from django.utils import translation
+from django.utils.simplejson import loads
 from questionnaire import QuestionProcessors
 from questionnaire import questionnaire_done
 from questionnaire import questionset_done
@@ -21,7 +22,7 @@ from questionnaire import Processors
 from questionnaire.models import *
 from questionnaire.parsers import *
 from questionnaire.emails import send_emails, _send_email
-from questionnaire.utils import numal_sort, split_numal, calc_alignment
+from questionnaire.utils import numal_sort, numal0_sort, split_numal, calc_alignment
 import smtplib
 import logging
 import random
@@ -417,6 +418,33 @@ def set_language(request, runinfo=None, next=None):
     return response
 
 
+def _table_headers(questions):
+    """
+    Return the header labels for a set of questions as a list of strings.
+
+    This will create separate columns for each multiple-choice possiblity
+    and freeform options, to avoid mixing data types and make charting easier.
+    """
+    ql = list(questions.distinct('number'))
+    ql.sort(lambda x, y: numal_sort(x.number, y.number))
+    columns = []
+    for q in ql:
+        if q.type == 'choice-yesnocomment':
+            columns.extend([q.number, q.number + "-freeform"])
+        elif q.type == 'choice-freeform':
+            columns.extend([q.number, q.number + "-freeform"])
+        elif q.type.startswith('choice-multiple'):
+            cl = [c.value for c in q.choice_set.all()]
+            cl.sort(numal_sort)
+            columns.extend([q.number + '-' + value for value in cl])
+            if q.type == 'choice-multiple-freeform':
+                columns.append(q.number + '-freeform')
+        else:
+            columns.append(q.number)
+    return columns
+
+
+
 @permission_required("questionnaire.export")
 def export_csv(request, qid): # questionnaire_id
     """
@@ -428,32 +456,51 @@ def export_csv(request, qid): # questionnaire_id
 
     fd = tempfile.TemporaryFile()
     qid = int(qid)
-    columns = [x[0] for x in Question.objects.filter(questionset__questionnaire__id = qid).distinct('number').values_list('number')]
-    columns.sort(numal_sort)
+    columns = _table_headers(Question.objects.filter(questionset__questionnaire__id = qid))
     columns.insert(0,u'subject')
     columns.insert(1,u'runid')
-    writer = csv.DictWriter(fd, columns, restval='--')
+    writer = csv.writer(fd)
     coldict = {}
-    for col in columns:
-        coldict[col] = col
-    writer.writerows([coldict,])
+    for num, col in enumerate(columns): # use coldict to find column indexes
+        coldict[col] = num
+    writer.writerow(columns)
     answers = Answer.objects.filter(question__questionset__questionnaire__id = qid).order_by('subject', 'runid', 'question__number',)
     if not answers:
         raise Exception, "EMPTY!" # FIXME
 
-    runid = answers[0].runid
-    subject = answers[0].subject
-    d = { u'subject' : "%s/%s" % (subject.id, subject.state), u'runid' : runid }
+    runid = subject = None
+    row = []
     for answer in answers:
         if answer.runid != runid or answer.subject != subject:
-            writer.writerows([d,])
+            if row: 
+                writer.writerow(row)
             runid = answer.runid
             subject = answer.subject
-            d = { u'subject' : "%s/%s" % (subject.id, subject.state), u'runid' : runid }
-        d[answer.question.number] = answer.answer.encode('utf-8')
+            row = ["--"] * len(columns)
+            row[0] = "%s/%s" % (subject.id, subject.state)
+            row[1] = runid
+        try:
+            ans = loads(answer.answer)
+        except ValueError:
+            # this was likely saved as plain text, try to guess what the value was
+            ans = answer.answer.split(';')
+        for choice in ans:
+            col = None
+            if type(choice) == list:
+                # freeform choice
+                choice = choice[0]
+                col = coldict.get(answer.question.number + '-freeform', None)
+            if not col: # look for enumerated choice column (multiple-choice)
+                col = coldict.get(answer.question.number + '-' + choice, None)
+            if not col: # single-choice items
+                col = coldict.get(answer.question.number, None)
+            if not col: # last ditch, if not found throw it in a freeform column
+                col = coldict.get(answer.question.number + '-freeform', None)
+            if col:
+                row[col] = choice.encode('utf-8')
     # and don't forget about the last one
-    if d:
-        writer.writerows([d,])
+    if row: 
+        writer.writerow(row)
     response = HttpResponse(FileWrapper(fd), mimetype="text/csv")
     response['Content-Length'] = fd.tell()
     response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
