@@ -482,8 +482,14 @@ def export_csv(request, qid): # questionnaire_id
         try:
             ans = loads(answer.answer)
         except ValueError:
-            # this was likely saved as plain text, try to guess what the value was
-            ans = answer.answer.split(';')
+            # this was likely saved as plain text, try to guess what the 
+            # value(s) were
+            if 'multiple' in answer.question.type:
+                ans = answer.answer.split('; ')
+            else:
+                # code below is tolerant of freeform answers outside of 
+                # additional [], as they would be saved in json format
+                ans = [answer.answer]
         for choice in ans:
             col = None
             if type(choice) == list:
@@ -493,7 +499,9 @@ def export_csv(request, qid): # questionnaire_id
             if not col: # look for enumerated choice column (multiple-choice)
                 col = coldict.get(answer.question.number + '-' + choice, None)
             if not col: # single-choice items
-                col = coldict.get(answer.question.number, None)
+                if (not answer.question.choice_set.count() or
+                    answer.question.choice_set.filter(value=choice).count()):
+                    col = coldict.get(answer.question.number, None)
             if not col: # last ditch, if not found throw it in a freeform column
                 col = coldict.get(answer.question.number + '-freeform', None)
             if col:
