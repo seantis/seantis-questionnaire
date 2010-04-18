@@ -13,7 +13,7 @@ from django.db import transaction
 from django.conf import settings
 from datetime import datetime
 from django.utils import translation
-from django.utils.simplejson import loads
+from django.utils.translation import ugettext_lazy as _
 from questionnaire import QuestionProcessors
 from questionnaire import questionnaire_done
 from questionnaire import questionset_done
@@ -504,6 +504,61 @@ def export_csv(request, qid): # questionnaire_id
     response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
     fd.seek(0)
     return response
+
+
+def answer_summary(questionnaire, answers=None):
+    """
+    questionnaire -- questionnaire model for summary
+    answers -- query set of answers to include in summary, defaults to all
+
+    Return a summary of the answer totals in answer_qs in the form:
+    [('q1', 'question1 text', 
+        [('choice1', 'choice1 text', num), ...], 
+        ['freeform1', ...]), ...]
+
+    questions are returned in questionnaire order
+    choices are returned in question order
+    freeform options are case-insensitive sorted 
+    """
+
+    if not answers:
+        answers = Answer.objects.all()
+    answers = answers.filter(question__questionset__questionnaire=questionnaire)
+    questions = Question.objects.filter(
+        questionset__questionnaire=questionnaire).order_by(
+        'questionset__sortid', 'number')
+
+    summary = []
+    for question in questions:
+        total = 0
+        q_type = question.get_type()
+        if q_type.startswith('choice-yesno'):
+            choices = [('yes', _('Yes')), ('no', _('No'))]
+            if 'dontknow' in q_type:
+                choices.append(('dontknow', _("Don't Know")))
+        elif q_type.startswith('choice'):
+            choices = [(c.value, c.text) for c in question.choices()]
+        else:
+            choices = []
+        choice_totals = dict([(k, 0) for k, v in choices])
+        freeforms = []
+        for a in answers.filter(question=question):
+            ans = a.split_answer()
+            for choice in ans:
+                if type(choice) == list:
+                    freeforms.extend(choice)
+                elif choice in choice_totals:
+                    choice_totals[choice] += 1
+                else:
+                    # be tolerant of improperly marked data
+                    freeforms.append(choice)
+        freeforms.sort(numal_sort)
+        summary.append((question.number, question.text, [
+            (n, t, choice_totals[n]) for (n, t) in choices], freeforms))
+    return summary
+    
+
+
 
 
 def dep_check(expr, runinfo, answerdict):
