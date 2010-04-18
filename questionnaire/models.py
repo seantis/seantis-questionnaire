@@ -322,12 +322,29 @@ class Answer(models.Model):
     def choice_str(self, secondary = False):
         choice_string = ""
         choices = self.question.get_choices()
-        split_answers = self.answer.split()
 
         for choice in choices:
-            for split_answer in split_answers:
+            for split_answer in self.split_answer():
                 if str(split_answer) == choice.value:
                     choice_string += str(choice.text) + " "
+
+    def split_answer(self):
+        """
+        Decode stored answer value and return as a list of choices.
+        Any freeform value will be returned in a list as the last item.
+
+        Calling code should be tolerant of freeform answers outside
+        of additional [] if data has been stored in plain text format
+        """
+        try:
+            return json.loads(self.answer)
+        except ValueError:
+            # this was likely saved as plain text, try to guess what the 
+            # value(s) were
+            if 'multiple' in self.question.type:
+                return self.answer.split('; ')
+            else:
+                return [self.answer]
 
     def check_answer(self):
         "Confirm that the supplied answer matches what we expect"

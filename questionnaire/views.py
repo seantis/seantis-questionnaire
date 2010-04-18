@@ -479,17 +479,7 @@ def export_csv(request, qid): # questionnaire_id
             row = ["--"] * len(columns)
             row[0] = "%s/%s" % (subject.id, subject.state)
             row[1] = runid
-        try:
-            ans = loads(answer.answer)
-        except ValueError:
-            # this was likely saved as plain text, try to guess what the 
-            # value(s) were
-            if 'multiple' in answer.question.type:
-                ans = answer.answer.split('; ')
-            else:
-                # code below is tolerant of freeform answers outside of 
-                # additional [], as they would be saved in json format
-                ans = [answer.answer]
+        ans = answer.split_answer()
         for choice in ans:
             col = None
             if type(choice) == list:
