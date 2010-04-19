@@ -1,7 +1,17 @@
 {% extends "admin/change_form.html" %}
-{% load questionnaire %}
+{% load i18n questionnaire %}
 {% block object-tools %}
 {% if original %}
 <a href="{{ original|qtesturl }}">Show on Site</a>
 {% endif %}
+{% endblock %}
+
+{% block after_field_sets %}
+<h2>{% trans "Choices" %}</h2>
+<ul>
+<li>{% blocktrans %}Sortid determines the choice order.{% endblocktrans %}</li>
+<li>{% blocktrans %}Short values will appear in exported data and are 
+referenced in 'Additional checks' fields.  Numbers, letters 
+or single words are valid.{% endblocktrans %}</li>
+</ul>
 {% endblock %}
