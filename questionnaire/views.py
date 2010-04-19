@@ -521,7 +521,7 @@ def answer_summary(questionnaire, answers=None):
     freeform options are case-insensitive sorted 
     """
 
-    if not answers:
+    if answers is None:
         answers = Answer.objects.all()
     answers = answers.filter(question__questionset__questionnaire=questionnaire)
     questions = Question.objects.filter(
