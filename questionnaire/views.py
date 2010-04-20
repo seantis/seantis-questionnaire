@@ -643,7 +643,7 @@ def dep_check(expr, runinfo, answerdict):
         ansobj = Answer.objects.filter(question=check_question,
             runid=runinfo.runid, subject=runinfo.subject)
         if ansobj:
-            actual_answer = ansobj[0].answer.split(";")[0]
+            actual_answer = ansobj[0].split_answer()[0]
         else:
             actual_answer = None
     if actual_answer is None:
