@@ -520,15 +520,15 @@ def answer_export(questionnaire, answers=None):
                 # freeform choice
                 choice = choice[0]
                 col = coldict.get(answer.question.number + '-freeform', None)
-            if not col: # look for enumerated choice column (multiple-choice)
+            if col is None: # look for enumerated choice column (multiple-choice)
                 col = coldict.get(answer.question.number + '-' + choice, None)
-            if not col: # single-choice items
-                if (not answer.question.choice_set.count() or
+            if col is None: # single-choice items
+                if ((not answer.question.choice_set.count()) or
                     answer.question.choice_set.filter(value=choice).count()):
                     col = coldict.get(answer.question.number, None)
-            if not col: # last ditch, if not found throw it in a freeform column
+            if col is None: # last ditch, if not found throw it in a freeform column
                 col = coldict.get(answer.question.number + '-freeform', None)
-            if col:
+            if col is not None:
                 row[col] = choice.encode('utf-8')
     # and don't forget about the last one
     if row: 
