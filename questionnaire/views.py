@@ -455,30 +455,64 @@ def export_csv(request, qid): # questionnaire_id
     from django.core.servers.basehttp import FileWrapper
 
     fd = tempfile.TemporaryFile()
-    qid = int(qid)
-    columns = _table_headers(Question.objects.filter(questionset__questionnaire__id = qid))
-    columns.insert(0,u'subject')
-    columns.insert(1,u'runid')
-    writer = csv.writer(fd)
-    coldict = {}
-    for num, col in enumerate(columns): # use coldict to find column indexes
-        coldict[col] = num
-    writer.writerow(columns)
-    answers = Answer.objects.filter(question__questionset__questionnaire__id = qid).order_by('subject', 'runid', 'question__number',)
-    if not answers:
-        raise Exception, "EMPTY!" # FIXME
 
+    questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
+    headings, answers = answer_export(questionnaire)
+
+    writer = csv.writer(fd)
+    writer.writerow([u'subject', u'runid'] + headings)
+    for subject, runid, answer_row in answers:
+        row = ["%s/%s" % (subject.id, subject.state), runid] + [
+            '--' if a is None else a for a in answer_row]
+        writer.writerow(row)
+
+    response = HttpResponse(FileWrapper(fd), mimetype="text/csv")
+    response['Content-Length'] = fd.tell()
+    response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
+    fd.seek(0)
+    return response
+
+def answer_export(questionnaire, answers=None):
+    """
+    questionnaire -- questionnaire model for export
+    answers -- query set of answers to include in export, defaults to all
+
+    Return a dump of column headings and all the answers for a questionnaire 
+    (in answers) in the form (headings, answers) where headings is:
+        ['question1 number', ...]
+    and answers is:
+        [(subject1, 'runid1', ['answer1.1', ...]), ... ]
+
+    The items in the answers list each have the same number of elements as
+    the headings list.  Answers will be a comma-separated string of
+    choices selected, or the value None.
+    
+    The headings list might include items with labels like 
+    'questionnumber-freeform'.  Those columns will contain all the freeform
+    answers for that question (separated from the other answer data).
+    """
+    if answers is None:
+        answers = Answer.objects.all()
+    answers = answers.filter(
+        question__questionset__questionnaire=questionnaire).order_by(
+        'subject', 'runid', 'question__questionset__sortid', 'question__number')
+
+    headings = _table_headers(Question.objects.filter(
+        questionset__questionnaire=questionnaire))
+
+    coldict = {}
+    for num, col in enumerate(headings): # use coldict to find column indexes
+        coldict[col] = num
     runid = subject = None
+    out = []
     row = []
     for answer in answers:
         if answer.runid != runid or answer.subject != subject:
             if row: 
-                writer.writerow(row)
+                out.append((subject, runid, row))
             runid = answer.runid
             subject = answer.subject
-            row = ["--"] * len(columns)
-            row[0] = "%s/%s" % (subject.id, subject.state)
-            row[1] = runid
+            row = [None] * len(headings)
         ans = answer.split_answer()
         for choice in ans:
             col = None
@@ -498,13 +532,8 @@ def export_csv(request, qid): # questionnaire_id
                 row[col] = choice.encode('utf-8')
     # and don't forget about the last one
     if row: 
-        writer.writerow(row)
-    response = HttpResponse(FileWrapper(fd), mimetype="text/csv")
-    response['Content-Length'] = fd.tell()
-    response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
-    fd.seek(0)
-    return response
-
+        out.append((subject, runid, row))
+    return headings, out
 
 def answer_summary(questionnaire, answers=None):
     """
