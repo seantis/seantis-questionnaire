@@ -232,7 +232,7 @@ class Question(models.Model):
         "a specific value.  "
         "You may also combine tests appearing in <tt>requiredif</tt> "
         "by joining them with the words <tt>and</tt> or <tt>or</tt>, "
-        'eg. <tt>requiredif="Q1,A or Q2,B"</tt>'
+        'eg. <tt>requiredif="Q1,A or Q2,B"</tt>')
 
 
     def questionnaire(self):
