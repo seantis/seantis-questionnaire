@@ -226,8 +226,13 @@ class Question(models.Model):
         "For text fields, <tt>required</tt> is a valid check.<br />"
         "For yes/no choice, <tt>required</tt>, <tt>required-yes</tt>, "
         "and <tt>required-no</tt> are valid.<br /><br />"
-        "If this question is only required if another question's answer is "
-        'something specific, use <tt>requiredif="QuestionNumber,Value"</tt>.')
+        "If this question is required only if another question's answer is "
+        'something specific, use <tt>requiredif="QuestionNumber,Value"</tt> '
+        'or <tt>requiredif="QuestionNumber,!Value"</tt> for anything but '
+        "a specific value.  "
+        "You may also combine tests appearing in <tt>requiredif</tt> "
+        "by joining them with the words <tt>and</tt> or <tt>or</tt>, "
+        'eg. <tt>requiredif="Q1,A or Q2,B"</tt>'
 
 
     def questionnaire(self):
