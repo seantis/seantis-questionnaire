@@ -264,7 +264,9 @@ class Question(models.Model):
 
     def sameas(self):
         if self.type == 'sameas':
-            self.__sameas = res = getattr(self, "__sameas", Question.objects.filter(number=self.checks)[0])
+            self.__sameas = res = getattr(self, "__sameas", 
+                Question.objects.filter(number=self.checks, 
+                    questionset__questionnaire=self.questionset.questionnaire)[0])
             return res
         return self
 
