@@ -264,10 +264,13 @@ class Question(models.Model):
 
     def sameas(self):
         if self.type == 'sameas':
-            self.__sameas = res = getattr(self, "__sameas", 
-                Question.objects.filter(number=self.checks, 
-                    questionset__questionnaire=self.questionset.questionnaire)[0])
-            return res
+            try:
+                self.__sameas = res = getattr(self, "__sameas", 
+                    Question.objects.get(number=self.checks, 
+                        questionset__questionnaire=self.questionset.questionnaire))
+                return res
+            except Question.DoesNotExist:
+                return Question(type='comment') # replace with something benign
         return self
 
     def display_number(self):
