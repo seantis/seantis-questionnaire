@@ -372,6 +372,8 @@ def show_questionnaire(request, runinfo, errors={}):
                 s = k.split("_")
                 if len(s) == 4:
                     qvalues[s[1]+'_'+v] = '1' # evaluates true in JS
+                elif len(s) == 3 and s[2] == 'comment':
+                    qvalues[s[1]+'_'+s[2]] = v
                 else:
                     qvalues[s[1]] = v
 
