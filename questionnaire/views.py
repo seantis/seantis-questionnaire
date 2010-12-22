@@ -453,19 +453,50 @@ def export_csv(request, qid): # questionnaire_id
     For a given questionnaire id, generaete a CSV containing all the
     answers for all subjects.
     """
-    import tempfile, csv
+    import tempfile, csv, cStringIO, codecs
     from django.core.servers.basehttp import FileWrapper
+
+    class UnicodeWriter:
+        """
+        COPIED from http://docs.python.org/library/csv.html example:
+
+        A CSV writer which will write rows to CSV file "f",
+        which is encoded in the given encoding.
+        """
+
+        def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+            # Redirect output to a queue
+            self.queue = cStringIO.StringIO()
+            self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+            self.stream = f
+            self.encoder = codecs.getincrementalencoder(encoding)()
+
+        def writerow(self, row):
+            self.writer.writerow([s.encode("utf-8") for s in row])
+            # Fetch UTF-8 output from the queue ...
+            data = self.queue.getvalue()
+            data = data.decode("utf-8")
+            # ... and reencode it into the target encoding
+            data = self.encoder.encode(data)
+            # write to the target stream
+            self.stream.write(data)
+            # empty queue
+            self.queue.truncate(0)
+
+        def writerows(self, rows):
+            for row in rows:
+                self.writerow(row)
 
     fd = tempfile.TemporaryFile()
 
     questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
     headings, answers = answer_export(questionnaire)
 
-    writer = csv.writer(fd)
+    writer = UnicodeWriter(fd)
     writer.writerow([u'subject', u'runid'] + headings)
     for subject, runid, answer_row in answers:
         row = ["%s/%s" % (subject.id, subject.state), runid] + [
-            '--' if a is None else a for a in answer_row]
+            a if a else '--' for a in answer_row]
         writer.writerow(row)
 
     response = HttpResponse(FileWrapper(fd), mimetype="text/csv")
@@ -479,19 +510,23 @@ def answer_export(questionnaire, answers=None):
     questionnaire -- questionnaire model for export
     answers -- query set of answers to include in export, defaults to all
 
-    Return a dump of column headings and all the answers for a questionnaire 
-    (in answers) in the form (headings, answers) where headings is:
+    Return a flat dump of column headings and all the answers for a 
+    questionnaire (in query set answers) in the form (headings, answers) 
+    where headings is:
         ['question1 number', ...]
     and answers is:
         [(subject1, 'runid1', ['answer1.1', ...]), ... ]
 
-    The items in the answers list each have the same number of elements as
-    the headings list.  Answers will be a comma-separated string of
-    choices selected, or the value None.
-    
     The headings list might include items with labels like 
     'questionnumber-freeform'.  Those columns will contain all the freeform
     answers for that question (separated from the other answer data).
+
+    Multiple choice questions will have one column for each choice with
+    labels like 'questionnumber-choice'.
+
+    The items in the answers list are unicode strings or empty strings
+    if no answer was given.  The number of elements in each answer list will
+    always match the number of headings.    
     """
     if answers is None:
         answers = Answer.objects.all()
@@ -514,7 +549,7 @@ def answer_export(questionnaire, answers=None):
                 out.append((subject, runid, row))
             runid = answer.runid
             subject = answer.subject
-            row = [None] * len(headings)
+            row = [""] * len(headings)
         ans = answer.split_answer()
         for choice in ans:
             col = None
@@ -531,7 +566,7 @@ def answer_export(questionnaire, answers=None):
             if col is None: # last ditch, if not found throw it in a freeform column
                 col = coldict.get(answer.question.number + '-freeform', None)
             if col is not None:
-                row[col] = choice.encode('utf-8')
+                row[col] = choice
     # and don't forget about the last one
     if row: 
         out.append((subject, runid, row))
