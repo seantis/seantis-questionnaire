@@ -533,13 +533,19 @@ def answer_export(questionnaire, answers=None):
     answers = answers.filter(
         question__questionset__questionnaire=questionnaire).order_by(
         'subject', 'runid', 'question__questionset__sortid', 'question__number')
-
-    headings = _table_headers(Question.objects.filter(
-        questionset__questionnaire=questionnaire))
+    answers = answers.select_related()
+    questions = Question.objects.filter(
+        questionset__questionnaire=questionnaire)
+    headings = _table_headers(questions)
 
     coldict = {}
     for num, col in enumerate(headings): # use coldict to find column indexes
         coldict[col] = num
+    # collect choices for each question
+    qchoicedict = {}
+    for q in questions:
+        qchoicedict[q.id] = [x[0] for x in q.choice_set.values_list('value')]
+
     runid = subject = None
     out = []
     row = []
@@ -560,8 +566,8 @@ def answer_export(questionnaire, answers=None):
             if col is None: # look for enumerated choice column (multiple-choice)
                 col = coldict.get(answer.question.number + '-' + choice, None)
             if col is None: # single-choice items
-                if ((not answer.question.choice_set.count()) or
-                    answer.question.choice_set.filter(value=choice).count()):
+                if ((not qchoicedict[answer.question.id]) or
+                    choice in qchoicedict[answer.question.id]):
                     col = coldict.get(answer.question.number, None)
             if col is None: # last ditch, if not found throw it in a freeform column
                 col = coldict.get(answer.question.number + '-freeform', None)
