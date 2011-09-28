@@ -164,7 +164,9 @@ class RunInfo(models.Model):
             if key in cookies:
                 del cookies[key]
         else:
-            cookies[key] = str(value)
+            if type(value) == 'int':
+                value=str(value)
+            cookies[key] = value
         cstr = json.dumps(cookies)
         if len(cstr) > 512: # XXX - hard coded to match cookie length above
             raise Exception("Cannot set cookie. No more space in cookie jar!")
