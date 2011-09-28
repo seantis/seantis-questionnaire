@@ -567,6 +567,8 @@ def answer_export(questionnaire, answers=None):
             subject = answer.subject
             row = [""] * len(headings)
         ans = answer.split_answer()
+        if type(ans) == int:
+            ans = str(ans) 
         for choice in ans:
             col = None
             if type(choice) == list:
