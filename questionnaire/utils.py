@@ -34,6 +34,12 @@ def numal_sort(a, b):
         return cmp(astr, bstr)
     return cmpnum
 
+def numal0_sort(a, b):
+    """
+    numal_sort on the first items in the list
+    """
+    return numal_sort(a[0], b[0])
+
 def calc_alignment(string):
     l = 2 + len(string.strip()) // 6
     if l <= 4:

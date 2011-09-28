@@ -13,6 +13,7 @@ from django.db import transaction
 from django.conf import settings
 from datetime import datetime
 from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 from questionnaire import QuestionProcessors
 from questionnaire import questionnaire_done
 from questionnaire import questionset_done
@@ -21,7 +22,7 @@ from questionnaire import Processors
 from questionnaire.models import *
 from questionnaire.parsers import *
 from questionnaire.emails import send_emails, _send_email
-from questionnaire.utils import numal_sort, split_numal, calc_alignment
+from questionnaire.utils import numal_sort, numal0_sort, split_numal, calc_alignment
 import smtplib
 import logging
 import random
@@ -379,7 +380,11 @@ def show_questionnaire(request, runinfo, errors={}):
         for k,v in request.POST.items():
             if k.startswith("question_"):
                 s = k.split("_")
-                if len(s) == 2:
+                if len(s) == 4:
+                    qvalues[s[1]+'_'+v] = '1' # evaluates true in JS
+                elif len(s) == 3 and s[2] == 'comment':
+                    qvalues[s[1]+'_'+s[2]] = v
+                else:
                     qvalues[s[1]] = v
 
     r = r2r("questionnaire/questionset.html", request,
@@ -425,48 +430,217 @@ def set_language(request, runinfo=None, next=None):
     return response
 
 
+def _table_headers(questions):
+    """
+    Return the header labels for a set of questions as a list of strings.
+
+    This will create separate columns for each multiple-choice possiblity
+    and freeform options, to avoid mixing data types and make charting easier.
+    """
+    ql = list(questions.distinct('number'))
+    ql.sort(lambda x, y: numal_sort(x.number, y.number))
+    columns = []
+    for q in ql:
+        if q.type == 'choice-yesnocomment':
+            columns.extend([q.number, q.number + "-freeform"])
+        elif q.type == 'choice-freeform':
+            columns.extend([q.number, q.number + "-freeform"])
+        elif q.type.startswith('choice-multiple'):
+            cl = [c.value for c in q.choice_set.all()]
+            cl.sort(numal_sort)
+            columns.extend([q.number + '-' + value for value in cl])
+            if q.type == 'choice-multiple-freeform':
+                columns.append(q.number + '-freeform')
+        else:
+            columns.append(q.number)
+    return columns
+
+
+
 @permission_required("questionnaire.export")
 def export_csv(request, qid): # questionnaire_id
     """
     For a given questionnaire id, generaete a CSV containing all the
     answers for all subjects.
     """
-    import tempfile, csv
+    import tempfile, csv, cStringIO, codecs
     from django.core.servers.basehttp import FileWrapper
 
-    fd = tempfile.TemporaryFile()
-    qid = int(qid)
-    columns = [x[0] for x in Question.objects.filter(questionset__questionnaire__id = qid).distinct('number').values_list('number')]
-    columns.sort(numal_sort)
-    columns.insert(0,u'subject')
-    columns.insert(1,u'runid')
-    writer = csv.DictWriter(fd, columns, restval='--')
-    coldict = {}
-    for col in columns:
-        coldict[col] = col
-    writer.writerows([coldict,])
-    answers = Answer.objects.filter(question__questionset__questionnaire__id = qid).order_by('subject', 'runid', 'question__number',)
-    if not answers:
-        raise Exception, "EMPTY!" # FIXME
+    class UnicodeWriter:
+        """
+        COPIED from http://docs.python.org/library/csv.html example:
 
-    runid = answers[0].runid
-    subject = answers[0].subject
-    d = { u'subject' : "%s/%s" % (subject.id, subject.state), u'runid' : runid }
-    for answer in answers:
-        if answer.runid != runid or answer.subject != subject:
-            writer.writerows([d,])
-            runid = answer.runid
-            subject = answer.subject
-            d = { u'subject' : "%s/%s" % (subject.id, subject.state), u'runid' : runid }
-        d[answer.question.number] = answer.answer.encode('utf-8')
-    # and don't forget about the last one
-    if d:
-        writer.writerows([d,])
+        A CSV writer which will write rows to CSV file "f",
+        which is encoded in the given encoding.
+        """
+
+        def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+            # Redirect output to a queue
+            self.queue = cStringIO.StringIO()
+            self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+            self.stream = f
+            self.encoder = codecs.getincrementalencoder(encoding)()
+
+        def writerow(self, row):
+            self.writer.writerow([s.encode("utf-8") for s in row])
+            # Fetch UTF-8 output from the queue ...
+            data = self.queue.getvalue()
+            data = data.decode("utf-8")
+            # ... and reencode it into the target encoding
+            data = self.encoder.encode(data)
+            # write to the target stream
+            self.stream.write(data)
+            # empty queue
+            self.queue.truncate(0)
+
+        def writerows(self, rows):
+            for row in rows:
+                self.writerow(row)
+
+    fd = tempfile.TemporaryFile()
+
+    questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
+    headings, answers = answer_export(questionnaire)
+
+    writer = UnicodeWriter(fd)
+    writer.writerow([u'subject', u'runid'] + headings)
+    for subject, runid, answer_row in answers:
+        row = ["%s/%s" % (subject.id, subject.state), runid] + [
+            a if a else '--' for a in answer_row]
+        writer.writerow(row)
+
     response = HttpResponse(FileWrapper(fd), mimetype="text/csv")
     response['Content-Length'] = fd.tell()
     response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
     fd.seek(0)
     return response
+
+def answer_export(questionnaire, answers=None):
+    """
+    questionnaire -- questionnaire model for export
+    answers -- query set of answers to include in export, defaults to all
+
+    Return a flat dump of column headings and all the answers for a 
+    questionnaire (in query set answers) in the form (headings, answers) 
+    where headings is:
+        ['question1 number', ...]
+    and answers is:
+        [(subject1, 'runid1', ['answer1.1', ...]), ... ]
+
+    The headings list might include items with labels like 
+    'questionnumber-freeform'.  Those columns will contain all the freeform
+    answers for that question (separated from the other answer data).
+
+    Multiple choice questions will have one column for each choice with
+    labels like 'questionnumber-choice'.
+
+    The items in the answers list are unicode strings or empty strings
+    if no answer was given.  The number of elements in each answer list will
+    always match the number of headings.    
+    """
+    if answers is None:
+        answers = Answer.objects.all()
+    answers = answers.filter(
+        question__questionset__questionnaire=questionnaire).order_by(
+        'subject', 'runid', 'question__questionset__sortid', 'question__number')
+    answers = answers.select_related()
+    questions = Question.objects.filter(
+        questionset__questionnaire=questionnaire)
+    headings = _table_headers(questions)
+
+    coldict = {}
+    for num, col in enumerate(headings): # use coldict to find column indexes
+        coldict[col] = num
+    # collect choices for each question
+    qchoicedict = {}
+    for q in questions:
+        qchoicedict[q.id] = [x[0] for x in q.choice_set.values_list('value')]
+
+    runid = subject = None
+    out = []
+    row = []
+    for answer in answers:
+        if answer.runid != runid or answer.subject != subject:
+            if row: 
+                out.append((subject, runid, row))
+            runid = answer.runid
+            subject = answer.subject
+            row = [""] * len(headings)
+        ans = answer.split_answer()
+        for choice in ans:
+            col = None
+            if type(choice) == list:
+                # freeform choice
+                choice = choice[0]
+                col = coldict.get(answer.question.number + '-freeform', None)
+            if col is None: # look for enumerated choice column (multiple-choice)
+                col = coldict.get(answer.question.number + '-' + choice, None)
+            if col is None: # single-choice items
+                if ((not qchoicedict[answer.question.id]) or
+                    choice in qchoicedict[answer.question.id]):
+                    col = coldict.get(answer.question.number, None)
+            if col is None: # last ditch, if not found throw it in a freeform column
+                col = coldict.get(answer.question.number + '-freeform', None)
+            if col is not None:
+                row[col] = choice
+    # and don't forget about the last one
+    if row: 
+        out.append((subject, runid, row))
+    return headings, out
+
+def answer_summary(questionnaire, answers=None):
+    """
+    questionnaire -- questionnaire model for summary
+    answers -- query set of answers to include in summary, defaults to all
+
+    Return a summary of the answer totals in answer_qs in the form:
+    [('q1', 'question1 text', 
+        [('choice1', 'choice1 text', num), ...], 
+        ['freeform1', ...]), ...]
+
+    questions are returned in questionnaire order
+    choices are returned in question order
+    freeform options are case-insensitive sorted 
+    """
+
+    if answers is None:
+        answers = Answer.objects.all()
+    answers = answers.filter(question__questionset__questionnaire=questionnaire)
+    questions = Question.objects.filter(
+        questionset__questionnaire=questionnaire).order_by(
+        'questionset__sortid', 'number')
+
+    summary = []
+    for question in questions:
+        total = 0
+        q_type = question.get_type()
+        if q_type.startswith('choice-yesno'):
+            choices = [('yes', _('Yes')), ('no', _('No'))]
+            if 'dontknow' in q_type:
+                choices.append(('dontknow', _("Don't Know")))
+        elif q_type.startswith('choice'):
+            choices = [(c.value, c.text) for c in question.choices()]
+        else:
+            choices = []
+        choice_totals = dict([(k, 0) for k, v in choices])
+        freeforms = []
+        for a in answers.filter(question=question):
+            ans = a.split_answer()
+            for choice in ans:
+                if type(choice) == list:
+                    freeforms.extend(choice)
+                elif choice in choice_totals:
+                    choice_totals[choice] += 1
+                else:
+                    # be tolerant of improperly marked data
+                    freeforms.append(choice)
+        freeforms.sort(numal_sort)
+        summary.append((question.number, question.text, [
+            (n, t, choice_totals[n]) for (n, t) in choices], freeforms))
+    return summary
+    
+
+
 
 
 def dep_check(expr, runinfo, answerdict):
@@ -502,6 +676,16 @@ def dep_check(expr, runinfo, answerdict):
     except Question.DoesNotExist:
         return False
     if check_question in answerdict:
+        # test for membership in multiple choice questions
+        # FIXME: only checking answerdict
+        for k, v in answerdict[check_question].items():
+            if not k.startswith('multiple_'):
+                continue
+            if check_answer.startswith("!"):
+                if check_answer[1:].strip() == v.strip():
+                    return False
+            elif check_answer.strip() == v.strip():
+                return True
         actual_answer = answerdict[check_question].get('ANSWER', '')
     elif runinfo.get_cookie(check_questionnum, False):
         actual_answer = runinfo.get_cookie(check_questionnum)
@@ -512,7 +696,7 @@ def dep_check(expr, runinfo, answerdict):
         ansobj = Answer.objects.filter(question=check_question,
             runid=runinfo.runid, subject=runinfo.subject)
         if ansobj:
-            actual_answer = ansobj[0].answer.split(";")[0]
+            actual_answer = ansobj[0].split_answer()[0]
         else:
             actual_answer = None
     if actual_answer is None:

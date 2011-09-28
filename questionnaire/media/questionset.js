@@ -7,6 +7,9 @@ function dep_check(expr) {
     var value = exprs[1];
     var qvalue = qvalues[qnum];
     if(value.substring(0,1) == "!") {
+      var multiple_option = qvalues[qnum+'_'+value.substring(1)];
+      if(multiple_option != undefined)
+        return !multiple_option;
       value = value.substring(1);
       return qvalue != value;
     }
@@ -27,6 +30,10 @@ function dep_check(expr) {
       }
       value = parseInt(value.substring(1));
       return qvalue > value;
+    }
+    var multiple_option = qvalues[qnum+'_'+value];
+    if(multiple_option != undefined) {
+      return multiple_option;
     }
     if(qvalues[qnum] == value) {
       return true;
@@ -49,6 +56,8 @@ function statusChanged(obj, res) {
 
 function valchanged(qnum, value) {
     qvalues[qnum] = value;
+    // qnum may be 'X_Y' for option Y of multiple choice question X
+    qnum = qnum.split('_')[0];
     for (var t in qtriggers) {
         t = qtriggers[t];
         checks = getChecksAttr(t);

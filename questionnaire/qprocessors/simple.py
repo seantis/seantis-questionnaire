@@ -1,5 +1,6 @@
 from questionnaire import *
 from django.utils.translation import ugettext as _
+from django.utils.simplejson import dumps
 
 @question_proc('choice-yesno','choice-yesnocomment','choice-yesnodontknow')
 def question_yesno(request, question):
@@ -76,9 +77,10 @@ def process_simple(question, ansdict):
         if not ans.strip() and checkdict.get('required', False):
            raise AnswerException(_(u'Field cannot be blank'))
     if ansdict.has_key('comment') and len(ansdict['comment']) > 0:
-        return "%s; %s" % (ans, ansdict['comment'])
-    return ans
-
+        return dumps([ans, [ansdict['comment']]])
+    if ans:
+        return dumps([ans])
+    return dumps([])
 add_type('open', 'Open Answer, single line [input]')
 add_type('open-textfield', 'Open Answer, multi-line [textarea]')
 add_type('choice-yesno', 'Yes/No Choice [radio]')

@@ -58,7 +58,7 @@ class Subject(models.Model):
 
 class Questionnaire(models.Model):
     name = models.CharField(max_length=128)
-    redirect_url = models.CharField(max_length=128, help_text="URL to redirect to when Questionnaire is complete. Macros: $SUBJECTID, $RUNID, $LANG", default="/media/complete.html")
+    redirect_url = models.CharField(max_length=128, help_text="URL to redirect to when Questionnaire is complete. Macros: $SUBJECTID, $RUNID, $LANG", default="/$LANG/complete/")
 
     def __unicode__(self):
         return self.name
@@ -210,7 +210,9 @@ class Question(models.Model):
     __metaclass__ = TransMeta
 
     questionset = models.ForeignKey(QuestionSet)
-    number = models.CharField(max_length=8) # 1, 2a, 2b, 3c - also used for sorting
+    number = models.CharField(max_length=8, help_text=
+        "eg. <tt>1</tt>, <tt>2a</tt>, <tt>2b</tt>, <tt>3c</tt><br /> "
+        "Number is also used for ordering questions.")
     text = models.TextField(blank=True)
     type = models.CharField(u"Type of question", max_length=32,
         choices = QuestionChoices,
@@ -221,7 +223,18 @@ class Question(models.Model):
         "this user can choose from below'.")
     extra = models.CharField(u"Extra information", max_length=128, blank=True, null=True, help_text=u"Extra information (use  on question type)")
     checks = models.CharField(u"Additional checks", max_length=64, blank=True,
-        null=True, help_text=u"""Additional checks to be performed for this value (space separated).  You may also specify an entry as key=value or key="value with spaces".<br /><br />For text fields, <tt>required</tt> is a valid check.<br />For yes/no comment, "required", <tt>required-yes</tt>, and <tt>required-no</tt> are valid.<br />For Time period, you may supply <tt>units=hour,day,month,year</tt>.<br /><br />If this question is only valid if another question's answer is something specific, use <tt>requiredif="QuestionNumber,Value"</tt>.  Requiredif also takes boolean expressions using <tt>and</tt>, <tt>or</tt>, and <tt>not</tt>, as well as grouping with parenthesis. eg. <tt>requiredif="5,yes or (6,no and 1,yes)"</tt>, where the values in parenthesis are evaluated first.""")
+        null=True, help_text="Additional checks to be performed for this "
+        "value (space separated)  <br /><br />"
+        "For text fields, <tt>required</tt> is a valid check.<br />"
+        "For yes/no choice, <tt>required</tt>, <tt>required-yes</tt>, "
+        "and <tt>required-no</tt> are valid.<br /><br />"
+        "If this question is required only if another question's answer is "
+        'something specific, use <tt>requiredif="QuestionNumber,Value"</tt> '
+        'or <tt>requiredif="QuestionNumber,!Value"</tt> for anything but '
+        "a specific value.  "
+        "You may also combine tests appearing in <tt>requiredif</tt> "
+        "by joining them with the words <tt>and</tt> or <tt>or</tt>, "
+        'eg. <tt>requiredif="Q1,A or Q2,B"</tt>')
 
 
     def questionnaire(self):
@@ -253,8 +266,13 @@ class Question(models.Model):
 
     def sameas(self):
         if self.type == 'sameas':
-            self.__sameas = res = getattr(self, "__sameas", Question.objects.filter(number=self.checks)[0])
-            return res
+            try:
+                self.__sameas = res = getattr(self, "__sameas", 
+                    Question.objects.get(number=self.checks, 
+                        questionset__questionnaire=self.questionset.questionnaire))
+                return res
+            except Question.DoesNotExist:
+                return Question(type='comment') # replace with something benign
         return self
 
     def display_number(self):
@@ -324,12 +342,29 @@ class Answer(models.Model):
     def choice_str(self, secondary = False):
         choice_string = ""
         choices = self.question.get_choices()
-        split_answers = self.answer.split()
 
         for choice in choices:
-            for split_answer in split_answers:
+            for split_answer in self.split_answer():
                 if str(split_answer) == choice.value:
                     choice_string += str(choice.text) + " "
+
+    def split_answer(self):
+        """
+        Decode stored answer value and return as a list of choices.
+        Any freeform value will be returned in a list as the last item.
+
+        Calling code should be tolerant of freeform answers outside
+        of additional [] if data has been stored in plain text format
+        """
+        try:
+            return json.loads(self.answer)
+        except ValueError:
+            # this was likely saved as plain text, try to guess what the 
+            # value(s) were
+            if 'multiple' in self.question.type:
+                return self.answer.split('; ')
+            else:
+                return [self.answer]
 
     def check_answer(self):
         "Confirm that the supplied answer matches what we expect"

@@ -1,5 +1,6 @@
 from questionnaire import *
 from django.utils.translation import ugettext as _
+from django.utils.simplejson import dumps
 
 @question_proc('range')
 def question_range(request, question):
@@ -33,7 +34,7 @@ def process_range(question, answer):
 	raise AnswerException("Could not convert `%r` to integer.")
     if ans > rmax or ans < rmin:
         raise AnswerException(_(u"Out of range"))
-    return ans
+    return dumps([ans])
 add_type('range', 'Range of numbers [select]')
 
 

@@ -83,7 +83,7 @@ img.percentImage {
 <script type="text/javascript">
 {% for trigger in triggers %}addtrigger("{{trigger}}");
 {% endfor %}
-{% for k,v in qvalues.items %}qvalues['{{ k }}'] = '{{ v|escapejs }}';
+{% for k,v in qvalues.items %}qvalues['{{ k|escapejs }}'] = '{{ v|escapejs }}';
 {% endfor %}
 for(key in qvalues) {
   valchanged(key, qvalues[key]);
