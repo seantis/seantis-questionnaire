@@ -315,6 +315,10 @@ def show_questionnaire(request, runinfo, errors={}):
     jstriggers = []
     qvalues = {}
     alignment=4
+    # initialize qvalues                                                                                                                               
+    for k,v in runinfo.get_cookiedict().items():
+        qvalues[k] = v
+
     for question in questions:
         Type = question.get_type()
         _qnum, _qalpha = split_numal(question.number)
@@ -329,6 +333,15 @@ def show_questionnaire(request, runinfo, errors={}):
             'qalpha_class' : _qalpha and (ord(_qalpha[-1]) % 2 \
                                           and ' alodd' or ' aleven') or '',
         }
+#If the question has a magic string surrounded by spaces that refers to an answer to a previous question, fetch the answer and replace the magic string
+#To be able to fetch the cookie with the answer it has to be stored using additional checks
+#At the moment it only works for english.
+        replacementtext=settings.REPLACEMENTSTRING
+        questionnumberpos=question.text.find(replacementtext)
+        if questionnumberpos <> -1:
+            questionnumber=question.text_en[questionnumberpos:].split(' ')[0].replace(replacementtext,'')
+            if questionnumber in qvalues.keys():
+                question.text_en=question.text_en.replace(replacementtext+questionnumber,qvalues[questionnumber])               
 
         if not question.newline():
             alignment = max(alignment, calc_alignment(question.text))
@@ -363,9 +376,6 @@ def show_questionnaire(request, runinfo, errors={}):
     if runinfo.questionset.sortid != 0:
         progress = get_progress(runinfo.questionset.sortid / float(total))
 
-    # initialize qvalues
-    for k,v in runinfo.get_cookiedict().items():
-        qvalues[k] = v
     if request.POST:
         for k,v in request.POST.items():
             if k.startswith("question_"):
@@ -557,6 +567,8 @@ def answer_export(questionnaire, answers=None):
             subject = answer.subject
             row = [""] * len(headings)
         ans = answer.split_answer()
+        if type(ans) == int:
+            ans = str(ans) 
         for choice in ans:
             col = None
             if type(choice) == list:

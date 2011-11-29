@@ -92,5 +92,7 @@ LANGUAGES = (
     ('de', 'Deutsch'),
 )
 
+REPLACEMENTSTRING = u'subst_with_ans_'
+
 try: from local_settings import *
 except: pass
