@@ -99,7 +99,7 @@ def find_package_data(
 
 setup(
     name="seantis-questionnaire",
-    version=":versiontools:questionnaire:",
+    version="0.0",
     description="A Django application for creating online questionnaires/surveys.",
     long_description=read("README"),
     author="Robert Thomson",
