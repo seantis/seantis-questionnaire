@@ -30,6 +30,7 @@ import rfc822
 import time
 import md5
 import os
+import re
 
 
 def r2r(tpl, request, **contextdict):
@@ -315,6 +316,7 @@ def show_questionnaire(request, runinfo, errors={}):
     jstriggers = []
     qvalues = {}
     alignment=4
+
     # initialize qvalues                                                                                                                               
     for k,v in runinfo.get_cookiedict().items():
         qvalues[k] = v
@@ -333,15 +335,28 @@ def show_questionnaire(request, runinfo, errors={}):
             'qalpha_class' : _qalpha and (ord(_qalpha[-1]) % 2 \
                                           and ' alodd' or ' aleven') or '',
         }
-#If the question has a magic string surrounded by spaces that refers to an answer to a previous question, fetch the answer and replace the magic string
-#To be able to fetch the cookie with the answer it has to be stored using additional checks
-#At the moment it only works for english.
-        replacementtext=settings.REPLACEMENTSTRING
-        questionnumberpos=question.text.find(replacementtext)
-        if questionnumberpos <> -1:
-            questionnumber=question.text_en[questionnumberpos:].split(' ')[0].replace(replacementtext,'')
-            if questionnumber in qvalues.keys():
-                question.text_en=question.text_en.replace(replacementtext+questionnumber,qvalues[questionnumber])               
+        #If the question has a magic string surrounded by spaces that refers to 
+        # an answer to a previous question, fetch the answer and replace the 
+        # magic string. 
+        # To be able to fetch the cookie with the answer it has to be stored 
+        # using additional checks
+        if qvalues:
+            magic = 'subst_with_ans_'
+            regex =r'subst_with_ans_(\d+)'
+
+            replacements = re.findall(regex, question.text)
+            text_attributes = [a for a in dir(question) if a.startswith('text_')]
+
+            for answerid in replacements:
+                
+                target = magic + answerid
+                replacement = qvalues.get(answerid, '')
+
+                for attr in text_attributes:
+                    oldtext = getattr(question, attr)
+                    newtext = oldtext.replace(target, replacement)
+                    
+                    setattr(question, attr, newtext)
 
         if not question.newline():
             alignment = max(alignment, calc_alignment(question.text))
