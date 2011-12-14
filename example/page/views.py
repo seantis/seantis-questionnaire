@@ -1,6 +1,6 @@
 # Create your views here.
 from django.shortcuts import render_to_response
-from django import settings
+from django.conf import settings
 from django.template import RequestContext
 from django import http
 from django.utils import translation
