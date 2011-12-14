@@ -1,113 +1,110 @@
--   fields: {email: test@example.com, formtype: email, gender: unset, givenname: Test,
-        language: de, nextrun: 2011-05-16, state: active, surname: Test}
-    model: questionnaire.subject
-    pk: 1
--   fields: {email: null, formtype: email, gender: unset, givenname: Anonymous, language: en,
-        nextrun: null, state: inactive, surname: User}
-    model: questionnaire.subject
-    pk: 2
--   fields: {name: example, redirect_url: /}
-    model: questionnaire.questionnaire
-    pk: 1
--   fields: {checks: '', heading: Page 1, questionnaire: 1, sortid: 1, text_de: Bierpreferenze,
-        text_en: Beer Preferences}
-    model: questionnaire.questionset
-    pk: 1
--   fields: {checks: '', heading: Page 2, questionnaire: 1, sortid: 2, text_de: Python
-            Web Frameworks, text_en: Python Web Frameworks}
-    model: questionnaire.questionset
-    pk: 2
--   fields: {checks: '', heading: Thankyou, questionnaire: 1, sortid: 99, text_de: "Danke\
-            \ sehr, dass Sie diese Fragebogen ausgef\xFCllt haben! Wir hoffen, dass\
-            \ Sie uns in Zukunft wieder besuchen!", text_en: Thankyou very much for
-            completing this questionnaire!  We hope that you visit us again in the
-            future!}
-    model: questionnaire.questionset
-    pk: 3
--   fields: {checks: '', extra_de: '', extra_en: '', number: '1', questionset: 1,
-        text_de: 'Trinken Sie Bier?', text_en: 'Do you drink beer?', type: choice-yesno}
-    model: questionnaire.question
-    pk: 1
--   fields: {checks: 'requiredif="1,yes"', extra_de: '', extra_en: '', number: '2',
-        questionset: 1, text_de: 'Was Art von Bier trinken Sie am meisten?', text_en: 'What
-            type of beer do you drink predominantly?', type: choice-freeform}
-    model: questionnaire.question
-    pk: 2
--   fields: {checks: '', extra_de: '', extra_en: '', number: '3', questionset: 1,
-        text_de: 'Welche von dieser Bieren haben Sie probiert?', text_en: 'Which of
-            these brands of beer have you tried?', type: choice-multiple}
-    model: questionnaire.question
-    pk: 3
--   fields: {checks: '', extra_de: '', extra_en: '', number: '4', questionset: 2,
-        text_de: 'Which Python Web Frameworks have you tried?', text_en: 'Which Python
-            Web Frameworks have you tried?', type: choice-multiple-freeform}
-    model: questionnaire.question
-    pk: 4
--   fields: {checks: '', extra_de: '', extra_en: '', number: '5', questionset: 2,
-        text_de: "Welche m\xF6gen Sie am liebsten?", text_en: 'Which do you like the
-            most?', type: choice-freeform}
-    model: questionnaire.question
-    pk: 5
--   fields: {question: 2, sortid: 1, text_de: Pils, text_en: Pils/Bitter, value: pils}
-    model: questionnaire.choice
-    pk: 1
--   fields: {question: 2, sortid: 2, text_de: Helles, text_en: Lager, value: helles}
-    model: questionnaire.choice
-    pk: 2
--   fields: {question: 2, sortid: 3, text_de: Weizen, text_en: Wheat-beer, value: weizen}
-    model: questionnaire.choice
-    pk: 3
--   fields: {question: 3, sortid: 1, text_de: Heineken, text_en: Heineken, value: heineken}
-    model: questionnaire.choice
-    pk: 4
--   fields: {question: 3, sortid: 2, text_de: Becks, text_en: Becks, value: becks}
-    model: questionnaire.choice
-    pk: 5
--   fields: {question: 3, sortid: 3, text_de: "L\xF6wenbr\xE4u", text_en: "L\xF6wenbr\xE4\
-            u", value: lowenbrau}
-    model: questionnaire.choice
-    pk: 6
--   fields: {question: 2, sortid: 4, text_de: "Altbier/D\xFCssel", text_en: Altbier,
-        value: altbier}
-    model: questionnaire.choice
-    pk: 7
--   fields: {question: 2, sortid: 5, text_de: "K\xF6lsch", text_en: "K\xF6lsch", value: koelsch}
-    model: questionnaire.choice
-    pk: 8
--   fields: {question: 4, sortid: 1, text_de: Django, text_en: Django, value: django}
-    model: questionnaire.choice
-    pk: 9
--   fields: {question: 4, sortid: 2, text_de: Pylons, text_en: Pylons, value: pylons}
-    model: questionnaire.choice
-    pk: 10
--   fields: {question: 4, sortid: 3, text_de: Turbogears, text_en: Turbogears, value: turbogears}
-    model: questionnaire.choice
-    pk: 11
--   fields: {question: 4, sortid: 4, text_de: CherryPy, text_en: CherryPy, value: cherrypy}
-    model: questionnaire.choice
-    pk: 12
--   fields: {question: 5, sortid: 1, text_de: Django, text_en: Django, value: django}
-    model: questionnaire.choice
-    pk: 13
--   fields: {question: 5, sortid: 2, text_de: Pylons, text_en: Pylons, value: pylons}
-    model: questionnaire.choice
-    pk: 14
--   fields: {question: 5, sortid: 3, text_de: Turbogears, text_en: Turbogears, value: turbogears}
-    model: questionnaire.choice
-    pk: 15
--   fields: {question: 5, sortid: 4, text_de: CherryPy, text_en: CherryPy, value: cherrypy}
-    model: questionnaire.choice
-    pk: 16
--   fields: {body_de: "Wilkommen zu der Fragebogenbeispielseite!\r\n\r\nWenn Sie einen\
-            \ einfachen Fragebogen sehen wollen, \"mach's!\":/q/test:1/\r\n\r\nEs\
-            \ gibt auch die m\xF6glichkeit, ein anonym RunInfo zu generieren: \"Tu's!\"\
-            :/take/1\r\n\r\nSie k\xF6nnen auch das \"Admin Interface\":/admin/ benutzen,\
-            \ um den Fragebogen zu \xE4ndern.", body_en: "Welcome to the example Questionnaire\
-            \ website!\r\n\r\nIf you wish to see a simple sample questionnaire, \"\
-            go for it!\":/q/test:1/\r\n\r\nThere is also the possibility to generate\
-            \ a new anonymous RunInfo: \"do it!\":/take/1\r\n\r\nYou can also use\
-            \ the \"Admin Interface\":/admin/, to change the questionnaire.", public: true,
-        title_de: '', title_en: Welcome}
-    model: page.page
-    pk: index
-
+- fields: {domain: example.com, name: example.com}
+  model: sites.site
+  pk: 1
+- fields: {email: test@example.com, formtype: email, gender: unset, givenname: Test,
+    language: de, nextrun: 2011-05-16, state: active, surname: Test}
+  model: questionnaire.subject
+  pk: 1
+- fields: {email: null, formtype: email, gender: unset, givenname: Anonymous, language: en,
+    nextrun: null, state: inactive, surname: User}
+  model: questionnaire.subject
+  pk: 2
+- fields: {name: example, redirect_url: /}
+  model: questionnaire.questionnaire
+  pk: 1
+- fields: {checks: '', heading: Page 1, questionnaire: 1, sortid: 1, text_de: Bierpreferenze,
+    text_en: Beer Preferences}
+  model: questionnaire.questionset
+  pk: 1
+- fields: {checks: '', heading: Page 2, questionnaire: 1, sortid: 2, text_de: Python
+      Web Frameworks, text_en: Python Web Frameworks}
+  model: questionnaire.questionset
+  pk: 2
+- fields: {checks: '', heading: Thankyou, questionnaire: 1, sortid: 99, text_de: "Danke\
+      \ sehr, dass Sie diese Fragebogen ausgef\xFCllt haben! Wir hoffen, dass Sie\
+      \ uns in Zukunft wieder besuchen!", text_en: Thankyou very much for completing
+      this questionnaire!  We hope that you visit us again in the future!}
+  model: questionnaire.questionset
+  pk: 3
+- fields: {checks: '', extra_de: '', extra_en: '', number: '1', questionset: 1, text_de: 'Trinken
+      Sie Bier?', text_en: 'Do you drink beer?', type: choice-yesno}
+  model: questionnaire.question
+  pk: 1
+- fields: {checks: 'requiredif="1,yes"', extra_de: '', extra_en: '', number: '2',
+    questionset: 1, text_de: 'Was Art von Bier trinken Sie am meisten?', text_en: 'What
+      type of beer do you drink predominantly?', type: choice-freeform}
+  model: questionnaire.question
+  pk: 2
+- fields: {checks: '', extra_de: '', extra_en: '', number: '3', questionset: 1, text_de: 'Welche
+      von dieser Bieren haben Sie probiert?', text_en: 'Which of these brands of beer
+      have you tried?', type: choice-multiple}
+  model: questionnaire.question
+  pk: 3
+- fields: {checks: '', extra_de: '', extra_en: '', number: '4', questionset: 2, text_de: 'Which
+      Python Web Frameworks have you tried?', text_en: 'Which Python Web Frameworks
+      have you tried?', type: choice-multiple-freeform}
+  model: questionnaire.question
+  pk: 4
+- fields: {checks: '', extra_de: '', extra_en: '', number: '5', questionset: 2, text_de: "Welche\
+      \ m\xF6gen Sie am liebsten?", text_en: 'Which do you like the most?', type: choice-freeform}
+  model: questionnaire.question
+  pk: 5
+- fields: {question: 2, sortid: 1, text_de: Pils, text_en: Pils/Bitter, value: pils}
+  model: questionnaire.choice
+  pk: 1
+- fields: {question: 2, sortid: 2, text_de: Helles, text_en: Lager, value: helles}
+  model: questionnaire.choice
+  pk: 2
+- fields: {question: 2, sortid: 3, text_de: Weizen, text_en: Wheat-beer, value: weizen}
+  model: questionnaire.choice
+  pk: 3
+- fields: {question: 3, sortid: 1, text_de: Heineken, text_en: Heineken, value: heineken}
+  model: questionnaire.choice
+  pk: 4
+- fields: {question: 3, sortid: 2, text_de: Becks, text_en: Becks, value: becks}
+  model: questionnaire.choice
+  pk: 5
+- fields: {question: 3, sortid: 3, text_de: "L\xF6wenbr\xE4u", text_en: "L\xF6wenbr\xE4\
+      u", value: lowenbrau}
+  model: questionnaire.choice
+  pk: 6
+- fields: {question: 2, sortid: 4, text_de: "Altbier/D\xFCssel", text_en: Altbier,
+    value: altbier}
+  model: questionnaire.choice
+  pk: 7
+- fields: {question: 2, sortid: 5, text_de: "K\xF6lsch", text_en: "K\xF6lsch", value: koelsch}
+  model: questionnaire.choice
+  pk: 8
+- fields: {question: 4, sortid: 1, text_de: Django, text_en: Django, value: django}
+  model: questionnaire.choice
+  pk: 9
+- fields: {question: 4, sortid: 2, text_de: Pylons, text_en: Pylons, value: pylons}
+  model: questionnaire.choice
+  pk: 10
+- fields: {question: 4, sortid: 3, text_de: Turbogears, text_en: Turbogears, value: turbogears}
+  model: questionnaire.choice
+  pk: 11
+- fields: {question: 4, sortid: 4, text_de: CherryPy, text_en: CherryPy, value: cherrypy}
+  model: questionnaire.choice
+  pk: 12
+- fields: {question: 5, sortid: 1, text_de: Django, text_en: Django, value: django}
+  model: questionnaire.choice
+  pk: 13
+- fields: {question: 5, sortid: 2, text_de: Pylons, text_en: Pylons, value: pylons}
+  model: questionnaire.choice
+  pk: 14
+- fields: {question: 5, sortid: 3, text_de: Turbogears, text_en: Turbogears, value: turbogears}
+  model: questionnaire.choice
+  pk: 15
+- fields: {question: 5, sortid: 4, text_de: CherryPy, text_en: CherryPy, value: cherrypy}
+  model: questionnaire.choice
+  pk: 16
+- fields: {body_de: "Wilkommen zu der Fragebogenbeispielseite!\r\n\r\nWenn Sie einen\
+      \ einfachen Fragebogen sehen wollen, \"tun Sie's!\":/take/1\r\n\r\nSie k\xF6\
+      nnen das \"Admin Interface\":/admin/ benutzen, um den Fragebogen zu \xE4ndern.",
+    body_en: "Welcome to the example Questionnaire website!\r\n\r\nIf you wish to\
+      \ take a sample questionnaire, \"go for it!\":/take/1\r\n\r\nUse the \"Admin\
+      \ Interface\":/admin/, to change the questionnaire.", public: true, title_de: '',
+    title_en: Welcome}
+  model: page.page
+  pk: index
