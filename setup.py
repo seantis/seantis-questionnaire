@@ -124,7 +124,8 @@ setup(
     install_requires=[
         'django-transmeta',
         'textile',
-        'pyyaml'
+        'pyyaml',
+        'pyparsing'
     ],
     setup_requires=[
         'versiontools >= 1.6',
