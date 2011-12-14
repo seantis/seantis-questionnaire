@@ -99,13 +99,13 @@ def find_package_data(
 
 setup(
     name="seantis-questionnaire",
-    version="0.0",
+    version="1.1a",
     description="A Django application for creating online questionnaires/surveys.",
     long_description=read("README"),
-    author="Robert Thomson",
-    author_email="git@corporatism.org",
+    author="Seantis GmbH",
+    author_email="info@seantis.ch",
     license="BSD",
-    url="http://questionnaire.corporatism.org/",
+    url="https://github.com/seantis/seantis-questionnaire",
     packages=find_packages(exclude=["example"]),
     package_data=find_package_data("questionnaire"),
     classifiers=[
@@ -124,6 +124,7 @@ setup(
     install_requires=[
         'django-transmeta',
         'textile',
+        'pyyaml'
     ],
     setup_requires=[
         'versiontools >= 1.6',

@@ -4,3 +4,5 @@
 *.sqlite
 *.swp
 local_settings.py
+*egg-info
+*.egg
