@@ -1,15 +1,21 @@
 # Create your views here.
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response
+from django import settings
 from django.template import RequestContext
 from django import http
 from django.utils import translation
 from models import Page
 
 def page(request, page):
-    p = get_object_or_404(Page, slug=page)
-    if not p.public:
-        raise Http404
-    return render_to_response("page.html", { "request" : request, "page":p, }, context_instance = RequestContext(request) )
+    try:
+        p = Page.objects.get(slug=page, public=True)
+    except Page.DoesNotExist:
+        raise http.Http404('%s page requested but not found' % page)
+    
+    return render_to_response("page.html", 
+            { "request" : request, "page" : p, }, 
+            context_instance = RequestContext(request) 
+        )
 
 def langpage(request, lang, page):
     translation.activate_language(lang)
