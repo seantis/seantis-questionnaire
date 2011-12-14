@@ -107,7 +107,7 @@ msgstr "Opzione non valida"
 #, python-format
 msgid "You must select at least %d option"
 msgid_plural "You must select at least %d options"
-msgstr[0] "Devi sciegliere almeno un'opzione"
+msgstr[0] "Devi sciegliere almeno %d opzione"
 msgstr[1] "Devi sciegliere almeno %d opzioni"
 
 #: qprocessors/custom.py:27

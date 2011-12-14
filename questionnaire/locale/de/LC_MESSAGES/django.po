@@ -94,7 +94,7 @@ msgstr "Ungültige Angabe"
 #, python-format
 msgid "You must select at least %d option"
 msgid_plural "You must select at least %d options"
-msgstr[0] "Sie müssen mindestens eine Option auswählen"
+msgstr[0] "Sie müssen mindestens %d Option auswählen"
 msgstr[1] "Sie müssen mindestens %d Optionen auswählen"
 
 #: qprocessors/custom.py:27

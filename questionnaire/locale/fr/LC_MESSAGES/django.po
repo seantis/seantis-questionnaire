@@ -96,7 +96,7 @@ msgstr "Option non valable"
 #, python-format
 msgid "You must select at least %d option"
 msgid_plural "You must select at least %d options"
-msgstr[0] "Vous devez cocher au moins une option"
+msgstr[0] "Vous devez cocher au moins %d option"
 msgstr[1] "Vous devez cocher au moins %d options"
 
 #: qprocessors/custom.py:27
