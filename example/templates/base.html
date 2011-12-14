@@ -6,67 +6,74 @@
     
     <title>{% block title %}Questionnaire{% endblock title %}</title>
     
-    <link rel="stylesheet" href="/static/blueprint/screen.css" type="text/css" media="screen, projection" />
-    <link rel="stylesheet" href="/static/blueprint/print.css" type="text/css" media="print" />
-    <!--[if IE]><link rel="stylesheet" href="/static/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
-
+    <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css" type="text/css"/>
+    
     <style type="text/css">
-        body { background-color: #F1F1F1; }
-    
-        #wrapper {
-            background-color: #fff;
-            margin-top: 2em;
-            margin-left: auto;
-            margin-right: auto;
-            width: 800px;
-            padding: 1em;
-            border: 1px solid #ccc;
-        }
-    
-        .container { border-bottom: 1px solid #DFDFDF; }
-    
-        .aleven { background-color: #F1F1F1; }
-    
-        hr { height: 1px; }
         
-        {% block styleextra %}
-        {% endblock %}
-    
+        #languages {
+            float: right;
+            margin: 10px 0px 0px 0px;
+        }
+
+        html, body {
+            background-color: #cdcdcd;
+        }
+
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            margin: 0px -20px; /* negative indent the amount of the padding to maintain the grid system */
+            -webkit-border-radius: 0 0 6px 6px;
+               -moz-border-radius: 0 0 6px 6px;
+                    border-radius: 0 0 6px 6px;
+            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+               -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+        }
+
+        .page-header {
+            background-color: #f5f5f5;
+            padding: 20px 20px 10px;
+            margin: -20px -20px 20px;
+        }
+    {% block styleextra %}
+        
+    {% endblock %}
     </style>
     
     {% block headextra %}
     {% endblock %}
 
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 </head>
 
 <body>
-    <div id="wrapper">
-        
-        <div style="float: right; margin-right: 3em;" id="languages">
-            {% block language %}
-                {% for lang in LANGUAGES %}
-                    {% if not forloop.first %} |{% endif %}
-                    <a href="/setlang/?lang={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
-                {% endfor %}
-            {% endblock language %}
-        </div>
+    <div class="container">
+        <div class="content">
 
-        <div id="header">
-            <div style="height: 60px; width: 180px; float: left">
-                <b>Logo Goes Here. Logo Goes Here. Logo Goes Here. Logo Goes Here.</b>
+            <div id="languages">
+                {% block language %}
+                    {% for lang in LANGUAGES %}
+                        {% if not forloop.first %} | {% endif %}
+                        <a href="/setlang/?lang={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
+                    {% endfor %}
+                {% endblock language %}
             </div>
-            
-            <H2>Sample Django Questionnaire</H2>
-            
-            <hr>
-        </div>
 
-        <div id="content" class="container">
-            {% block content %}
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud execitation ullamco laboris nisi ut aliquip ex ea commodo consequat.  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-            {% endblock %}
-        </div>
+            <div class="page-header">
+                <h1>Sample Django Questionnaire</h1>
+            </div>
 
-    </div> <!-- /wrapper -->
+            <div class="row">
+                <div class="span16">
+                    {% block content %}
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud execitation ullamco laboris nisi ut aliquip ex ea commodo consequat.  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

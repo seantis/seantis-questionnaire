@@ -1,10 +1,30 @@
 {% load i18n %}
+
 {% for choice, key, checked in qdict.choices %}
-<input onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" type="checkbox" id="{{ key }}" name="{{ key }}" value="{{ choice.value }}" {{ checked }}><label for="{{ key }}">&nbsp;{{ choice.text }}</label>{% if not qdict.nobreaks %}<br />{% endif %}
+    <input 
+        onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" 
+        type="checkbox" 
+        id="{{ key }}" 
+        name="{{ key }}" 
+        value="{{ choice.value }}" 
+        {{ checked }}
+    >
+    <label for="{{ key }}">&nbsp;{{ choice.text }}</label>
+    {% if not qdict.nobreaks %}<br />{% endif %}
 {% endfor %}
+
 {% if qdict.extras %}
-{% if question.extra %}<label for="question_{{ question.number }}_more1">{{ question.extra }}</label><br />{% endif %}
-{% for key, value in qdict.extras %}
-{% if not forloop.last or not forloop.first %}<b>{{ forloop.counter }}.</b> {% endif %}<input type="input" name="{{ key }}" size="50" value="{{ value }}"><br />
-{% endfor %}
+    {% if question.extra %}
+        <label for="question_{{ question.number }}_more1">
+            {{ question.extra }}
+        </label><br />
+    {% endif %}
+
+    {% for key, value in qdict.extras %}
+        {% if not forloop.last or not forloop.first %}
+            <b>{{ forloop.counter }}.</b> 
+        {% endif %}
+        <input type="input" name="{{ key }}" size="50" value="{{ value }}">
+        <br />
+    {% endfor %}
 {% endif %}
