@@ -335,9 +335,8 @@ def show_questionnaire(request, runinfo, errors={}):
             'qalpha_class' : _qalpha and (ord(_qalpha[-1]) % 2 \
                                           and ' alodd' or ' aleven') or '',
         }
-        #If the question has a magic string surrounded by spaces that refers to 
-        # an answer to a previous question, fetch the answer and replace the 
-        # magic string. 
+        #If the question has a magic string that refers to an answer to a 
+        # previous question, fetch the answer and replace the magic string. 
         # To be able to fetch the cookie with the answer it has to be stored 
         # using additional checks
         if qvalues:
