@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load markup questionnaire i18n %}
 {% block headextra %}
-<script type="text/javascript" src="/media/questionset.js"></script>
+<script type="text/javascript" src="/static/questionset.js"></script>
 {% for x in jsinclude %}<script type="text/javascript" src="{{ x }}"></script>
 {% endfor %}
 {% for x in cssinclude %}<link rel="stylesheet" href="{{ x }}" type="text/css" />
@@ -26,7 +26,7 @@
     color: #600;
 }
 img.percentImage {
- background: white url(/media/progress/percentImage_back4.png) top left no-repeat;
+ background: white url(/static/progress/percentImage_back4.png) top left no-repeat;
  padding: 0;
  margin: 5px 0 0 0;
  background-position: 1px 0;
@@ -36,7 +36,7 @@ img.percentImage {
 
 {% if progress %}
 <p style="text-align: center;">
-<img alt="{{ progress.0 }}" src="/media/progress/percentImage.png" class="percentImage" style="background-position: {{ progress.1 }}px 0pt;" /> {{ progress.0 }}% complete.</p>
+<img alt="{{ progress.0 }}" src="/static/progress/percentImage.png" class="percentImage" style="background-position: {{ progress.1 }}px 0pt;" /> {{ progress.0 }}% complete.</p>
 {% endif %}
 
 <div class="questionset_text">{{ questionset.text|textile }}</div>

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib import admin
 
@@ -10,12 +9,7 @@ urlpatterns = patterns('',
     url(r'^$', 'page.views.page', {'page' : 'index'}),
     url(r'^(?P<page>.*)\.html$', 'page.views.page'),
     url(r'^(?P<lang>..)/(?P<page>.*)\.html$', 'page.views.langpage'),
-
     url(r'^setlang/$', 'questionnaire.views.set_language'),
-
-    url(r'^media/(.*)', 'django.views.static.serve',
-        { 'document_root' : settings.MEDIA_ROOT }),
-
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )
