@@ -101,7 +101,7 @@ setup(
     name="seantis-questionnaire",
     version="1.1a",
     description="A Django application for creating online questionnaires/surveys.",
-    long_description=read("README"),
+    long_description=read("README.md"),
     author="Seantis GmbH",
     author_email="info@seantis.ch",
     license="BSD",

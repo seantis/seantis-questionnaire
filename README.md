@@ -1,3 +1,29 @@
+Changes
+=======
+
+As of november 2011 this app is being developed more actively again by Seantis
+GmbH. The goal is to clean it up, modernize and document it as we are working
+to include it in a new project.
+
+This means we will break some backwards compatibility, mainly on the front end
+as the HTML code is being moved from using blueprint to using Twitter bootstrap.
+
+As a result it's not advisable for current users to upgrade existing questionnaires
+to the current development tip as it might break things. 
+
+So far the format of the questionsets has not changed, so they could still be 
+reused, but the style and structure of the output has changed significantly and 
+existing sites cannot expect to look the same after an upgrade.
+
+For existing users two tags in the repository are of interest:
+
+ * tag 1.0 - state of last commit by the original developer (rmt)
+ * tag 1.1 - contains merged changes by other forks improving the orignal
+
+Better documentation and an example site for the updated questionnaire will be 
+available within the next couple of weeks...months. 
+
+
 About Seantis Questionnaire
 ===========================
 
