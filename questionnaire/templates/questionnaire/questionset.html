@@ -19,20 +19,10 @@
 {% endblock %}
 
 {% block styleextra %}
-    
-
-    .questionset_text {
-        font-size: large;
+    .required .qnumber {
+        font-weight: bold;
     }
 
-    .qnumber {
-        color: #000;
-    }
-
-    .required {
-        font-style: italic;
-        color: #600;
-    }
     img.percentImage {
      background: white url(/static/progress/percentImage_back4.png) top left no-repeat;
      padding: 0;
@@ -50,7 +40,7 @@
         </p>
     {% endif %}
 
-    <div class="questionset_text">{{ questionset.text|textile }}</div>
+    {{ questionset.text|textile }}
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">
     
@@ -63,12 +53,11 @@
 
                 {% if error %}<b>* {{ error }}</b><br />{% endif %}
 
-                {% if request.user.is_authenticated %}
-                    <span style="float: right">
+                <!-- edit link for people with access to the admin -->
+                {% if request.user.is_staff %}
+                    <span class="pull-right">
                         <a href="/admin/questionnaire/question/{{ question.id }}/">
-                            <font size="xx-small">
-                                (edit {{ question.number }})
-                            </font>
+                            ({% trans "edit" %} {{ question.number }})
                         </a>
                     </span>
                 {% endif %}
@@ -77,11 +66,10 @@
                     {% include qdict.template %}
                 {% else %}
                     {% if question.newline %}
-                        <b class="qnumber{% if qdict.required %} required{% endif %}">
-                            {{ question.display_number|safe }}.
-                        </b> 
-                        {{ question.text }}
-                        <br />
+                        <div class="question-text {% if qdict.required %}required{% endif %}">
+                            <span class="qnumber">{{ question.display_number }}.</span> 
+                            {{ question.text }}
+                        </div>
                         <div> <!-- container -->
                     {% else %}
                         {% if question.text.strip %}
