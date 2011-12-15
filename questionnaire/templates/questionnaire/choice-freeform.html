@@ -1,35 +1,21 @@
 {% load i18n %}
-{% for sel, choice in qdict.choices %}
 <div class="clearfix">
     <div class="input">
-        <input 
-            onClick="valchanged('{{ question.number }}', this.value)" 
-            type="radio" 
-            id="{{ question.number }}_{{ forloop.counter }}" 
-            name="question_{{ question.number }}" 
-            value="{{ choice.value }}" 
-            {% if sel %} checked {% endif %}
-        >
-            <label 
-        for="{{ question.number }}_{{ forloop.counter }}">
-        &nbsp;{{ choice.text }}
-    </label>
+        <ul class="inputs-list">
+        {% for sel, choice in qdict.choices %}
+            <li>
+                <label>
+                    <input onClick="valchanged('{{ question.number }}', this.value)" type="radio" id="{{ question.number }}_{{ forloop.counter }}" name="question_{{ question.number }}" value="{{ choice.value }}" {% if sel %} checked {% endif %}>
+                    <span>{{ choice.text }}</span>
+                </label>
+            </li>            
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="input">
+        <input onClick="valchanged('{{ question.number }}', '_entry_');" type="radio" id="{{ question.number }}_entry" name="question_{{ question.number }}" value="_entry_" {% if qdict.sel_entry %} checked {% endif %}>
+        <input id="{{ question.number }}_comment" checks="dep_check('{{ question.number }},_entry_')" type="input" name="question_{{ question.number }}_comment" value="{{ qdict.comment }}">
+        <span class="help-block">{{ question.extra }}</span>
     </div>
 </div>
-{% endfor %}
 
-<input 
-    onClick="valchanged('{{ question.number }}', '_entry_');" 
-    type="radio" 
-    id="{{ question.number }}_entry" 
-    name="question_{{ question.number }}" 
-    value="_entry_"
-    {% if qdict.sel_entry %} checked {% endif %}
->
-<input 
-    id="{{ question.number }}_comment" 
-    checks="dep_check('{{ question.number }},_entry_')" 
-    type="input" 
-    name="question_{{ question.number }}_comment" 
-    value="{{ qdict.comment }}"
->{% if question.extra %}{{ question.extra }}{% endif %}

@@ -28,16 +28,14 @@
                 </label>
             </li>
             {% endif %}
-
+            
+            <!-- comment -->
+            {% if qdict.hascomment %}
+            <li>
+                <input type="input" id="{{ question.number }}_comment" name="question_{{ question.number }}_comment" value="{{ qdict.comment }}" size="50" {{ qdict.checks|safe }} placeholder="{% trans 'comment' %}">
+                <span class="help-block">{{ question.extra }}</span>
+            </li>
+            {% endif %}
         </ul>
     </div>
 </div>
-<!-- comment -->
-{% if qdict.hascomment %}
-<div class="clearfix">
-    <div class="input">
-        <input type="input" id="{{ question.number }}_comment" name="question_{{ question.number }}_comment" value="{{ qdict.comment }}" size="50" {{ qdict.checks|safe }} placeholder="{% trans 'comment' %}">
-        <span class="help-block">{{ question.extra }}</span>
-    </div>
-</div>
-{% endif %}
