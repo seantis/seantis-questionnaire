@@ -3,6 +3,7 @@
 
 {% block headextra %}
     <script type="text/javascript" src="/static/questionset.js"></script>
+    <link rel="stylesheet" href="/static/progressbar.css"></script>
     {% for x in jsinclude %}
         <script type="text/javascript" src="{{ x }}"></script>
     {% endfor %}
@@ -83,10 +84,11 @@
 {% block content %}
 
     {% if progress %}
-        <p style="text-align: center;">
-            <img alt="{{ progress.0 }}" src="/static/progress/percentImage.png" class="percentImage" style="background-position: {{ progress.1 }}px 0pt;" /> 
-        {{ progress.0 }}% complete.
-        </p>
+    <div id="progress_bar" class="ui-progress-bar ui-container">
+      <div class="ui-progress" style="width: {{progress.0}}%;">
+        <span class="ui-label"><b class="value">{{progress.0}}%</b></span>
+      </div>
+    </div>
     {% endif %}
 
     <div class="questionset-title">
