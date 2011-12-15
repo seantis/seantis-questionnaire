@@ -1,34 +1,32 @@
 {% load i18n %}
 
-{% for choice, key, checked in qdict.choices %}
 <div class="clearfix">
-    <label for="{{ key }}">&nbsp;{{ choice.text }}</label>
-    {% if not qdict.nobreaks %}<br />{% endif %}
     <div class="input">
-        <input 
-            onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" 
-            type="checkbox" 
-            id="{{ key }}" 
-            name="{{ key }}" 
-            value="{{ choice.value }}" 
-            {{ checked }}
-        >
+        <ul class="inputs-list">
+        {% for choice, key, checked in qdict.choices %}
+            <li>
+                <label>
+                    <input onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" type="checkbox" id="{{ key }}" name="{{ key }}" value="{{ choice.value }}" {{ checked }}>
+                    <span>{{ choice.text }}</span>
+                </label>
+            </li>
+        {% endfor %}
+
+        {% if qdict.extras %}
+            {% for key, value in qdict.extras %}
+            <li>
+                {% if not forloop.last or not forloop.first %}
+                    <b>{{ forloop.counter }}.</b> 
+                {% endif %}
+                <input type="input" name="{{ key }}" size="50" value="{{ value }}">    
+            </li>
+            {% endfor %}
+        {% endif %}
+
+        {% if question.extra %}
+            <li>
+                <span class="help-block">{{ question.extra }}</span>
+            </li>
+        {% endif %}
     </div>
 </div>
-{% endfor %}
-
-{% if qdict.extras %}
-    {% if question.extra %}
-        <label for="question_{{ question.number }}_more1">
-            {{ question.extra }}
-        </label><br />
-    {% endif %}
-
-    {% for key, value in qdict.extras %}
-        {% if not forloop.last or not forloop.first %}
-            <b>{{ forloop.counter }}.</b> 
-        {% endif %}
-        <input type="input" name="{{ key }}" size="50" value="{{ value }}">
-        <br />
-    {% endfor %}
-{% endif %}
