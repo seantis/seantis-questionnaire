@@ -40,16 +40,6 @@ def numal0_sort(a, b):
     """
     return numal_sort(a[0], b[0])
 
-def calc_alignment(string):
-    l = 2 + len(string.strip()) // 6
-    if l <= 4:
-        return 4
-    if l <= 7:
-        return 7
-    if l < 10:
-        return 10
-    return l
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

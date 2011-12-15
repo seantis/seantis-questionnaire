@@ -22,7 +22,7 @@ from questionnaire import Processors
 from questionnaire.models import *
 from questionnaire.parsers import *
 from questionnaire.emails import send_emails, _send_email
-from questionnaire.utils import numal_sort, numal0_sort, split_numal, calc_alignment
+from questionnaire.utils import numal_sort, numal0_sort, split_numal
 import smtplib
 import logging
 import random
@@ -315,7 +315,6 @@ def show_questionnaire(request, runinfo, errors={}):
     cssinclude = []     # css files to include
     jstriggers = []
     qvalues = {}
-    alignment=4
 
     # initialize qvalues                                                                                                                               
     for k,v in runinfo.get_cookiedict().items():
@@ -357,9 +356,6 @@ def show_questionnaire(request, runinfo, errors={}):
                     
                     setattr(question, attr, newtext)
 
-        if not question.newline():
-            alignment = max(alignment, calc_alignment(question.text))
-
         # add javascript dependency checks
         cd = question.getcheckdict()
         depon = cd.get('requiredif',None) or cd.get('dependent',None)
@@ -372,8 +368,6 @@ def show_questionnaire(request, runinfo, errors={}):
             qvalues[question.number] = cd['default']
         if Type in QuestionProcessors:
             qdict.update(QuestionProcessors[Type](request, question))
-            if 'alignment' in qdict:
-                alignment = max(alignment, qdict['alignment'])
             if 'jsinclude' in qdict:
                 if qdict['jsinclude'] not in jsinclude:
                     jsinclude.extend(qdict['jsinclude'])
@@ -409,7 +403,6 @@ def show_questionnaire(request, runinfo, errors={}):
         progress=progress,
         triggers=jstriggers,
         qvalues=qvalues,
-        alignment=alignment,
         jsinclude=jsinclude,
         cssinclude=cssinclude)
     r['Cache-Control'] = 'no-cache'

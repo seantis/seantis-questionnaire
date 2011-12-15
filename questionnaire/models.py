@@ -255,15 +255,7 @@ class Question(models.Model):
 
     def __unicode__(self):
         return u'{%s} (%s) %s' % (unicode(self.questionset), self.number, self.text)
-
-    def newline(self):
-        # if user wants multiple breaks, they can use nobreaks, or just one newline
-        # after the question text, just nobreak .. a little bit confusing, maybe
-        checks = self.sameas().checks or ''
-        if "nobreak" in checks:
-            return False
-        return True
-
+        
     def sameas(self):
         if self.type == 'sameas':
             try:
@@ -281,7 +273,7 @@ class Question(models.Model):
         if m:
             sub = m.group(2)
             return "&nbsp;&nbsp;&nbsp;" + sub
-        return "<br />" + self.number
+        return self.number
 
     def choices(self):
         if self.type == 'sameas':

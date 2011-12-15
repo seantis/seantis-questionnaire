@@ -27,7 +27,6 @@ def question_choice(request, question):
         'sel_entry' : val == '_entry_',
         'qvalue'    : val or '',
         'required'  : True,
-        'nobreaks'  : cd.get("nobreaks", False),
         'comment'   : request.POST.get(key2, ""),
         'jstriggers': jstriggers,
     }
@@ -79,7 +78,6 @@ def template_multiple(request, question):
     return {
         "choices": choices,
         "extras": extras,
-        "nobreaks" : cd.get("nobreaks", False),
         "template"  : "questionnaire/choice-multiple-freeform.html",
         "required" : cd.get("required", False) and cd.get("required") != "0",
 

@@ -53,7 +53,7 @@
 
                 {% if error %}<b>* {{ error }}</b><br />{% endif %}
 
-                <!-- edit link for people with access to the admin -->
+                
                 {% if request.user.is_staff %}
                     <span class="pull-right">
                         <a href="/admin/questionnaire/question/{{ question.id }}/">
@@ -65,32 +65,14 @@
                 {% if qdict.custom %}
                     {% include qdict.template %}
                 {% else %}
-                    {% if question.newline %}
-                        <div class="question-text {% if qdict.required %}required{% endif %}">
-                            <span class="qnumber">{{ question.display_number }}.</span> 
-                            {{ question.text }}
-                        </div>
-                        <div> <!-- container -->
-                    {% else %}
-                        {% if question.text.strip %}
-                            <div class="span-{{ alignment }}">
-                                <b class="qnumber{% if qdict.required %} required{% endif %}">
-                                {{ question.display_number|safe }}.
-                                </b> 
-                                {{ question.text }}
-                            </div>
-                        {% else %}
-                            <b class="qnumber{% if qdict.required %} required{% endif %}">
-                                {{ question.display_number|safe }}.
-                            </b> 
-                            {{ question.text }}
-                        {% endif %}
-                    {% endif %}
+                    <div class="question-text {% if qdict.required %}required{% endif %}">
+                        <span class="qnumber">{{ question.display_number }}.</span> 
+                        {{ question.text }}
+                    </div>
+                    <div> <!-- container -->
+                        {% include qdict.template %}
                     
-                    {% include qdict.template %}
-                        
-                    {% if question.newline %}
-                        </div> <!-- /container -->
+                    </div> <!-- /container -->
                     {% endif %}
                 {% endif %}
             </div> <!-- /question container -->
