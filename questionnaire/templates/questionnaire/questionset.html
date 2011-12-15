@@ -19,8 +19,42 @@
 {% endblock %}
 
 {% block styleextra %}
-    .required .qnumber {
+    .required {
         font-weight: bold;
+    }
+
+    .qnumber {
+        font-weight: bold;
+    }
+
+    .question-text {
+        font-size: 1.3em;
+    }
+
+    .answer label {
+        font-size: 14px !important;
+    }
+
+    div.input {
+        margin-left: 35px;
+    }
+
+    .answer {
+        margin: 5px 0 25px 0;
+        padding: 0;
+        border-top: 1px solid #dadada;
+    }
+
+    div.input input[type="text"], div.input textarea, div.input select {
+        margin: 8px 0 0 0;        
+    }
+
+    ul.inputs-list input[type="text"] {
+        margin: 5px 0;
+    }
+
+    .questionset-title {
+        margin: 0 0 25px 0;
     }
 
     img.percentImage {
@@ -29,6 +63,21 @@
      margin: 5px 0 0 0;
      background-position: 1px 0;
     }
+
+    .error {
+        margin: 10px 0;
+    }
+
+    .back-link {
+        margin-top: -68px;
+        margin-left: 25px;
+        position: absolute;
+    }
+
+    .questionset-submit {
+        margin-top: 60px;
+    }
+
 {% endblock %}
 
 {% block content %}
@@ -40,7 +89,9 @@
         </p>
     {% endif %}
 
+    <div class="questionset-title">
     {{ questionset.text|textile }}
+    </div>
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">
     
@@ -49,11 +100,7 @@
         {% for question, qdict in qlist %}
         {% with errors|dictget:question.number as error %}
 
-            <div class="question type_{{ qdict.qtype }} container{% if error %} error prepend-top{% endif %}{{ qdict.qnum_class }}{{ qdict.qalpha_class }}" id="qc_{{ question.number }}" {{qdict.checkstring|safe}}>
-
-                {% if error %}<b>* {{ error }}</b><br />{% endif %}
-
-                
+            <div class="question type_{{ qdict.qtype }} {% if error %} error prepend-top{% endif %}{{ qdict.qnum_class }}{{ qdict.qalpha_class }}" id="qc_{{ question.number }}" {{qdict.checkstring|safe}}>                
                 {% if request.user.is_staff %}
                     <span class="pull-right">
                         <a href="/admin/questionnaire/question/{{ question.id }}/">
@@ -63,33 +110,38 @@
                 {% endif %}
                     
                 {% if qdict.custom %}
+                    {% if error %}
+                        <div class="error">
+                            {{ error }}
+                        </div>
+                    {% endif %}
                     {% include qdict.template %}
                 {% else %}
                     <div class="question-text {% if qdict.required %}required{% endif %}">
                         <span class="qnumber">{{ question.display_number }}.</span> 
                         {{ question.text }}
                     </div>
-                    <div> <!-- container -->
+                    <div class="answer">
+                        {% if error %}
+                            <div class="alert-message block-message error input"><strong>{{ error }}</strong></div>
+                        {% endif %}
                         {% include qdict.template %}
-                    
-                    </div> <!-- /container -->
-                    {% endif %}
+                    </div>
                 {% endif %}
             </div> <!-- /question container -->
         {% endwith %}
         {% endfor %}
-
-        <br />
+    
         
-        <div style="text-align:center; margin-bottom: 0.5em;">
-            <input name="submit" type="submit" value="{% trans "Continue" %}">
-        </div>
-        
-        {% if questionset.prev %}
-            <a href="javascript:history.back();" title="">
-            Return to previous page
-            </a>
-        {% endif %}
+            
+            <div style="text-align: center;" class="well questionset-submit">
+                <input class="btn large primary" name="submit" type="submit" value="{% trans "Continue" %}">
+                
+            </div>
+            
+            {% if questionset.prev %}
+                <a class="back-link pull-left" href="javascript:history.back();">{% trans "return to previous page" %}</a>
+            {% endif %}
     </form>
 
     <script type="text/javascript">

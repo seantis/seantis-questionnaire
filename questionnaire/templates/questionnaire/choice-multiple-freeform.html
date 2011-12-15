@@ -18,7 +18,7 @@
                 {% if not forloop.last or not forloop.first %}
                     <b>{{ forloop.counter }}.</b> 
                 {% endif %}
-                <input type="input" name="{{ key }}" size="50" value="{{ value }}">    
+                <input type="text" name="{{ key }}" size="50" value="{{ value }}">    
             </li>
             {% endfor %}
         {% endif %}
