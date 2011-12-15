@@ -1,16 +1,20 @@
 {% load i18n %}
 
 {% for choice, key, checked in qdict.choices %}
-    <input 
-        onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" 
-        type="checkbox" 
-        id="{{ key }}" 
-        name="{{ key }}" 
-        value="{{ choice.value }}" 
-        {{ checked }}
-    >
+<div class="clearfix">
     <label for="{{ key }}">&nbsp;{{ choice.text }}</label>
     {% if not qdict.nobreaks %}<br />{% endif %}
+    <div class="input">
+        <input 
+            onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" 
+            type="checkbox" 
+            id="{{ key }}" 
+            name="{{ key }}" 
+            value="{{ choice.value }}" 
+            {{ checked }}
+        >
+    </div>
+</div>
 {% endfor %}
 
 {% if qdict.extras %}
