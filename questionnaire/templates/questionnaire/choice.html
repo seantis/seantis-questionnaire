@@ -1,16 +1,15 @@
 {% load i18n %}
-{% for sel, choice in qdict.choices %}
-    <input 
-        type="radio" 
-        onClick="valchanged('{{ question.number }}', this.value)" 
-        id="{{ question.number }}_{{ forloop.counter }}" 
-        name="question_{{ question.number }}" 
-        value="{{ choice.value }}"
-        {% if sel %} checked {% endif %}
-    >
-    <label for="{{ question.number }}_{{ forloop.counter }}">
-        &nbsp;{{ choice.text }}
-    </label>
-
-    {% if not qdict.nobreaks %}<br />{% endif %}
-{% endfor %}
+<div class="clearfix">
+    <div class="input">
+        <ul class="inputs-list">
+        {% for sel, choice in qdict.choices %}
+            <li>
+                <label>
+                    <input type="radio" id="{{ question.number }}_{{ forloop.counter }}" name="question_{{ question.number }}" onClick="valchanged('{{ question.number }}', this.value)" value="{{ choice.value }}"{% if sel %} checked {% endif %}>
+                    <span>{{ choice.text }}</span>
+                </label>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
