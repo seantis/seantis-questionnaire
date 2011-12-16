@@ -3,7 +3,10 @@
 
 {% block headextra %}
     <script type="text/javascript" src="/static/questionset.js"></script>
+    
     <link rel="stylesheet" href="/static/progressbar.css"></script>
+    <link rel="stylesheet" href="/static/questionnaire.css"></script>
+    
     {% for x in jsinclude %}
         <script type="text/javascript" src="{{ x }}"></script>
     {% endfor %}
@@ -17,68 +20,6 @@
     {% for lang in LANGUAGES %}{% if not forloop.first %} |{% endif %}
         <a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>
     {% endfor %}
-{% endblock %}
-
-{% block styleextra %}
-    .required {
-        font-weight: bold;
-    }
-
-    .qnumber {
-        font-weight: bold;
-    }
-
-    .question-text {
-        font-size: 1.3em;
-    }
-
-    .answer label {
-        font-size: 14px !important;
-    }
-
-    div.input {
-        margin-left: 35px;
-    }
-
-    .answer {
-        margin: 5px 0 25px 0;
-        padding: 0;
-        border-top: 1px solid #dadada;
-    }
-
-    div.input input[type="text"], div.input textarea, div.input select {
-        margin: 8px 0 0 0;        
-    }
-
-    ul.inputs-list input[type="text"] {
-        margin: 5px 0;
-    }
-
-    .questionset-title {
-        margin: 0 0 25px 0;
-    }
-
-    img.percentImage {
-     background: white url(/static/progress/percentImage_back4.png) top left no-repeat;
-     padding: 0;
-     margin: 5px 0 0 0;
-     background-position: 1px 0;
-    }
-
-    .error {
-        margin: 10px 0;
-    }
-
-    .back-link {
-        margin-top: -68px;
-        margin-left: 25px;
-        position: absolute;
-    }
-
-    .questionset-submit {
-        margin-top: 60px;
-    }
-
 {% endblock %}
 
 {% block content %}

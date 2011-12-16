@@ -1,0 +1,50 @@
+/* question numbers are always bold, the whole question if it is required */
+.required, .qnumber {
+    font-weight: bold;
+}
+
+.questionset-title {
+    margin: 0 0 25px 0;
+}
+
+.question-text {
+    font-size: 1.3em;
+}
+
+div.input {
+    margin-left: 35px;
+}
+
+.answer {
+    margin: 5px 0 25px 0;
+    padding: 0;
+    border-top: 1px solid #dadada;
+}
+
+.answer label {
+    font-size: 14px;
+}
+
+/* ensure that all inputs have the same distance to the question */
+div.input input[type="text"], div.input textarea, div.input select {
+    margin: 8px 0 0 0;        
+}
+
+ul.inputs-list input[type="text"] {
+    margin: 5px 0;
+}
+
+.error {
+    margin: 10px 0;
+}
+
+/* move the back link left of the submit button */
+.back-link {
+    margin-top: -66px;
+    margin-left: 25px;
+    position: absolute;
+}
+
+.questionset-submit {
+    margin-top: 60px;
+}
