@@ -36,6 +36,8 @@
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">
     
+        {% csrf_token %}
+
         <input type="hidden" name="questionset_id" value="{{ questionset.id }}">
     
         {% for question, qdict in qlist %}

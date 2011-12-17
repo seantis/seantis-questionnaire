@@ -30,6 +30,11 @@ div.input input[type="text"], div.input textarea, div.input select {
     margin: 8px 0 0 0;        
 }
 
+div.input .add-on {
+    margin: 8px 0 0 0;
+    border-right: none;
+}
+
 ul.inputs-list input[type="text"] {
     margin: 5px 0;
 }
