@@ -6,3 +6,4 @@
 local_settings.py
 *egg-info
 *.egg
+build
