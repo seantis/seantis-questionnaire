@@ -103,6 +103,12 @@ def questionset_satisfies_checks(questionset, runinfo):
             res = depparser.parse(value)
             if not res:
                 return False
+
+        import pdb; pdb.set_trace()
+        if check =='iftag' and value and value.strip():
+            if not has_tag(runinfo, tag=value):
+                return False
+
     return True
 
 
@@ -648,8 +654,9 @@ def answer_summary(questionnaire, answers=None):
             (n, t, choice_totals[n]) for (n, t) in choices], freeforms))
     return summary
     
-
-
+def has_tag(runinfo, tag):
+    """ Returns true if the given runinfo contains the given tag. """
+    return tag in [t.strip() for t in runinfo.tags.split(',')]
 
 
 def dep_check(expr, runinfo, answerdict):
