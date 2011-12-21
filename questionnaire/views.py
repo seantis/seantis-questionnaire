@@ -1,14 +1,11 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8
 
-from django.http import HttpResponse, Http404, \
-    HttpResponsePermanentRedirect, HttpResponseRedirect
-from django.template import RequestContext, Context, Template, loader
-from django.views.decorators.cache import cache_control
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render_to_response, get_object_or_404
-from django.contrib.sites.models import Site
 from django.db import transaction
 from django.conf import settings
 from datetime import datetime
@@ -21,15 +18,11 @@ from questionnaire import AnswerException
 from questionnaire import Processors
 from questionnaire.models import *
 from questionnaire.parsers import *
-from questionnaire.emails import send_emails, _send_email
-from questionnaire.utils import numal_sort, numal0_sort, split_numal
-import smtplib
+from questionnaire.emails import _send_email, send_emails
+from questionnaire.utils import numal_sort, split_numal
 import logging
 import random
-import rfc822
-import time
 import md5
-import os
 import re
 
 
@@ -103,8 +96,6 @@ def questionset_satisfies_checks(questionset, runinfo):
             res = depparser.parse(value)
             if not res:
                 return False
-
-        import pdb; pdb.set_trace()
         if check =='iftag' and value and value.strip():
             if not has_tag(runinfo, tag=value):
                 return False
@@ -329,8 +320,7 @@ def show_questionnaire(request, runinfo, errors={}):
     for question in questions:
         Type = question.get_type()
         _qnum, _qalpha = split_numal(question.number)
-        if _qalpha:
-            _qalpha_class = ord(_qalpha[-1]) % 2 and 'odd' or 'even'
+
         qdict = {
             'template' : 'questionnaire/%s.html' % (Type),
             'qnum' : _qnum,
@@ -627,7 +617,6 @@ def answer_summary(questionnaire, answers=None):
 
     summary = []
     for question in questions:
-        total = 0
         q_type = question.get_type()
         if q_type.startswith('choice-yesno'):
             choices = [('yes', _('Yes')), ('no', _('No'))]
