@@ -35,17 +35,13 @@ def r2r(tpl, request, **contextdict):
 def get_runinfo(random):
     "Return the RunInfo entry with the provided random key"
     res = RunInfo.objects.filter(random=random.lower())
-    if res:
-        return res[0]
-    return None
+    return res and res[0] or None
 
 
 def get_question(number, questionnaire):
     "Return the specified Question (by number) from the specified Questionnaire"
     res = Question.objects.filter(number=number, questionset__questionnaire=questionnaire)
-    if res:
-        return res[0]
-    return None
+    return res and res[0] or None
 
 
 def delete_answer(question, subject, runid):
@@ -78,26 +74,35 @@ def add_answer(runinfo, question, answer_dict):
 
     # first, delete all existing answers to this question for this particular user+run
     delete_answer(question, runinfo.subject, runinfo.runid)
+    
     # then save the new answer to the database
     answer.save()
+    
     return True
 
 
 def questionset_satisfies_checks(questionset, runinfo):
-    "Return True is RunInfo satisfied checks for the specified QuestionSet"
+    "Return True if the runinfo passes the checks specified in the QuestionSet"
     checks = parse_checks(questionset.checks)
+
     for check, value in checks.items():
+
+        value = value and value.strip() or None
+        
         if check == 'maleonly' and runinfo.subject.gender != 'male':
             return False
+        
         if check == 'femaleonly' and runinfo.subject.gender != 'female':
             return False
-        if check == 'shownif' and value and value.strip():
+        
+        if check == 'shownif' and value:
             depparser = BooleanParser(dep_check, runinfo, {})
-            res = depparser.parse(value)
-            if not res:
+            if not depparser.parse(value):
                 return False
-        if check =='iftag' and value and value.strip():
-            if not has_tag(runinfo, tag=value):
+        
+        if check =='iftag' and value:
+            tagparser = BooleanParser(has_tag, runinfo)
+            if not tagparser.parse(value):
                 return False
 
     return True
@@ -127,11 +132,11 @@ def questionnaire(request, runcode=None, qs=None):
 
     # if runcode provided as query string, redirect to the proper page
     if not runcode:
-        if not request.GET.get('runcode', None):
+        runcode = request.GET.get('runcode')
+        if not runcode:
             return HttpResponseRedirect("/")
-        return HttpResponseRedirect(
-            reverse("questionnaire",
-                args=[request.GET['runcode']]))
+        else:
+            return HttpResponseRedirect(reverse("questionnaire",args=[runcode]))
 
     runinfo = get_runinfo(runcode)
 
@@ -643,7 +648,7 @@ def answer_summary(questionnaire, answers=None):
             (n, t, choice_totals[n]) for (n, t) in choices], freeforms))
     return summary
     
-def has_tag(runinfo, tag):
+def has_tag(tag, runinfo):
     """ Returns true if the given runinfo contains the given tag. """
     return tag in [t.strip() for t in runinfo.tags.split(',')]
 
