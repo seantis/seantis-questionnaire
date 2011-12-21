@@ -48,34 +48,34 @@ class TypeTest(TestCase):
     def test010_redirect(self):
         "Check redirection from generic questionnaire to questionset"
         response = self.client.get('/q/test:test/')
-        assert response['Location'] == 'http://testserver/q/test:test/1/'
+        self.assertEqual(response['Location'], 'http://testserver/q/test:test/1/')
 
 
     def test020_get_questionset_1(self):
         "Get first page of Questions"
         response = self.client.get('/q/test:test/1/')
-        assert response.status_code == 200
-        assert response.template[0].name == 'questionnaire/questionset.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.template[0].name, 'questionnaire/questionset.html')
 
 
     def test030_language_setting(self):
         "Set the language and confirm it is set in DB"
         response = self.client.get('/q/test:test/1/', {"lang" : "en"})
-        assert response.status_code == 302
-        assert response['Location'] == 'http://testserver/q/test:test/1/'
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/q/test:test/1/')
         response = self.client.get('/q/test:test/1/')
         assert "Don't Know" in response.content
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
         runinfo = RunInfo.objects.get(runid='test:test')
-        assert runinfo.subject.language == 'en'
+        self.assertEqual(runinfo.subject.language, 'en')
         response = self.client.get('/q/test:test/1/', {"lang" : "de"})
-        assert response.status_code == 302
-        assert response['Location'] == 'http://testserver/q/test:test/1/'
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/q/test:test/1/')
         response = self.client.get('/q/test:test/1/')
         assert "Weiss nicht" in response.content
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
         runinfo = RunInfo.objects.get(runid='test:test')
-        assert runinfo.subject.language == 'de'
+        self.assertEqual(runinfo.subject.language, 'de')
 
 
     def test040_missing_question(self):
@@ -84,9 +84,9 @@ class TypeTest(TestCase):
         ansdict = self.ansdict1.copy()
         del ansdict['question_3']
         response = c.post('/q/test:test/1/', ansdict)
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
         errors = response.context[-1]['errors']
-        assert len(errors) == 1 and errors.has_key('3')
+        self.assertEqual(len(errors), 1) and errors.has_key('3')
 
 
     def test050_missing_question(self):
@@ -97,8 +97,8 @@ class TypeTest(TestCase):
         # first set language to english
         response = self.client.get('/q/test:test/1/', {"lang" : "en"})
         response = c.post('/q/test:test/1/', ansdict)
-        assert response.status_code == 200
-        assert len(response.context[-1]['errors']) == 1
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context[-1]['errors']), 1)
 
 
     def test060_successful_questionnaire(self):
@@ -110,23 +110,23 @@ class TypeTest(TestCase):
         runinfo.save()
 
         response = c.get('/q/1real/1/')
-        assert response.status_code == 200
-        assert response.template[0].name == 'questionnaire/questionset.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.template[0].name, 'questionnaire/questionset.html')
         response = c.post('/q/1real/', ansdict1)
-        assert response.status_code == 302
-        assert response['Location'] == 'http://testserver/q/1real/2/'
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/q/1real/2/')
         "POST complete answers for QuestionSet 2"
         c = self.client
 
         ansdict2 = self.ansdict2
         response = c.get('/q/1real/2/')
-        assert response.status_code == 200
-        assert response.template[0].name == 'questionnaire/questionset.html'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.template[0].name, 'questionnaire/questionset.html')
         response = c.post('/q/1real/', ansdict2)
-        assert response.status_code == 302
-        assert response['Location'] == 'http://testserver/'
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/')
 
-        assert RunInfo.objects.filter(runid='1real').count() == 0
+        self.assertEqual(RunInfo.objects.filter(runid='1real').count(), 0)
 
         # TODO: The format of these answers seems very strange to me. It was 
         # simpler before I changed it to get the test to work. 
