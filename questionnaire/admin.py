@@ -51,6 +51,8 @@ class AnswerAdmin(admin.ModelAdmin):
     list_filter = ['subject', 'runid']
     ordering = [ 'subject', 'runid', 'question', ]
 
+class TagAdmin(admin.ModelAdmin):
+    pass
 
 adminsite.register(Questionnaire, QuestionnaireAdmin)
 adminsite.register(Question, QuestionAdmin)
@@ -59,3 +61,4 @@ adminsite.register(Subject, SubjectAdmin)
 adminsite.register(RunInfo, RunInfoAdmin) 
 adminsite.register(RunInfoHistory, RunInfoHistoryAdmin) 
 adminsite.register(Answer, AnswerAdmin)
+adminsite.register(Tag, TagAdmin)

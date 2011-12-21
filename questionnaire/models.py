@@ -150,6 +150,11 @@ class RunInfo(models.Model):
     state = models.CharField(max_length=16, null=True, blank=True)
     cookies = models.CharField(max_length=512, null=True, blank=True)
 
+    tags = models.TextField(
+            blank=True,
+            help_text=u"Tags active on this run, separated by commas"
+        )
+
     def save(self):
         self.random = (self.random or '').lower()
         super(RunInfo, self).save()
@@ -194,7 +199,6 @@ class RunInfo(models.Model):
         verbose_name_plural = 'Run Info'
 
 
-
 class RunInfoHistory(models.Model):
     subject = models.ForeignKey(Subject)
     runid = models.CharField(max_length=32)
@@ -205,6 +209,7 @@ class RunInfoHistory(models.Model):
 
     class Meta:
         verbose_name_plural = 'Run Info History'
+
 
 class Question(models.Model):
     __metaclass__ = TransMeta
@@ -362,3 +367,16 @@ class Answer(models.Model):
         "Confirm that the supplied answer matches what we expect"
         return True
 
+
+class Tag(models.Model):
+
+    __metaclass__ = TransMeta
+
+    def __unicode__(self):
+        return "Tag('%s', '%s')" % (self.name, self.text)
+
+    name = models.CharField(u'name', max_length=16)
+    text = models.TextField(blank=True)
+
+    class Meta:
+        translate = ('text',)
