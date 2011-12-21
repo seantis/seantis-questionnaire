@@ -94,7 +94,7 @@ def questionset_satisfies_checks(questionset, runinfo):
         "iftag": lambda v: v and tagparser.parse(v)
     }
 
-    def pass_checks(checks):
+    def passes_checks(checks):
         checks = parse_checks(checks)
 
         for check, value in checks.items():
@@ -105,14 +105,20 @@ def questionset_satisfies_checks(questionset, runinfo):
 
         return True
 
-    if not pass_checks(questionset.checks):
+    if not passes_checks(questionset.checks):
         return False
 
-    for question in questionset.questions():
-        if not pass_checks(question.checks):
-            return False
+    # questionsets that pass the checks but have no questions are shown
+    # (comments, last page, etc.)
+    if not questionset.questions():
+        return True
 
-    return True
+    # if there are questions at least one needs to be visible
+    for question in questionset.questions():
+        if passes_checks(question.checks):
+            return True
+
+    return False
 
 
 def redirect_to_qs(runinfo):
@@ -309,6 +315,25 @@ def get_progress(percent):
     pc = "-%s" % (120 - int(percent * 120) + 1)
     return (int(percent * 100), pc)
 
+def get_total_questionsets(runinfo):
+    "Returns the total of visible questionsets"
+    sets = runinfo.questionset.questionnaire.questionsets()
+    return sum([1 for qs in sets if questionset_satisfies_checks(qs, runinfo)])
+
+def get_current_questionset_position(runinfo):
+    "Returns the position of the current questionset (position=nth of total)"
+    current = runinfo.questionset
+
+    # TODO performance: cache this check
+    position = 1
+    for qs in current.questionnaire.questionsets():
+        if qs.id == current.id:
+            return position
+
+        if questionset_satisfies_checks(qs, runinfo):
+            position += 1
+
+    return None
 
 def show_questionnaire(request, runinfo, errors={}):
     """
@@ -317,7 +342,6 @@ def show_questionnaire(request, runinfo, errors={}):
     Also add the javascript dependency code.
     """
     questions = runinfo.questionset.questions()
-    total = len(runinfo.questionset.questionnaire.questionsets())
 
     qlist = []
     jsinclude = []      # js files to include
@@ -388,9 +412,13 @@ def show_questionnaire(request, runinfo, errors={}):
                 qvalues[question.number] = qdict['qvalue']
         qlist.append( (question, qdict) )
 
-    progress = None
-    if runinfo.questionset.sortid != 0:
-        progress = get_progress(runinfo.questionset.sortid / float(total))
+    total = get_total_questionsets(runinfo)
+    pos = get_current_questionset_position(runinfo)
+
+    if not all((pos, total)):
+        progress = None
+    else:
+        progress = get_progress(float(pos) / float(total))
 
     if request.POST:
         for k,v in request.POST.items():
