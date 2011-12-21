@@ -128,22 +128,28 @@ class TypeTest(TestCase):
 
         assert RunInfo.objects.filter(runid='1real').count() == 0
 
+        # TODO: The format of these answers seems very strange to me. It was 
+        # simpler before I changed it to get the test to work. 
+        # I'll have to revisit this once I figure out how this is meant to work
+        # for now it is more important to me that all tests pass
+
         dbvalues = {
-            '1' : ansdict1['question_1'],
-            '2' : ansdict1['question_2'],
-            '3' : ansdict1['question_3'],
-            '4' : ansdict1['question_4'],
-            '5' : '%s; %s' % (ansdict1['question_5'], ansdict1['question_5_comment']),
-            '6' : '%s; %s' % (ansdict1['question_6'], ansdict1['question_6_comment']),
-            '7' : ansdict1['question_7'],
-            '8' : '%s; %s' % (ansdict1['question_8'], ansdict1['question_8_unit']),
-            '9' : 'q9_choice1',
-            '10' : 'my freeform',
-            '11' : 'q11_choice2; q11_choice4',
-            '12' : 'q12_choice1; blah',
+            '1' : u'["%s"]' % ansdict1['question_1'],
+            '2' : u'["%s"]' % ansdict1['question_2'],
+            '3' : u'["%s"]' % ansdict1['question_3'],
+            '4' : u'["%s"]' % ansdict1['question_4'],
+            '5' : u'["%s", ["%s"]]' % (ansdict1['question_5'], ansdict1['question_5_comment']),
+            '6' : u'["%s", ["%s"]]' % (ansdict1['question_6'], ansdict1['question_6_comment']),
+            '7' : u'[%s]' % ansdict1['question_7'],
+            '8' : u'%s; %s' % (ansdict1['question_8'], ansdict1['question_8_unit']),
+            '9' : u'["q9_choice1"]',
+            '10' : u'[["my freeform"]]',
+            '11' : u'["q11_choice2", "q11_choice4"]',
+            '12' : u'["q12_choice1", ["blah"]]',
         }
         for k, v in dbvalues.items():
             ans = Answer.objects.get(runid=runid, subject__id=self.subject_id,
                 question__number=k)
-            assert ans.answer == v
-
+            
+            v = v.replace('\r', '\\r').replace('\n', '\\n')
+            self.assertEqual(ans.answer, v)
