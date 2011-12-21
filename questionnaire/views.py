@@ -81,9 +81,7 @@ def add_answer(runinfo, question, answer_dict):
     return True
 
 
-
-def questionset_satisfies_checks(questionset, runinfo):
-    "Return True if the runinfo passes the checks specified in the QuestionSet"
+def check_parser(runinfo):
     depparser = BooleanParser(dep_check, runinfo, {})
     tagparser = BooleanParser(has_tag, runinfo)
 
@@ -94,7 +92,7 @@ def questionset_satisfies_checks(questionset, runinfo):
         "iftag": lambda v: v and tagparser.parse(v)
     }
 
-    def passes_checks(checks):
+    def satisfies_checks(checks):
         checks = parse_checks(checks)
 
         for check, value in checks.items():
@@ -105,7 +103,20 @@ def questionset_satisfies_checks(questionset, runinfo):
 
         return True
 
-    if not passes_checks(questionset.checks):
+    return satisfies_checks
+
+
+def question_satisfies_checks(question, runinfo, checkfn=None):
+    checkfn = checkfn or check_parser(runinfo)
+    return checkfn(question.checks)
+
+
+def questionset_satisfies_checks(questionset, runinfo):
+    "Return True if the runinfo passes the checks specified in the QuestionSet"
+    
+    passes = check_parser(runinfo)
+
+    if not passes(questionset.checks):
         return False
 
     # questionsets that pass the checks but have no questions are shown
@@ -115,7 +126,7 @@ def questionset_satisfies_checks(questionset, runinfo):
 
     # if there are questions at least one needs to be visible
     for question in questionset.questions():
-        if passes_checks(question.checks):
+        if passes(question.checks):
             return True
 
     return False
@@ -238,6 +249,8 @@ def questionnaire(request, runcode=None, qs=None):
 
     errors = {}
     for question, ans in extra.items():
+        if not question_satisfies_checks(question, runinfo):
+            continue
         if u"Trigger953" not in ans:
             logging.warn("User attempted to insert extra question (or it's a bug)")
             continue
@@ -354,6 +367,12 @@ def show_questionnaire(request, runinfo, errors={}):
         qvalues[k] = v
 
     for question in questions:
+
+        # if we got here the questionset will at least contain one question
+        # which passes, so this is all we need to check for
+        if not question_satisfies_checks(question, runinfo):
+            continue
+
         Type = question.get_type()
         _qnum, _qalpha = split_numal(question.number)
 
