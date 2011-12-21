@@ -81,29 +81,36 @@ def add_answer(runinfo, question, answer_dict):
     return True
 
 
+
 def questionset_satisfies_checks(questionset, runinfo):
     "Return True if the runinfo passes the checks specified in the QuestionSet"
-    checks = parse_checks(questionset.checks)
+    depparser = BooleanParser(dep_check, runinfo, {})
+    tagparser = BooleanParser(has_tag, runinfo)
 
-    for check, value in checks.items():
+    fnmap = {
+        "maleonly": lambda v: runinfo.subject.gender == 'male',
+        "femaleonly": lambda v: runinfo.subject.gender == 'female',
+        "shownif": lambda v: v and depparser.parse(v),
+        "iftag": lambda v: v and tagparser.parse(v)
+    }
 
-        value = value and value.strip() or None
-        
-        if check == 'maleonly' and runinfo.subject.gender != 'male':
+    def pass_checks(checks):
+        checks = parse_checks(checks)
+
+        for check, value in checks.items():
+            if check in fnmap:                
+                value = value and value.strip()
+                if not fnmap[check](value):
+                    return False
+
+        return True
+
+    if not pass_checks(questionset.checks):
+        return False
+
+    for question in questionset.questions():
+        if not pass_checks(question.checks):
             return False
-        
-        if check == 'femaleonly' and runinfo.subject.gender != 'female':
-            return False
-        
-        if check == 'shownif' and value:
-            depparser = BooleanParser(dep_check, runinfo, {})
-            if not depparser.parse(value):
-                return False
-        
-        if check =='iftag' and value:
-            tagparser = BooleanParser(has_tag, runinfo)
-            if not tagparser.parse(value):
-                return False
 
     return True
 
