@@ -49,6 +49,14 @@ class Subject(models.Model):
         "Return the string form of the runid for the upcoming run"
         return str(self.nextrun.year)
 
+    def last_run(self):
+        "Returns the last completed run or None"
+        try:
+            query = RunInfoHistory.objects.filter(subject=self)
+            return query.order_by('-completed')[0]
+        except IndexError:
+            return None
+
     def history(self):
         return RunInfoHistory.objects.filter(subject=self).order_by('runid')
 
