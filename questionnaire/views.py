@@ -320,14 +320,6 @@ def questionnaire(request, runcode=None, qs=None):
     transaction.commit()
     return redirect_to_qs(runinfo)
 
-
-def get_progress(percent):
-    "Based on a percentage as a float, calculate percentage needed for CSS progress bar"
-    if int(percent) >= 1:
-        return 100, "1"
-    pc = "-%s" % (120 - int(percent * 120) + 1)
-    return (int(percent * 100), pc)
-
 def get_total_questionsets(runinfo):
     "Returns the total of visible questionsets"
     sets = runinfo.questionset.questionnaire.questionsets()
@@ -437,7 +429,11 @@ def show_questionnaire(request, runinfo, errors={}):
     if not all((pos, total)):
         progress = None
     else:
-        progress = get_progress(float(pos) / float(total))
+        progress = float(pos) / float(total) * 100.00
+        
+        # progress is always at least one percent
+        progress = progress > 1.0 and int(progress) or 1
+        
 
     if request.POST:
         for k,v in request.POST.items():

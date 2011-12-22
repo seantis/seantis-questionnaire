@@ -82,12 +82,12 @@
     emailcount: 0,
     emailsent: !!timestamp '2009-05-16 15:05:11.775082',
     lastemailerror: null,
-    questionset: 2,
+    questionset: 3,
     random: 'test:withtags',
     runid: 'test:withtags',
     state: '',
-    subject: 1,
-    tags: 'testtag'
+    tags: 'testtag',
+    subject: 1
   }
   model: questionnaire.runinfo
   pk: 2
@@ -97,12 +97,12 @@
     emailcount: 0,
     emailsent: !!timestamp '2009-05-16 15:05:11.775082',
     lastemailerror: null,
-    questionset: 2,
+    questionset: 3,
     random: 'test:withouttags',
     runid: 'test:withouttags',
     state: '',
-    subject: 1,
-    tags: ''
+    tags: '',
+    subject: 1
   }
   model: questionnaire.runinfo
   pk: 3

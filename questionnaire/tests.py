@@ -153,3 +153,39 @@ class TypeTest(TestCase):
             
             v = v.replace('\r', '\\r').replace('\n', '\\n')
             self.assertEqual(ans.answer, v)
+
+    def test070_tags(self):
+        c = self.client
+
+        # the first questionset in questionnaire 2 is always shown, 
+        # but one of its 2 questions is tagged with testtag
+        with_tags = c.get('/q/test:withtags/1/')
+
+        # so we'll get two questions shown if the run is tagged
+        self.assertEqual(with_tags.status_code, 200)
+        self.assertEqual(len(with_tags.context['qlist']), 2)
+
+        # one question, if the run is not tagged
+        without_tags = c.get('/q/test:withouttags/1/')
+
+        self.assertEqual(without_tags.status_code, 200)
+        self.assertEqual(len(without_tags.context['qlist']), 1)
+
+        # the second questionset is only shown if the run is tagged
+        with_tags = c.get('/q/test:withtags/2/')
+
+        self.assertEqual(with_tags.status_code, 200)
+        self.assertEqual(len(with_tags.context['qlist']), 1)
+
+        # meaning it'll be skipped on the untagged run
+        without_tags = c.get('/q/test.withouttags/2/')
+
+        self.assertEqual(without_tags.status_code, 302) # redirect
+
+        # the progress values of the first questionset should reflect
+        # the fact that in one run there's only one questionset
+        with_tags = c.get('/q/test:withtags/1/')
+        without_tags = c.get('/q/test:withouttags/1/')
+
+        self.assertEqual(with_tags.context['progress'], 50)
+        self.assertEqual(without_tags.context['progress'], 100)
