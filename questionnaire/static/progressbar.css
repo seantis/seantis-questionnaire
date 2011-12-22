@@ -28,7 +28,7 @@ THE SOFTWARE.
   position: relative;
   top: 27px;
   height: 18px;
-  width: 25%;
+  width: 200px;
   margin: 0 0 0 auto;
   
   /* Pad right so we don't cover the borders when fully progressed */
