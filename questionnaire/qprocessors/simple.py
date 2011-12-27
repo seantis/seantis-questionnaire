@@ -39,6 +39,7 @@ def question_yesno(request, question):
         'required' : True,
         'checks' : checks,
         'value' : val,
+        'qvalue' : '',
         'hascomment' : hascomment,
         'hasdontknow' : hasdontknow,
         'comment' : cmt,
