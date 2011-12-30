@@ -354,8 +354,9 @@ def show_questionnaire(request, runinfo, errors={}):
     jstriggers = []
     qvalues = {}
 
-    # initialize qvalues                                                                                                                               
-    for k,v in runinfo.get_cookiedict().items():
+    # initialize qvalues        
+    cookiedict = runinfo.get_cookiedict()                                                                                                                       
+    for k,v in cookiedict.items():
         qvalues[k] = v
 
     for question in questions:
@@ -407,7 +408,7 @@ def show_questionnaire(request, runinfo, errors={}):
             parser = BooleanParser(dep_check)
             qdict['checkstring'] = ' checks="%s"' % parser.toString(depon)
             jstriggers.append('qc_%s' % question.number)
-        if 'default' in cd:
+        if 'default' in cd and not question.number in cookiedict:
             qvalues[question.number] = cd['default']
         if Type in QuestionProcessors:
             qdict.update(QuestionProcessors[Type](request, question))
@@ -419,8 +420,9 @@ def show_questionnaire(request, runinfo, errors={}):
                     cssinclude.extend(qdict['jsinclude'])
             if 'jstriggers' in qdict:
                 jstriggers.extend(qdict['jstriggers'])
-            if 'qvalue' in qdict:
+            if 'qvalue' in qdict and not question.number in cookiedict:
                 qvalues[question.number] = qdict['qvalue']
+                
         qlist.append( (question, qdict) )
 
     total = get_total_questionsets(runinfo)

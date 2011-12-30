@@ -156,7 +156,7 @@ class RunInfo(models.Model):
     lastemailerror = models.CharField(max_length=64, null=True, blank=True)
 
     state = models.CharField(max_length=16, null=True, blank=True)
-    cookies = models.CharField(max_length=512, null=True, blank=True)
+    cookies = models.TextField(null=True, blank=True)
 
     tags = models.TextField(
             blank=True,
@@ -181,8 +181,6 @@ class RunInfo(models.Model):
                 value=str(value)
             cookies[key] = value
         cstr = json.dumps(cookies)
-        if len(cstr) > 512: # XXX - hard coded to match cookie length above
-            raise Exception("Cannot set cookie. No more space in cookie jar!")
         self.cookies=cstr
         self.save()
         self.__cookiecache = cookies
