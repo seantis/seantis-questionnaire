@@ -81,7 +81,7 @@ def add_answer(runinfo, question, answer_dict):
     return True
 
 
-def check_parser(runinfo):
+def check_parser(runinfo, exclude=[]):
     depparser = BooleanParser(dep_check, runinfo, {})
     tagparser = BooleanParser(has_tag, runinfo)
 
@@ -91,6 +91,9 @@ def check_parser(runinfo):
         "shownif": lambda v: v and depparser.parse(v),
         "iftag": lambda v: v and tagparser.parse(v)
     }
+
+    for ex in exclude:
+        del fnmap[ex]
 
     def satisfies_checks(checks):
         checks = parse_checks(checks)
@@ -295,6 +298,7 @@ def questionnaire(request, runcode=None, qs=None):
         hist.subject = runinfo.subject
         hist.runid = runinfo.runid
         hist.completed = datetime.now()
+        hist.questionnaire = questionnaire
         hist.save()
 
         questionnaire_done.send(sender=None, runinfo=runinfo,

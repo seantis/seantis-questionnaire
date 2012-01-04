@@ -109,7 +109,8 @@
 - fields: {
     completed: 2009-05-16,
     runid: 'test:test',
-    subject: 1
+    subject: 1,
+    questionnaire: 1,
   }
   model: questionnaire.runinfohistory
   pk: 1

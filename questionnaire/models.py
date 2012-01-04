@@ -209,9 +209,18 @@ class RunInfoHistory(models.Model):
     subject = models.ForeignKey(Subject)
     runid = models.CharField(max_length=32)
     completed = models.DateField()
+    tags = models.TextField(
+            blank=True,
+            help_text=u"Tags used on this run, separated by commas"
+        )
+    questionnaire = models.ForeignKey(Questionnaire)
 
     def __unicode__(self):
         return "%s: %s on %s" % (self.runid, self.subject, self.completed)
+
+    def answers(self):
+        "Returns the query for the answers."
+        return Answer.objects.filter(subject=self.subject, runid=self.runid)
 
     class Meta:
         verbose_name_plural = 'Run Info History'
