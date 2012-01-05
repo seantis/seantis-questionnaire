@@ -137,6 +137,30 @@ def questionset_satisfies_checks(questionset, runinfo):
 
 def redirect_to_qs(runinfo):
     "Redirect to the correct and current questionset URL for this RunInfo"
+
+    # cache current questionset
+    qs = runinfo.questionset
+
+    # skip questionsets that don't pass
+    if not questionset_satisfies_checks(runinfo.questionset, runinfo):
+        
+        next = runinfo.questionset.next()
+        
+        while next and not questionset_satisfies_checks(next, runinfo):
+            next = next.next()
+        
+        runinfo.questionset = next
+        runinfo.save()
+
+        hasquestionset = bool(next)
+    else:
+        hasquestionset = True
+
+    # empty ?
+    if not hasquestionset:
+        logging.warn('no questionset in questionnaire which passes the check')
+        return finish_questionnaire(runinfo, qs.questionnaire)
+
     url = reverse("questionset",
                 args=[ runinfo.random, runinfo.questionset.sortid ])
     return HttpResponseRedirect(url)
@@ -294,35 +318,38 @@ def questionnaire(request, runcode=None, qs=None):
     runinfo.save()
 
     if next is None: # we are finished
-        hist = RunInfoHistory()
-        hist.subject = runinfo.subject
-        hist.runid = runinfo.runid
-        hist.completed = datetime.now()
-        hist.questionnaire = questionnaire
-        hist.save()
-
-        questionnaire_done.send(sender=None, runinfo=runinfo,
-                                questionnaire=questionnaire)
-
-        redirect_url = questionnaire.redirect_url
-        for x,y in (('$LANG', translation.get_language()),
-                    ('$SUBJECTID', runinfo.subject.id),
-                    ('$RUNID', runinfo.runid),):
-            redirect_url = redirect_url.replace(x, str(y))
-
-        if runinfo.runid in ('12345', '54321') \
-        or runinfo.runid.startswith('test:'):
-            runinfo.questionset = QuestionSet.objects.filter(questionnaire=questionnaire).order_by('sortid')[0]
-            runinfo.save()
-        else:
-            runinfo.delete()
-        transaction.commit()
-        if redirect_url:
-            return HttpResponseRedirect(redirect_url)
-        return r2r("questionnaire/complete.$LANG.html", request)
+        return finish_questionnaire(runinfo, questionnaire)
 
     transaction.commit()
     return redirect_to_qs(runinfo)
+
+def finish_questionnaire(runinfo, questionnaire):
+    hist = RunInfoHistory()
+    hist.subject = runinfo.subject
+    hist.runid = runinfo.runid
+    hist.completed = datetime.now()
+    hist.questionnaire = questionnaire
+    hist.save()
+
+    questionnaire_done.send(sender=None, runinfo=runinfo,
+                            questionnaire=questionnaire)
+
+    redirect_url = questionnaire.redirect_url
+    for x,y in (('$LANG', translation.get_language()),
+                ('$SUBJECTID', runinfo.subject.id),
+                ('$RUNID', runinfo.runid),):
+        redirect_url = redirect_url.replace(x, str(y))
+
+    if runinfo.runid in ('12345', '54321') \
+    or runinfo.runid.startswith('test:'):
+        runinfo.questionset = QuestionSet.objects.filter(questionnaire=questionnaire).order_by('sortid')[0]
+        runinfo.save()
+    else:
+        runinfo.delete()
+    transaction.commit()
+    if redirect_url:
+        return HttpResponseRedirect(redirect_url)
+    return r2r("questionnaire/complete.$LANG.html", request)
 
 def get_total_questionsets(runinfo):
     "Returns the total of visible questionsets"
