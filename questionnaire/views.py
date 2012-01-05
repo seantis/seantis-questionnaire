@@ -329,6 +329,7 @@ def finish_questionnaire(runinfo, questionnaire):
     hist.runid = runinfo.runid
     hist.completed = datetime.now()
     hist.questionnaire = questionnaire
+    hist.tags = runinfo.tags
     hist.save()
 
     questionnaire_done.send(sender=None, runinfo=runinfo,
