@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8
-
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -20,6 +19,7 @@ from questionnaire.models import *
 from questionnaire.parsers import *
 from questionnaire.emails import _send_email, send_emails
 from questionnaire.utils import numal_sort, split_numal
+from questionnaire.request_cache import request_cache
 import logging
 import random
 import md5
@@ -80,7 +80,6 @@ def add_answer(runinfo, question, answer_dict):
     
     return True
 
-
 def check_parser(runinfo, exclude=[]):
     depparser = BooleanParser(dep_check, runinfo, {})
     tagparser = BooleanParser(has_tag, runinfo)
@@ -95,6 +94,7 @@ def check_parser(runinfo, exclude=[]):
     for ex in exclude:
         del fnmap[ex]
 
+    @request_cache()
     def satisfies_checks(checks):
         checks = parse_checks(checks)
 
@@ -108,11 +108,9 @@ def check_parser(runinfo, exclude=[]):
 
     return satisfies_checks
 
-
 def question_satisfies_checks(question, runinfo, checkfn=None):
     checkfn = checkfn or check_parser(runinfo)
     return checkfn(question.checks)
-
 
 def questionset_satisfies_checks(questionset, runinfo):
     "Return True if the runinfo passes the checks specified in the QuestionSet"
@@ -164,7 +162,6 @@ def redirect_to_qs(runinfo):
     url = reverse("questionset",
                 args=[ runinfo.random, runinfo.questionset.sortid ])
     return HttpResponseRedirect(url)
-
 
 @transaction.commit_on_success
 def questionnaire(request, runcode=None, qs=None):

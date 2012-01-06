@@ -92,6 +92,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'questionnaire.request_cache.RequestCacheMiddleware',
 )
 
 ROOT_URLCONF = 'example.urls'
