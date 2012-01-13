@@ -20,23 +20,21 @@ from questionnaire.parsers import *
 from questionnaire.emails import _send_email, send_emails
 from questionnaire.utils import numal_sort, split_numal
 from questionnaire.request_cache import request_cache
+from questionnaire import profiler
 import logging
 import random
 import md5
 import re
-
 
 def r2r(tpl, request, **contextdict):
     "Shortcut to use RequestContext instead of Context in templates"
     contextdict['request'] = request
     return render_to_response(tpl, contextdict, context_instance = RequestContext(request))
 
-
 def get_runinfo(random):
     "Return the RunInfo entry with the provided random key"
     res = RunInfo.objects.filter(random=random.lower())
     return res and res[0] or None
-
 
 def get_question(number, questionnaire):
     "Return the specified Question (by number) from the specified Questionnaire"
@@ -96,6 +94,9 @@ def check_parser(runinfo, exclude=[]):
 
     @request_cache()
     def satisfies_checks(checks):
+        if not checks:
+            return True
+
         checks = parse_checks(checks)
 
         for check, value in checks.items():
@@ -108,26 +109,45 @@ def check_parser(runinfo, exclude=[]):
 
     return satisfies_checks
 
+@request_cache()
 def question_satisfies_checks(question, runinfo, checkfn=None):
     checkfn = checkfn or check_parser(runinfo)
     return checkfn(question.checks)
 
-def questionset_satisfies_checks(questionset, runinfo):
-    "Return True if the runinfo passes the checks specified in the QuestionSet"
+@request_cache(keyfn=lambda *args: args[0].id)
+def questionset_satisfies_checks(questionset, runinfo, checks=None):
+    """Return True if the runinfo passes the checks specified in the QuestionSet
+
+    Checks is an optional dictionary with the keys being questionset.pk and the
+    values being the checks of the contained questions. 
     
+    This, in conjunction with fetch_checks allows for fewer 
+    db roundtrips and greater performance.
+
+    Sadly, checks cannot be hashed and therefore the request cache is useless
+    here. Thankfully the benefits outweigh the costs in my tests.
+    """
+
     passes = check_parser(runinfo)
 
     if not passes(questionset.checks):
         return False
 
+    if not checks:
+        checks = dict()
+        checks[questionset.id] = []
+
+        for q in questionset.questions():
+            checks[questionset.id].append(q.checks)
+
     # questionsets that pass the checks but have no questions are shown
     # (comments, last page, etc.)
-    if not questionset.questions():
+    if not checks[questionset.id]:
         return True
 
     # if there are questions at least one needs to be visible
-    for question in questionset.questions():
-        if passes(question.checks):
+    for check in checks[questionset.id]:
+        if passes(check):
             return True
 
     return False
@@ -349,25 +369,50 @@ def finish_questionnaire(runinfo, questionnaire):
         return HttpResponseRedirect(redirect_url)
     return r2r("questionnaire/complete.$LANG.html", request)
 
-def get_total_questionsets(runinfo):
-    "Returns the total of visible questionsets"
-    sets = runinfo.questionset.questionnaire.questionsets()
-    return sum([1 for qs in sets if questionset_satisfies_checks(qs, runinfo)])
+def get_progress(runinfo):
 
-def get_current_questionset_position(runinfo):
-    "Returns the position of the current questionset (position=nth of total)"
+    position, total = 0, 0
+    
     current = runinfo.questionset
+    sets = current.questionnaire.questionsets()
 
-    # TODO performance: cache this check
-    position = 1
-    for qs in current.questionnaire.questionsets():
+    checks = fetch_checks(sets)
+
+    # fetch the all question checks at once. This greatly improves the
+    # performance of the questionset_satisfies_checks function as it
+    # can avoid a roundtrip to the database for each question
+
+    for qs in sets:
+        if questionset_satisfies_checks(qs, runinfo, checks):
+            total += 1
+
         if qs.id == current.id:
-            return position
+            position = total
 
-        if questionset_satisfies_checks(qs, runinfo):
-            position += 1
+    if not all((position, total)):
+        progress = 1
+    else:
+        progress = float(position) / float(total) * 100.00
+        
+        # progress is always at least one percent
+        progress = progress >= 1.0 and progress or 1
 
-    return None
+    return int(progress)
+
+def fetch_checks(questionsets):
+    ids = [qs.pk for qs in questionsets]
+    
+    query = Question.objects.filter(questionset__pk__in=ids)
+    query = query.values('questionset_id', 'checks')
+
+    checks = dict()
+    for qsid in ids:
+        checks[qsid] = list()
+
+    for result in (r for r in query):
+        checks[result['questionset_id']].append(result['checks'])
+
+    return checks
 
 def show_questionnaire(request, runinfo, errors={}):
     """
@@ -454,17 +499,7 @@ def show_questionnaire(request, runinfo, errors={}):
                 
         qlist.append( (question, qdict) )
 
-    total = get_total_questionsets(runinfo)
-    pos = get_current_questionset_position(runinfo)
-
-    if not all((pos, total)):
-        progress = None
-    else:
-        progress = float(pos) / float(total) * 100.00
-        
-        # progress is always at least one percent
-        progress = progress > 1.0 and int(progress) or 1
-        
+    progress = get_progress(runinfo)
 
     if request.POST:
         for k,v in request.POST.items():
@@ -731,7 +766,7 @@ def answer_summary(questionnaire, answers=None):
     
 def has_tag(tag, runinfo):
     """ Returns true if the given runinfo contains the given tag. """
-    return tag in [t.strip() for t in runinfo.tags.split(',')]
+    return tag in (t.strip() for t in runinfo.tags.split(','))
 
 
 def dep_check(expr, runinfo, answerdict):
@@ -782,14 +817,19 @@ def dep_check(expr, runinfo, answerdict):
         actual_answer = runinfo.get_cookie(check_questionnum)
     else:
         # retrieve from database
-        logging.warn("Put `store` in checks field for question %s" \
-            % check_questionnum)
         ansobj = Answer.objects.filter(question=check_question,
             runid=runinfo.runid, subject=runinfo.subject)
         if ansobj:
             actual_answer = ansobj[0].split_answer()[0]
+            logging.warn("Put `store` in checks field for question %s" \
+            % check_questionnum)
         else:
             actual_answer = None
+
+    if not actual_answer:
+        if check_question.getcheckdict():
+            actual_answer = check_question.getcheckdict()['default']
+    
     if actual_answer is None:
         actual_answer = u''
     if check_answer[0:1] in "<>":

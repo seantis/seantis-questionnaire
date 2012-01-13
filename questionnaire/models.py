@@ -100,7 +100,6 @@ class QuestionSet(models.Model):
             self.__qcache.sort()
         return self.__qcache
 
-
     def next(self):
         qs = self.questionnaire.questionsets()
         retnext = False
