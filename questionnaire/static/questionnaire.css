@@ -81,3 +81,19 @@ html, body {
     padding: 20px 20px 10px;
     margin: -20px -20px 20px;
 }
+
+.rangeinput div.input {
+    display: inline;
+    float: left;
+}
+
+.rangeinput label {
+    text-align: left; 
+    max-width: 40px;
+    margin-left: 10px;
+    padding-top: 4px;
+}
+
+.rangeinput {
+    margin-top: 5px;
+}

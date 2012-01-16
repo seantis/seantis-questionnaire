@@ -1,9 +1,6 @@
-<div class="clearfix">
+<div class="clearfix rangeinput">
     <div class="input">
-        <select onchange="valchanged('{{ question.number }}', this.options[this.selectedIndex].value);" name="question_{{ question.number }}">
-        {% for x in qdict.range %}
-            <option value="{{ x }}" {% ifequal qdict.selected x %}selected{% endifequal %}>&nbsp;&nbsp;{{ x }}&nbsp;&nbsp;</option>
-        {% endfor %}
-        </select>
+        <input name="question_{{ question.number }}" type="range" min="{{ qdict.rmin }}" max="{{ qdict.rmax }}" step="{{ qdict.rstep }}" value="{{ qdict.current }}">
     </div>
+    <label data-unit="{{ qdict.runit }}">{{ qdict.runit }}</label>
 </div>
