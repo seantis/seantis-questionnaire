@@ -97,3 +97,12 @@ html, body {
 .rangeinput {
     margin-top: 5px;
 }
+
+input.sending {
+    text-shadow: 0px 0px 5px white !important;
+    -webkit-transition: 0.3s linear all !important;
+}
+
+.questionset-submit input:disabled {
+  -webkit-transition: 0.3s linear all !important;  
+}
