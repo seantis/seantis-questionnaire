@@ -828,7 +828,7 @@ def dep_check(expr, runinfo, answerdict):
 
     if not actual_answer:
         if check_question.getcheckdict():
-            actual_answer = check_question.getcheckdict()['default']
+            actual_answer = check_question.getcheckdict().get('default')
     
     if actual_answer is None:
         actual_answer = u''
