@@ -28,7 +28,7 @@ div.input {
 
 /* ensure that all inputs have the same distance to the question */
 div.input input[type="text"], div.input textarea, div.input select {
-    margin: 8px 0 0 0;        
+    margin: 10px 0 0 0;        
 }
 
 div.input span.add-on {

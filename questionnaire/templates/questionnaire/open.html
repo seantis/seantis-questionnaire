@@ -1,6 +1,8 @@
 {% load i18n %}
 <div class="clearfix">
+    
     <div class="input">
         <input type="text" class="span8" size="60" id="{{ question.number }}" name="question_{{ question.number }}" value="{{ qdict.value }}">
+        <span class="help-block">{{ question.extra }}</span>
     </div>
 </div>
