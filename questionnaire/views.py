@@ -433,6 +433,8 @@ def show_questionnaire(request, runinfo, errors={}):
     for k,v in cookiedict.items():
         qvalues[k] = v
 
+    substitute_answer(qvalues, runinfo.questionset)
+
     for question in questions:
 
         # if we got here the questionset will at least contain one question
@@ -452,27 +454,9 @@ def show_questionnaire(request, runinfo, errors={}):
             'qalpha_class' : _qalpha and (ord(_qalpha[-1]) % 2 \
                                           and ' alodd' or ' aleven') or '',
         }
-        #If the question has a magic string that refers to an answer to a 
-        # previous question, fetch the answer and replace the magic string. 
-        # To be able to fetch the cookie with the answer it has to be stored 
-        # using additional checks
-        if qvalues:
-            magic = 'subst_with_ans_'
-            regex =r'subst_with_ans_(\d+)'
-
-            replacements = re.findall(regex, question.text)
-            text_attributes = [a for a in dir(question) if a.startswith('text_')]
-
-            for answerid in replacements:
-                
-                target = magic + answerid
-                replacement = qvalues.get(answerid, '')
-
-                for attr in text_attributes:
-                    oldtext = getattr(question, attr)
-                    newtext = oldtext.replace(target, replacement)
-                    
-                    setattr(question, attr, newtext)
+        
+        # substitute answer texts
+        substitute_answer(qvalues, question)
 
         # add javascript dependency checks
         cd = question.getcheckdict()
@@ -525,6 +509,35 @@ def show_questionnaire(request, runinfo, errors={}):
     r['Cache-Control'] = 'no-cache'
     r['Expires'] = "Thu, 24 Jan 1980 00:00:00 GMT"
     return r
+
+def substitute_answer(qvalues, obj):
+    """Objects with a 'text/text_xx' attribute can contain magic strings
+    referring to the answers of other questions. This function takes
+    any such object, goes through the stored answers (qvalues) and replaces
+    the magic string with the actual value. If this isn't possible the
+    magic string is removed from the text.
+
+    Only answers with 'store' in their check will work with this.
+
+    """
+        
+    if qvalues:
+        magic = 'subst_with_ans_'
+        regex =r'subst_with_ans_(\S+)'
+
+        replacements = re.findall(regex, obj.text)
+        text_attributes = [a for a in dir(obj) if a.startswith('text_')]
+
+        for answerid in replacements:
+            
+            target = magic + answerid
+            replacement = qvalues.get(answerid.lower(), '')
+
+            for attr in text_attributes:
+                oldtext = getattr(obj, attr)
+                newtext = oldtext.replace(target, replacement)
+                
+                setattr(obj, attr, newtext)
 
 
 def set_language(request, runinfo=None, next=None):
@@ -768,7 +781,7 @@ def has_tag(tag, runinfo):
     """ Returns true if the given runinfo contains the given tag. """
     if tag == '<any>':
         return True
-        
+
     return tag in (t.strip() for t in runinfo.tags.split(','))
 
 
