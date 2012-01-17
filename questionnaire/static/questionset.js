@@ -89,7 +89,6 @@ function addtrigger(elemid) {
             var duration = 10000; // 10s
 
             var disable = function(){
-                $('body').css({'cursor':'wait'});
                 input.attr('disabled', 'disabled');
                 input.toggleClass('sending', false);
             };

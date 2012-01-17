@@ -100,9 +100,16 @@ html, body {
 
 input.sending {
     text-shadow: 0px 0px 5px white !important;
-    -webkit-transition: 0.3s linear all !important;
+    -webkit-transition: 0.3s linear all !important;  
+       -moz-transition: 0.3s linear all !important;
+         -o-transition: 0.3s linear all !important;
+            transition: 0.3s linear all !important;   
+
 }
 
 .questionset-submit input:disabled {
-  -webkit-transition: 0.3s linear all !important;  
+    -webkit-transition: 0.3s linear all !important;  
+       -moz-transition: 0.3s linear all !important;
+         -o-transition: 0.3s linear all !important;
+            transition: 0.3s linear all !important;   
 }
