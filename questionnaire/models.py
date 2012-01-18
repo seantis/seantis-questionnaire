@@ -380,17 +380,3 @@ class Answer(models.Model):
     def check_answer(self):
         "Confirm that the supplied answer matches what we expect"
         return True
-
-
-class Tag(models.Model):
-
-    __metaclass__ = TransMeta
-
-    def __unicode__(self):
-        return "Tag('%s', '%s')" % (self.name, self.text)
-
-    name = models.CharField(u'name', max_length=16)
-    text = models.TextField(blank=True)
-
-    class Meta:
-        translate = ('text',)
