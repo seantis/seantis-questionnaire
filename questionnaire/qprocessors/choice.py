@@ -51,7 +51,7 @@ add_type('choice-freeform', 'Choice with a freeform option [radio]')
 
 
 @question_proc('choice-multiple', 'choice-multiple-freeform')
-def template_multiple(request, question):
+def question_multiple(request, question):
     key = "question_%s" % question.number
     choices = []
     counter = 0
