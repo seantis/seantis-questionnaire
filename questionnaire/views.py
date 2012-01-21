@@ -212,6 +212,11 @@ def questionnaire(request, runcode=None, qs=None):
         transaction.commit()
         return HttpResponseRedirect('/')
 
+    # let the runinfo have a piggy back ride on the request
+    # so we can easily use the runinfo in places like the question processor
+    # without passing it around
+    request.runinfo = runinfo
+
     if not qs:
         # Only change the language to the subjects choice for the initial
         # questionnaire page (may be a direct link from an email)
@@ -784,7 +789,6 @@ def has_tag(tag, runinfo):
 
     return tag in (t.strip() for t in runinfo.tags.split(','))
 
-
 def dep_check(expr, runinfo, answerdict):
     """
     Given a comma separated question number and expression, determine if the
@@ -811,6 +815,7 @@ def dep_check(expr, runinfo, answerdict):
     questionnaire = runinfo.questionset.questionnaire
     if "," not in expr:
         expr = expr + ",yes"
+
     check_questionnum, check_answer = expr.split(",",1)
     try:
         check_question = Question.objects.get(number=check_questionnum,

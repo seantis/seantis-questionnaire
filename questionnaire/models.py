@@ -188,7 +188,7 @@ class RunInfo(models.Model):
         if not self.cookies:
             return default
         d = self.get_cookiedict()
-        return d.get(key, default)
+        return d.get(key.lower().strip(), default)
 
     def get_cookiedict(self):
         if not self.cookies:
