@@ -124,7 +124,26 @@ LANGUAGES = (
     ('de', 'Deutsch'),
 )
 
-REPLACEMENTSTRING = u'subst_with_ans_'
+# Defines the progressbar behavior in the questionnaire
+# the possible options are 'default', 'async' and 'none'
+#
+#   'default'
+#   The progressbar will be rendered in each questionset together with the 
+#   questions. This is a good choice for smaller questionnaires as the 
+#   progressbar will always be up to date.
+#
+#   'async'
+#   The progressbar value is updated using ajax once the questions have been
+#   rendered. This approach is the right choice for bigger questionnaires which
+#   result in a long time spent on updating the progressbar with each request.
+#   (The progress calculation is by far the most time consuming method in 
+#    bigger questionnaires as all questionsets and questions need to be
+#    parsed to decide if they play a role in the current run or not)
+#
+#   'none'
+#   Completely omits the progressbar. Good if you don't want one or if the
+#   questionnaire is so huge that even the ajax request takes too long.
+QUESTIONNAIRE_PROGRESS = 'async'
 
 try: from local_settings import *
 except: pass

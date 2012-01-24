@@ -3,6 +3,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render_to_response, get_object_or_404
 from django.db import transaction
@@ -181,6 +182,15 @@ def get_progress(runinfo):
         progress = progress >= 1.0 and progress or 1
 
     return int(progress)
+
+def get_async_progress(request, runcode):
+    """ Returns the progress as json for use with ajax """
+
+    runinfo = get_runinfo(runcode)
+    response = dict(progress=get_progress(runinfo))
+
+    cache.set('progress' + runinfo.random, response['progress'])
+    return HttpResponse(json.dumps(response), mimetype='application/javascript')
 
 def fetch_checks(questionsets):
     ids = [qs.pk for qs in questionsets]
@@ -487,7 +497,16 @@ def show_questionnaire(request, runinfo, errors={}):
                 
         qlist.append( (question, qdict) )
 
-    progress = get_progress(runinfo)
+    has_progress = settings.QUESTIONNAIRE_PROGRESS in ('async', 'default')
+    async_progress = settings.QUESTIONNAIRE_PROGRESS == 'async'
+
+    if has_progress:
+        if async_progress:
+            progress = cache.get('progress' + runinfo.random, 1)
+        else:
+            progress = get_progress(runinfo)
+    else:
+        progress = 0
 
     if request.POST:
         for k,v in request.POST.items():
@@ -509,7 +528,10 @@ def show_questionnaire(request, runinfo, errors={}):
         triggers=jstriggers,
         qvalues=qvalues,
         jsinclude=jsinclude,
-        cssinclude=cssinclude)
+        cssinclude=cssinclude,
+        async_progress=async_progress,
+        async_url=reverse('progress', args=[runinfo.random])
+    )
     r['Cache-Control'] = 'no-cache'
     r['Expires'] = "Thu, 24 Jan 1980 00:00:00 GMT"
     return r

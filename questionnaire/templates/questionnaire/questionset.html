@@ -13,6 +13,13 @@
     {% for x in cssinclude %}
         <link rel="stylesheet" href="{{ x }}" type="text/css" />
     {% endfor %}
+
+    {% if async_progress %}
+        <script type="text/javascript">
+            var progress_url = "{{ async_url }}";
+        </script>
+        <script type="text/javascript" src="{{ STATIC_URL }}progress.js"></script>
+    {% endif %}
 {% endblock %}
 
 {% block language %}
