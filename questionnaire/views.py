@@ -109,7 +109,7 @@ def check_parser(runinfo, exclude=[]):
 
     return satisfies_checks
 
-@request_cache()
+@request_cache(keyfn=lambda *args: args[0].id)
 def question_satisfies_checks(question, runinfo, checkfn=None):
     checkfn = checkfn or check_parser(runinfo)
     return checkfn(question.checks)
@@ -152,6 +152,50 @@ def questionset_satisfies_checks(questionset, runinfo, checks=None):
 
     return False
 
+def get_progress(runinfo):
+
+    position, total = 0, 0
+    
+    current = runinfo.questionset
+    sets = current.questionnaire.questionsets()
+
+    checks = fetch_checks(sets)
+
+    # fetch the all question checks at once. This greatly improves the
+    # performance of the questionset_satisfies_checks function as it
+    # can avoid a roundtrip to the database for each question
+
+    for qs in sets:
+        if questionset_satisfies_checks(qs, runinfo, checks):
+            total += 1
+
+        if qs.id == current.id:
+            position = total
+
+    if not all((position, total)):
+        progress = 1
+    else:
+        progress = float(position) / float(total) * 100.00
+        
+        # progress is always at least one percent
+        progress = progress >= 1.0 and progress or 1
+
+    return int(progress)
+
+def fetch_checks(questionsets):
+    ids = [qs.pk for qs in questionsets]
+    
+    query = Question.objects.filter(questionset__pk__in=ids)
+    query = query.values('questionset_id', 'checks')
+
+    checks = dict()
+    for qsid in ids:
+        checks[qsid] = list()
+
+    for result in (r for r in query):
+        checks[result['questionset_id']].append(result['checks'])
+
+    return checks
 
 def redirect_to_qs(runinfo):
     "Redirect to the correct and current questionset URL for this RunInfo"
@@ -373,51 +417,6 @@ def finish_questionnaire(runinfo, questionnaire):
     if redirect_url:
         return HttpResponseRedirect(redirect_url)
     return r2r("questionnaire/complete.$LANG.html", request)
-
-def get_progress(runinfo):
-
-    position, total = 0, 0
-    
-    current = runinfo.questionset
-    sets = current.questionnaire.questionsets()
-
-    checks = fetch_checks(sets)
-
-    # fetch the all question checks at once. This greatly improves the
-    # performance of the questionset_satisfies_checks function as it
-    # can avoid a roundtrip to the database for each question
-
-    for qs in sets:
-        if questionset_satisfies_checks(qs, runinfo, checks):
-            total += 1
-
-        if qs.id == current.id:
-            position = total
-
-    if not all((position, total)):
-        progress = 1
-    else:
-        progress = float(position) / float(total) * 100.00
-        
-        # progress is always at least one percent
-        progress = progress >= 1.0 and progress or 1
-
-    return int(progress)
-
-def fetch_checks(questionsets):
-    ids = [qs.pk for qs in questionsets]
-    
-    query = Question.objects.filter(questionset__pk__in=ids)
-    query = query.values('questionset_id', 'checks')
-
-    checks = dict()
-    for qsid in ids:
-        checks[qsid] = list()
-
-    for result in (r for r in query):
-        checks[result['questionset_id']].append(result['checks'])
-
-    return checks
 
 def show_questionnaire(request, runinfo, errors={}):
     """

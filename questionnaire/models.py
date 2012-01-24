@@ -224,7 +224,6 @@ class RunInfoHistory(models.Model):
     class Meta:
         verbose_name_plural = 'Run Info History'
 
-
 class Question(models.Model):
     __metaclass__ = TransMeta
 
@@ -265,9 +264,7 @@ class Question(models.Model):
             return self.__checkdict_cached
         try:
             self.__checkdict_cached = d = parse_checks(self.sameas().checks or '')
-        except ParseException, e:
-            logging.exception("Error Parsing Checks for Question %s: %s" % (
-                self.number, self.sameas().checks))
+        except ParseException:
             raise Exception("Error Parsing Checks for Question %s: %s" % (
                 self.number, self.sameas().checks))
         return d
