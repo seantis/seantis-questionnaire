@@ -110,7 +110,7 @@ def check_parser(runinfo, exclude=[]):
 
     return satisfies_checks
 
-@request_cache(keyfn=lambda *args: args[0].id)
+@request_cache()
 def question_satisfies_checks(question, runinfo, checkfn=None):
     checkfn = checkfn or check_parser(runinfo)
     return checkfn(question.checks)
@@ -843,6 +843,7 @@ def dep_check(expr, runinfo, answerdict):
           questionset__questionnaire = questionnaire)
     except Question.DoesNotExist:
         return False
+
     if check_question in answerdict:
         # test for membership in multiple choice questions
         # FIXME: only checking answerdict
