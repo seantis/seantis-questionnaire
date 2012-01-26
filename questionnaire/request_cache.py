@@ -16,6 +16,9 @@ def get_request_cache():
     assert _installed_middleware, 'RequestCacheMiddleware not loaded'
     return _request_cache[currentThread()]
 
+def clear_request_cache():
+    _request_cache[currentThread()].clear()
+
 class RequestCache(LocMemCache):
     def __init__(self):
         name = 'locmemcache@%i' % hash(currentThread())
