@@ -833,7 +833,14 @@ def dep_check(expr, runinfo, answerdict):
     
     The use of the comma separator is purely historical.
     """
-    questionnaire = runinfo.questionset.questionnaire
+
+    if hasattr(runinfo, 'questionset'):
+        questionnaire = runinfo.questionset.questionnaire
+    elif hasattr(runinfo, 'questionnaire'):
+        questionnaire = runinfo.questionnaire
+    else:
+        assert False
+
     if "," not in expr:
         expr = expr + ",yes"
 
@@ -856,7 +863,7 @@ def dep_check(expr, runinfo, answerdict):
             elif check_answer.strip() == v.strip():
                 return True
         actual_answer = answerdict[check_question].get('ANSWER', '')
-    elif runinfo.get_cookie(check_questionnum, False):
+    elif hasattr(runinfo, 'get_cookie') and runinfo.get_cookie(check_questionnum, False):
         actual_answer = runinfo.get_cookie(check_questionnum)
     else:
         # retrieve from database
