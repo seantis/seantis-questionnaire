@@ -40,7 +40,7 @@ ul.inputs-list input[type="text"] {
     margin: 5px 0;
 }
 
-.error {
+div.error {
     margin: 10px 0;
 }
 
