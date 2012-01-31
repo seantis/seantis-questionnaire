@@ -3,4 +3,5 @@
         <input name="question_{{ question.number }}" type="range" min="{{ qdict.rmin }}" max="{{ qdict.rmax }}" step="{{ qdict.rstep }}" value="{{ qdict.current }}">
     </div>
     <label data-unit="{{ qdict.runit }}">{{ qdict.runit }}</label>
+    <span class="help-block">{{ question.extra }}</span>
 </div>
