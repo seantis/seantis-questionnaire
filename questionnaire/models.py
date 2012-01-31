@@ -253,6 +253,7 @@ class Question(models.Model):
         "You may also combine tests appearing in <tt>requiredif</tt> "
         "by joining them with the words <tt>and</tt> or <tt>or</tt>, "
         'eg. <tt>requiredif="Q1,A or Q2,B"</tt>')
+    footer = models.TextField(u"Footer", help_text="Footer rendered below the question interpreted as textile", blank=True)
 
 
     def questionnaire(self):
@@ -320,7 +321,7 @@ class Question(models.Model):
         return cmpnum or cmp(astr, bstr)
 
     class Meta:
-        translate = ('text', 'extra')
+        translate = ('text', 'extra', 'footer')
 
 
 class Choice(models.Model):

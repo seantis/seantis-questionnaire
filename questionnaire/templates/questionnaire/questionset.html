@@ -80,6 +80,10 @@
                     </div>
                 {% endif %}
             </div> <!-- /question container -->
+            <div class="question-footer">
+                {{ question.footer|textile }}
+                <div class="clearfix"></div>
+            </div>
         {% endwith %}
         {% endfor %}
     
