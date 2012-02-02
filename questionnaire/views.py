@@ -183,14 +183,17 @@ def get_progress(runinfo):
 
     return int(progress)
 
-def get_async_progress(request, runcode):
+def get_async_progress(request, runcode, *args, **kwargs):
     """ Returns the progress as json for use with ajax """
 
     runinfo = get_runinfo(runcode)
     response = dict(progress=get_progress(runinfo))
 
     cache.set('progress' + runinfo.random, response['progress'])
-    return HttpResponse(json.dumps(response), mimetype='application/javascript')
+    response = HttpResponse(json.dumps(response), 
+               mimetype='application/javascript');
+    response["Cache-Control"] = "no-cache"
+    return response
 
 def fetch_checks(questionsets):
     ids = [qs.pk for qs in questionsets]
