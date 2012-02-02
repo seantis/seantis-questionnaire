@@ -111,7 +111,17 @@ def check_parser(runinfo, exclude=[]):
     return satisfies_checks
 
 @request_cache()
+def skipped_questions(runinfo):
+    if not runinfo.skipped:
+        return []
+
+    return [s.strip() for s in runinfo.skipped.split(',')]
+
+@request_cache()
 def question_satisfies_checks(question, runinfo, checkfn=None):
+    if question.number in skipped_questions(runinfo):
+        return False
+
     checkfn = checkfn or check_parser(runinfo)
     return checkfn(question.checks)
 
@@ -139,7 +149,7 @@ def questionset_satisfies_checks(questionset, runinfo, checks=None):
         checks[questionset.id] = []
 
         for q in questionset.questions():
-            checks[questionset.id].append(q.checks)
+            checks[questionset.id].append((q.checks, q.number))
 
     # questionsets that pass the checks but have no questions are shown
     # (comments, last page, etc.)
@@ -147,7 +157,10 @@ def questionset_satisfies_checks(questionset, runinfo, checks=None):
         return True
 
     # if there are questions at least one needs to be visible
-    for check in checks[questionset.id]:
+    for check, number in checks[questionset.id]:
+        if number in skipped_questions(runinfo):
+            continue
+
         if passes(check):
             return True
 
@@ -199,14 +212,16 @@ def fetch_checks(questionsets):
     ids = [qs.pk for qs in questionsets]
     
     query = Question.objects.filter(questionset__pk__in=ids)
-    query = query.values('questionset_id', 'checks')
+    query = query.values('questionset_id', 'checks', 'number')
 
     checks = dict()
     for qsid in ids:
         checks[qsid] = list()
 
     for result in (r for r in query):
-        checks[result['questionset_id']].append(result['checks'])
+        checks[result['questionset_id']].append(
+            (result['checks'], result['number'])
+        )
 
     return checks
 
@@ -409,6 +424,7 @@ def finish_questionnaire(runinfo, questionnaire):
     hist.completed = datetime.now()
     hist.questionnaire = questionnaire
     hist.tags = runinfo.tags
+    hist.skipped = runinfo.skipped
     hist.save()
 
     questionnaire_done.send(sender=None, runinfo=runinfo,

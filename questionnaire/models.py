@@ -162,6 +162,11 @@ class RunInfo(models.Model):
             help_text=u"Tags active on this run, separated by commas"
         )
 
+    skipped = models.TextField(
+            blank=True,
+            help_text=u"A comma sepearted list of questions to skip"
+        )
+
     def save(self):
         self.random = (self.random or '').lower()
         super(RunInfo, self).save()
@@ -211,6 +216,10 @@ class RunInfoHistory(models.Model):
     tags = models.TextField(
             blank=True,
             help_text=u"Tags used on this run, separated by commas"
+        )
+    skipped = models.TextField(
+            blank=True,
+            help_text=u"A comma sepearted list of questions skipped by this run"
         )
     questionnaire = models.ForeignKey(Questionnaire)
 
