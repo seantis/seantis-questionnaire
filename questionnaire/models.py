@@ -175,13 +175,13 @@ class RunInfo(models.Model):
         "runinfo.set_cookie(key, value). If value is None, delete cookie"
         key = key.lower().strip()
         cookies = self.get_cookiedict()
-        if type(value) not in (int, str, unicode, type(None)):
+        if type(value) not in (int, float, str, unicode, type(None)):
             raise Exception("Can only store cookies of type integer or string")
         if value is None:
             if key in cookies:
                 del cookies[key]
         else:
-            if type(value) == 'int':
+            if type(value) in ('int', 'float'):
                 value=str(value)
             cookies[key] = value
         cstr = json.dumps(cookies)
