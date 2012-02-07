@@ -824,9 +824,6 @@ def answer_summary(questionnaire, answers=None):
     
 def has_tag(tag, runinfo):
     """ Returns true if the given runinfo contains the given tag. """
-    if tag == '<any>':
-        return True
-
     return tag in (t.strip() for t in runinfo.tags.split(','))
 
 def dep_check(expr, runinfo, answerdict):
