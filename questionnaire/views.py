@@ -515,9 +515,13 @@ def show_questionnaire(request, runinfo, errors={}):
                 qvalues[question.number] = qdict['qvalue']
                 
         qlist.append( (question, qdict) )
-
-    has_progress = settings.QUESTIONNAIRE_PROGRESS in ('async', 'default')
-    async_progress = settings.QUESTIONNAIRE_PROGRESS == 'async'
+    
+    try:
+        has_progress = settings.QUESTIONNAIRE_PROGRESS in ('async', 'default')
+        async_progress = settings.QUESTIONNAIRE_PROGRESS == 'async'
+    except AttributeError:
+        has_progress = True
+        async_progress = False
 
     if has_progress:
         if async_progress:
