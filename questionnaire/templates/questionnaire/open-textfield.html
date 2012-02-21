@@ -2,5 +2,8 @@
 <div class="clearfix">
     <div class="input">
         <textarea class="span8" name="question_{{ question.number }}" cols="60" rows="10"></textarea>
+        {% if question.extra %}
+            <span class="help-block">{{ question.extra }}</span>
+        {% endif %}
     </div>
 </div>
