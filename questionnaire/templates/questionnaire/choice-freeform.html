@@ -15,7 +15,9 @@
     <div class="input">
         <input onClick="valchanged('{{ question.number }}', '_entry_');" type="radio" id="{{ question.number }}_entry" name="question_{{ question.number }}" value="_entry_" {% if qdict.sel_entry %} checked {% endif %}>
         <input id="{{ question.number }}_comment" checks="dep_check('{{ question.number }},_entry_')" type="input" name="question_{{ question.number }}_comment" value="{{ qdict.comment }}">
-        <span class="help-block">{{ question.extra }}</span>
+        {% if question.extra %}
+            <span class="help-block">{{ question.extra }}</span>
+        {% endif %}
     </div>
 </div>
 

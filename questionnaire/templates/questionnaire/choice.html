@@ -10,6 +10,11 @@
                 </label>
             </li>
         {% endfor %}
+        {% if question.extra %}
+            <li>
+                <span class="help-block">{{ question.extra }}</span>
+            </li>
+        {% endif %}
         </ul>
     </div>
 </div>

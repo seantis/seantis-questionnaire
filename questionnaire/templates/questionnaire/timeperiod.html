@@ -6,5 +6,8 @@
             <option value="{{ val }}"{% if sel %} selected="selected"{% endif %}>{{ desc }}</option>
         {% endfor %}
         </select>
+        {% if question.extra %}
+            <span class="help-block">{{ question.extra }}</span>
+        {% endif %}
     </div>
 </div>

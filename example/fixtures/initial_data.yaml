@@ -12,18 +12,15 @@
 - fields: {name: example, redirect_url: /}
   model: questionnaire.questionnaire
   pk: 1
-- fields: {checks: '', heading: Page 1, questionnaire: 1, sortid: 1, text_de: Bierpreferenze,
-    text_en: Beer Preferences}
+- fields: {checks: '', heading: Page 1, questionnaire: 1, sortid: 1, text_de: h1. Biervorlieben,
+    text_en: h1. Beer Preferences}
   model: questionnaire.questionset
   pk: 1
-- fields: {checks: '', heading: Page 2, questionnaire: 1, sortid: 2, text_de: Python
-      Web Frameworks, text_en: Python Web Frameworks}
+- fields: {checks: '', heading: Page 2, questionnaire: 1, sortid: 2, text_de: h1. Python
+      Web Frameworks, text_en: h1. Python Web Frameworks}
   model: questionnaire.questionset
   pk: 2
-- fields: {checks: '', heading: Thankyou, questionnaire: 1, sortid: 99, text_de: "Danke\
-      \ sehr, dass Sie diese Fragebogen ausgef\xFCllt haben! Wir hoffen, dass Sie\
-      \ uns in Zukunft wieder besuchen!", text_en: Thankyou very much for completing
-      this questionnaire!  We hope that you visit us again in the future!}
+- fields: {checks: '', heading: Thankyou, questionnaire: 1, sortid: 99, text_de: "h1. Vielen Dank \n \n Wir hoffen, dass Sie uns in Zukunft wieder besuchen!", text_en: "h1. Thank you! \n \n We hope that you visit us again in the future!"}
   model: questionnaire.questionset
   pk: 3
 - fields: {checks: '', extra_de: '', extra_en: '', number: '1', questionset: 1, text_de: 'Trinken
