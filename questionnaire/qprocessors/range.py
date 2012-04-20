@@ -1,5 +1,5 @@
 from questionnaire import *
-from django.conf.urls.static import settings
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.utils.simplejson import dumps
 

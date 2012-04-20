@@ -167,9 +167,9 @@ class RunInfo(models.Model):
             help_text=u"A comma sepearted list of questions to skip"
         )
 
-    def save(self):
+    def save(self, **kwargs):
         self.random = (self.random or '').lower()
-        super(RunInfo, self).save()
+        super(RunInfo, self).save(**kwargs)
 
     def set_cookie(self, key, value):
         "runinfo.set_cookie(key, value). If value is None, delete cookie"
