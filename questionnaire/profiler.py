@@ -1,7 +1,8 @@
 import hotshot
 import os
 import time
-import settings
+
+from django.conf import settings
 
 from django.db import connection
 
