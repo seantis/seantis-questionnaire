@@ -1,0 +1,6 @@
+recursive-include questionnaire/fixtures *
+recursive-include questionnaire/locale *
+recursive-include questionnaire/static *
+recursive-include questionnaire/templates *
+include README.md
+include LICENSE
