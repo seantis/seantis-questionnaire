@@ -3,7 +3,7 @@
 Functions to send email reminders to users.
 """
 
-from django.core.mail import SMTPConnection, EmailMessage
+from django.core.mail import get_connection, EmailMessage
 from django.contrib.auth.decorators import login_required
 from django.template import Context, loader
 from django.utils import translation
@@ -91,7 +91,7 @@ def _send_email(runinfo):
     emailFrom = encode_emailaddress(emailFrom)
 
     try:
-        conn = SMTPConnection()
+        conn = get_connection()
         msg = EmailMessage(emailSubject, email, emailFrom, [ emailTo ],
             connection=conn)
         msg.send()
