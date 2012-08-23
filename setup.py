@@ -30,7 +30,7 @@ setup(
     ],
     zip_safe=False,
     install_requires=[
-        'django<1.4',
+        'django',
         'django-transmeta',
         'textile',
         'pyyaml',
