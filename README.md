@@ -86,6 +86,7 @@ Create a place for the questionnare
 
     cd mysite
     mkdir apps
+    cd apps
 
 Clone the questionnaire source
 
