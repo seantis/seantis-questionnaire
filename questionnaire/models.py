@@ -96,7 +96,7 @@ class QuestionSet(models.Model):
 
     def questions(self):
         if not hasattr(self, "__qcache"):
-            self.__qcache = list(Question.objects.filter(questionset=self).order_by('number'))
+            self.__qcache = list(Question.objects.filter(questionset=self.id).order_by('number'))
             self.__qcache.sort()
         return self.__qcache
 
