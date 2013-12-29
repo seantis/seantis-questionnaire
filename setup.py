@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name="seantis-questionnaire",
-    version="2.0",
+    version="2.0.1",
     description="A Django application for creating online questionnaires/surveys.",
     long_description=read("README.md"),
     author="Seantis GmbH",
@@ -32,7 +32,6 @@ setup(
     install_requires=[
         'django',
         'django-transmeta',
-        'textile',
         'pyyaml',
         'pyparsing'
     ],
