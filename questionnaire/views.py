@@ -24,7 +24,7 @@ from questionnaire.request_cache import request_cache
 from questionnaire import profiler
 import logging
 import random
-import md5
+from hashlib import md5
 import re
 
 def r2r(tpl, request, **contextdict):
@@ -953,11 +953,13 @@ def generate_run(request, questionnaire_id):
     else:
         su = Subject(givenname='Anonymous', surname='User')
         su.save()
-    hash = md5.new()
-    hash.update("".join(map(lambda i: chr(random.randint(0, 255)), range(16))))
-    hash.update(settings.SECRET_KEY)
-    key = hash.hexdigest()
+
+    str_to_hash = "".join(map(lambda i: chr(random.randint(0, 255)), range(16)))
+    str_to_hash += settings.SECRET_KEY
+    key = md5(str_to_hash).hexdigest()
+
     run = RunInfo(subject=su, random=key, runid=key, questionset=qs)
     run.save()
+    
     return HttpResponseRedirect(reverse('questionnaire', kwargs={'runcode': key}))
 
