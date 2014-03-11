@@ -24,9 +24,7 @@ Alternatives
 There are two other questionnaire-type applications that we stumbled upon, but
 they both didn't quite scratch our itch, but they may scratch yours.
 
-Django Questionnaire - [http://djangoquest.aperte-it.com/]()
-
-Django Survey - [http://code.google.com/p/django-survey/]()
+Django Survey (slightly outdated, last change 2009) - [django-survey](http://code.google.com/p/django-survey/)
 
 History
 -------
