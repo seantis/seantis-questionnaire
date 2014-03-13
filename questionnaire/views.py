@@ -623,7 +623,7 @@ def _table_headers(questions):
     This will create separate columns for each multiple-choice possiblity
     and freeform options, to avoid mixing data types and make charting easier.
     """
-    ql = list(questions.distinct('number'))
+    ql = list(questions)
     ql.sort(lambda x, y: numal_sort(x.number, y.number))
     columns = []
     for q in ql:
