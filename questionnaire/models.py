@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from questionnaire import QuestionChoices
 import re
 from utils import split_numal
-from django.utils import simplejson as json
+import json
 from parsers import parse_checks, ParseException
 from django.conf import settings
 

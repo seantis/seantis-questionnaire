@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% load markup questionnaire i18n %}
+{% load questionnaire i18n %}
+{% load static %}
 
 {% block headextra %}
-    <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}questionset.js"></script>
-    <link rel="stylesheet" href="{{ STATIC_URL }}progressbar.css"></script>
+    <script type="text/javascript" src="{% static 'js/jquery/jquery-1.7.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'questionset.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'progressbar.css' %}"></script>
 
     {% for x in jsinclude %}
         <script type="text/javascript" src="{{ x }}"></script>
@@ -18,7 +19,7 @@
         <script type="text/javascript">
             var progress_url = "{{ async_url }}";
         </script>
-        <script type="text/javascript" src="{{ STATIC_URL }}progress.js"></script>
+        <script type="text/javascript" src="{% static 'progress.js' %}"></script>
     {% endif %}
 {% endblock %}
 
@@ -39,7 +40,7 @@
     {% endif %}
 
     <div class="questionset-title">
-    {{ questionset.text|textile }}
+    {{ questionset.text }}
     </div>
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">
@@ -82,7 +83,7 @@
             </div> <!-- /question container -->
             {% if question.footer %}
                 <div class="question-footer">
-                    {{ question.footer|textile }}
+                    {{ question.footer }}
                     <div class="clearfix"></div>
                 </div>
             {% endif %}
