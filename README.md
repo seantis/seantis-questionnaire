@@ -131,18 +131,17 @@ Add the questionnaire template dir as well as your own to TEMPLATE_DIRS
     os.path.abspath('./apps/seantis-questionnaire/questionnaire/templates'),
     os.path.abspath('./templates'),
 
-And finally, add transmeta, questionnaire and django.contrib.markup to your INSTALLED_APPS
+And finally, add transmeta, questionnaire to your INSTALLED_APPS
 
     'transmeta',
     'questionnaire',
     'questionnaire.page',
-    'django.contrib.markup',
 
 Next up we want to edit the urls.py of your project to hookup the questionnaire views with your site's url configuration.
 
 For an empty site with enabled admin interface you should end up with something like this:
 
-    from django.conf.urls.defaults import patterns, include, url
+    from django.conf.urls import patterns, include, url
 
     from django.contrib import admin
     admin.autodiscover()
