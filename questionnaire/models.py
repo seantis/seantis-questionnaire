@@ -171,6 +171,27 @@ class RunInfo(models.Model):
         self.random = (self.random or '').lower()
         super(RunInfo, self).save(**kwargs)
 
+    def add_tags(self, tags):
+        print 'Tags to be added: ' + str(tags)
+        for tag in tags:
+            if self.tags:
+                self.tags += ','
+            self.tags += tag
+
+    def remove_tags(self, tags):
+        print 'Tags to be removed: ' + str(tags)
+        if not self.tags:
+            return
+
+        current_tags = self.tags.split(',')
+
+        for tag in tags:
+            try:
+                current_tags.remove(tag)
+            except ValueError:
+                pass
+        self.tags = ",".join(current_tags)
+
     def set_cookie(self, key, value):
         "runinfo.set_cookie(key, value). If value is None, delete cookie"
         key = key.lower().strip()
@@ -340,6 +361,7 @@ class Choice(models.Model):
     sortid = models.IntegerField()
     value = models.CharField(u"Short Value", max_length=64)
     text = models.CharField(u"Choice Text", max_length=200)
+    tags = models.CharField(u"Tags", max_length=64, blank=True)
 
     def __unicode__(self):
         return u'(%s) %d. %s' % (self.question.number, self.sortid, self.text)
@@ -356,15 +378,6 @@ class Answer(models.Model):
 
     def __unicode__(self):
         return "Answer(%s: %s, %s)" % (self.question.number, self.subject.surname, self.subject.givenname)
-
-    def choice_str(self, secondary = False):
-        choice_string = ""
-        choices = self.question.get_choices()
-
-        for choice in choices:
-            for split_answer in self.split_answer():
-                if str(split_answer) == choice.value:
-                    choice_string += str(choice.text) + " "
 
     def split_answer(self):
         """
@@ -387,3 +400,28 @@ class Answer(models.Model):
     def check_answer(self):
         "Confirm that the supplied answer matches what we expect"
         return True
+
+    def save(self, runinfo=None, **kwargs):
+        self._update_tags(runinfo)
+        super(Answer, self).save(**kwargs)
+
+    def _update_tags(self, runinfo):
+        if not runinfo:
+            print 'No runinfo provided -- tags will not be updated.'
+            return
+
+        tags_to_add = []
+
+        for choice in self.question.choices():
+            tags = choice.tags
+            if not tags:
+                continue
+            tags = tags.split(',')
+            runinfo.remove_tags(tags)
+
+            for split_answer in self.split_answer():
+                if unicode(split_answer) == choice.value:
+                    tags_to_add.extend(tags)
+
+        runinfo.add_tags(tags_to_add)
+        runinfo.save()

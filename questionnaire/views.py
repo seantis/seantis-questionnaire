@@ -73,9 +73,9 @@ def add_answer(runinfo, question, answer_dict):
 
     # first, delete all existing answers to this question for this particular user+run
     delete_answer(question, runinfo.subject, runinfo.runid)
-    
+
     # then save the new answer to the database
-    answer.save()
+    answer.save(runinfo)
     
     return True
 
