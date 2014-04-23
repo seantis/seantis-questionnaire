@@ -1,0 +1,9 @@
+<div class="clearfix rangeinput">
+    <div class="input">
+        <input name="question_{{ question.number }}" type="{{ question.type }}" min="{{ qdict.rmin }}" max="{{ qdict.rmax }}" step="{{ qdict.rstep }}" value="{{ qdict.current }}">
+    </div>
+    <label data-unit="{{ qdict.runit }}">{{ qdict.runit }}</label>
+    {% if question.extra %}
+        <span class="help-block">{{ question.extra }}</span>
+    {% endif %}
+</div>
