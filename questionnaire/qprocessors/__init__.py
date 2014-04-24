@@ -7,3 +7,5 @@ import choice           # multiple choice, do checks
 import range_or_number  # range of numbers
 import timeperiod       # time periods
 import custom           # backwards compatibility support
+
+add_type('custom', 'Custom field')
