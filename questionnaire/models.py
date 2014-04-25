@@ -306,14 +306,17 @@ class Question(models.Model):
     def sameas(self):
         if self.type == 'sameas':
             try:
-                sameas_id = None
+                kwargs = {}
                 for check, value in parse_checks(self.checks):
-                    if check == 'sameas':
-                        sameas_id = value
+                    if check == 'sameasid':
+                        kwargs['id'] = value
+                        break
+                    elif check == 'sameas':
+                        kwargs['number'] = value
+                        kwargs['questionset__questionnaire'] = self.questionset.questionnaire
                         break
 
-                self.__sameas = res = getattr(self, "__sameas", 
-                    Question.objects.get(id=sameas_id))
+                self.__sameas = res = getattr(self, "__sameas", Question.objects.get(**kwargs))
                 return res
             except Question.DoesNotExist:
                 return Question(type='comment') # replace with something benign
