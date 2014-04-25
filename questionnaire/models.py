@@ -306,9 +306,14 @@ class Question(models.Model):
     def sameas(self):
         if self.type == 'sameas':
             try:
+                sameas_id = None
+                for check, value in parse_checks(self.checks):
+                    if check == 'sameas':
+                        sameas_id = value
+                        break
+
                 self.__sameas = res = getattr(self, "__sameas", 
-                    Question.objects.get(number=self.checks, 
-                        questionset__questionnaire=self.questionset.questionnaire))
+                    Question.objects.get(id=sameas_id))
                 return res
             except Question.DoesNotExist:
                 return Question(type='comment') # replace with something benign

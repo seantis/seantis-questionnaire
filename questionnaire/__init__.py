@@ -76,7 +76,7 @@ def add_type(id, name):
 
 import questionnaire.qprocessors # make sure ours are imported first
 
-add_type('sameas', 'Same as Another Question (put question number (alone) in checks')
+add_type('sameas', 'Same as Another Question (put sameas=question.id in checks)')
 
 for app in settings.INSTALLED_APPS:
     try:
