@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8
 
+from django.utils.translation import ugettext as _
 from django.contrib import admin
 from models import *
 
@@ -36,7 +37,14 @@ class QuestionAdmin(admin.ModelAdmin):
         return super(QuestionAdmin, self).changelist_view(request, extra_context)
 
 class QuestionnaireAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'redirect_url', 'export')
+    readonly_fields = ('export',)
+
+    def export(self, obj):
+        return '<a href="/q/csv/%s">%s</a>' % (obj.id, _("Download data"))
+
+    export.allow_tags = True
+    export.short_description = _('Export to CSV')
 
 class RunInfoAdmin(admin.ModelAdmin):
     list_display = ['random', 'runid', 'subject', 'created', 'emailsent', 'lastemailerror']
