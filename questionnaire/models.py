@@ -261,7 +261,7 @@ class Question(models.Model):
     number = models.CharField(max_length=8, help_text=
         "eg. <tt>1</tt>, <tt>2a</tt>, <tt>2b</tt>, <tt>3c</tt><br /> "
         "Number is also used for ordering questions.")
-    text = models.TextField(blank=True)
+    text = models.TextField(blank=True, verbose_name=_("Text"))
     type = models.CharField(u"Type of question", max_length=32,
         choices = QuestionChoices,
         help_text = u"Determines the means of answering the question. " \
