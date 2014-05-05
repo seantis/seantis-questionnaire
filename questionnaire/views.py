@@ -235,7 +235,7 @@ def redirect_to_qs(runinfo):
     if not questionset_satisfies_checks(runinfo.questionset, runinfo):
         
         next = runinfo.questionset.next()
-        
+
         while next and not questionset_satisfies_checks(next, runinfo):
             next = next.next()
         
@@ -453,7 +453,12 @@ def show_questionnaire(request, runinfo, errors={}):
 
     Also add the javascript dependency code.
     """
-    questions = runinfo.questionset.questions()
+
+    request.runinfo = runinfo
+    if request.GET.get('show_all') == '1': # for debugging purposes.
+        questions = runinfo.questionset.questionnaire.questions()
+    else:
+        questions = runinfo.questionset.questions()
 
     qlist = []
     jsinclude = []      # js files to include

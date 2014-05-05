@@ -77,6 +77,12 @@ class Questionnaire(models.Model):
               QuestionSet.objects.filter(questionnaire=self).order_by('sortid')
         return self.__qscache
 
+    def questions(self):
+        questions = []
+        for questionset in self.questionsets():
+            questions += questionset.questions()
+        return questions
+
     class Meta:
         permissions = (
             ("export", "Can export questionnaire answers"),
