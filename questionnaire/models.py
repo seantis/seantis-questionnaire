@@ -275,8 +275,8 @@ class Question(models.Model):
         "multiple-choice gives the user a number of choices he/she can " \
         "choose from. If a question is multiple-choice, enter the choices " \
         "this user can choose from below'.")
-    extra = models.CharField(u"Extra information", max_length=128, blank=True, null=True, help_text=u"Extra information (use  on question type)")
-    checks = models.CharField(u"Additional checks", max_length=128, blank=True,
+    extra = models.CharField(u"Extra information", max_length=512, blank=True, null=True, help_text=u"Extra information (use  on question type)")
+    checks = models.CharField(u"Additional checks", max_length=512, blank=True,
         null=True, help_text="Additional checks to be performed for this "
         "value (space separated)  <br /><br />"
         "For text fields, <tt>required</tt> is a valid check.<br />"
@@ -308,7 +308,7 @@ class Question(models.Model):
 
     def __unicode__(self):
         return u'{%s} (%s) %s' % (unicode(self.questionset), self.number, self.text)
-        
+
     def sameas(self):
         if self.type == 'sameas':
             try:
@@ -404,7 +404,7 @@ class Answer(models.Model):
         try:
             return json.loads(self.answer)
         except ValueError:
-            # this was likely saved as plain text, try to guess what the 
+            # this was likely saved as plain text, try to guess what the
             # value(s) were
             if 'multiple' in self.question.type:
                 return self.answer.split('; ')
