@@ -460,6 +460,10 @@ def show_questionnaire(request, runinfo, errors={}):
     else:
         questions = runinfo.questionset.questions()
 
+    show_all = request.GET.get('show_all') == '1' # for debugging purposes in some cases we may want to show all questions on one screen.
+    questionset = runinfo.questionset
+    questions = questionset.questionnaire.questions() if show_all else questionset.questions() 
+
     qlist = []
     jsinclude = []      # js files to include
     cssinclude = []     # css files to include
@@ -474,16 +478,15 @@ def show_questionnaire(request, runinfo, errors={}):
     substitute_answer(qvalues, runinfo.questionset)
 
     for question in questions:
-
         # if we got here the questionset will at least contain one question
         # which passes, so this is all we need to check for
-        if not question_satisfies_checks(question, runinfo):
-            continue
+        question_visible = question_satisfies_checks(question, runinfo) or show_all
 
         Type = question.get_type()
         _qnum, _qalpha = split_numal(question.number)
 
         qdict = {
+            'css_style': '' if question_visible else 'display:none;',
             'template' : 'questionnaire/%s.html' % (Type),
             'qnum' : _qnum,
             'qalpha' : _qalpha,
