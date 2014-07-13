@@ -471,7 +471,8 @@ def show_questionnaire(request, runinfo, errors={}):
     qvalues = {}
 
     # initialize qvalues        
-    cookiedict = runinfo.get_cookiedict()                                                                                                                       
+    cookiedict = runinfo.get_cookiedict()
+
     for k,v in cookiedict.items():
         qvalues[k] = v
 
@@ -578,7 +579,7 @@ def substitute_answer(qvalues, obj):
 
     """
         
-    if qvalues:
+    if qvalues and obj.text:
         magic = 'subst_with_ans_'
         regex =r'subst_with_ans_(\S+)'
 
