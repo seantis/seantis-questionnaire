@@ -178,14 +178,12 @@ class RunInfo(models.Model):
         super(RunInfo, self).save(**kwargs)
 
     def add_tags(self, tags):
-        print 'Tags to be added: ' + str(tags)
         for tag in tags:
             if self.tags:
                 self.tags += ','
             self.tags += tag
 
     def remove_tags(self, tags):
-        print 'Tags to be removed: ' + str(tags)
         if not self.tags:
             return
 
@@ -421,7 +419,6 @@ class Answer(models.Model):
 
     def _update_tags(self, runinfo):
         if not runinfo:
-            print 'No runinfo provided -- tags will not be updated.'
             return
 
         tags_to_add = []
