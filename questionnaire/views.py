@@ -24,7 +24,7 @@ from questionnaire.request_cache import request_cache
 from questionnaire import profiler
 import logging
 import random
-import md5
+from hashlib import md5
 import re
 
 def r2r(tpl, request, **contextdict):
@@ -73,9 +73,9 @@ def add_answer(runinfo, question, answer_dict):
 
     # first, delete all existing answers to this question for this particular user+run
     delete_answer(question, runinfo.subject, runinfo.runid)
-    
+
     # then save the new answer to the database
-    answer.save()
+    answer.save(runinfo)
     
     return True
 
@@ -235,7 +235,7 @@ def redirect_to_qs(runinfo):
     if not questionset_satisfies_checks(runinfo.questionset, runinfo):
         
         next = runinfo.questionset.next()
-        
+
         while next and not questionset_satisfies_checks(next, runinfo):
             next = next.next()
         
@@ -453,7 +453,16 @@ def show_questionnaire(request, runinfo, errors={}):
 
     Also add the javascript dependency code.
     """
-    questions = runinfo.questionset.questions()
+
+    request.runinfo = runinfo
+    if request.GET.get('show_all') == '1': # for debugging purposes.
+        questions = runinfo.questionset.questionnaire.questions()
+    else:
+        questions = runinfo.questionset.questions()
+
+    show_all = request.GET.get('show_all') == '1' # for debugging purposes in some cases we may want to show all questions on one screen.
+    questionset = runinfo.questionset
+    questions = questionset.questionnaire.questions() if show_all else questionset.questions() 
 
     qlist = []
     jsinclude = []      # js files to include
@@ -462,23 +471,23 @@ def show_questionnaire(request, runinfo, errors={}):
     qvalues = {}
 
     # initialize qvalues        
-    cookiedict = runinfo.get_cookiedict()                                                                                                                       
+    cookiedict = runinfo.get_cookiedict()
+
     for k,v in cookiedict.items():
         qvalues[k] = v
 
     substitute_answer(qvalues, runinfo.questionset)
 
     for question in questions:
-
         # if we got here the questionset will at least contain one question
         # which passes, so this is all we need to check for
-        if not question_satisfies_checks(question, runinfo):
-            continue
+        question_visible = question_satisfies_checks(question, runinfo) or show_all
 
         Type = question.get_type()
         _qnum, _qalpha = split_numal(question.number)
 
         qdict = {
+            'css_style': '' if question_visible else 'display:none;',
             'template' : 'questionnaire/%s.html' % (Type),
             'qnum' : _qnum,
             'qalpha' : _qalpha,
@@ -570,7 +579,7 @@ def substitute_answer(qvalues, obj):
 
     """
         
-    if qvalues:
+    if qvalues and obj.text:
         magic = 'subst_with_ans_'
         regex =r'subst_with_ans_(\S+)'
 
@@ -623,7 +632,7 @@ def _table_headers(questions):
     This will create separate columns for each multiple-choice possiblity
     and freeform options, to avoid mixing data types and make charting easier.
     """
-    ql = list(questions.distinct('number'))
+    ql = list(questions)
     ql.sort(lambda x, y: numal_sort(x.number, y.number))
     columns = []
     for q in ql:
@@ -668,7 +677,7 @@ def export_csv(request, qid): # questionnaire_id
             self.encoder = codecs.getincrementalencoder(encoding)()
 
         def writerow(self, row):
-            self.writer.writerow([s.encode("utf-8") for s in row])
+            self.writer.writerow([unicode(s).encode("utf-8") for s in row])
             # Fetch UTF-8 output from the queue ...
             data = self.queue.getvalue()
             data = data.decode("utf-8")
@@ -762,7 +771,7 @@ def answer_export(questionnaire, answers=None):
                 choice = choice[0]
                 col = coldict.get(answer.question.number + '-freeform', None)
             if col is None: # look for enumerated choice column (multiple-choice)
-                col = coldict.get(answer.question.number + '-' + choice, None)
+                col = coldict.get(answer.question.number + '-' + unicode(choice), None)
             if col is None: # single-choice items
                 if ((not qchoicedict[answer.question.id]) or
                     choice in qchoicedict[answer.question.id]):
@@ -953,11 +962,13 @@ def generate_run(request, questionnaire_id):
     else:
         su = Subject(givenname='Anonymous', surname='User')
         su.save()
-    hash = md5.new()
-    hash.update("".join(map(lambda i: chr(random.randint(0, 255)), range(16))))
-    hash.update(settings.SECRET_KEY)
-    key = hash.hexdigest()
+
+    str_to_hash = "".join(map(lambda i: chr(random.randint(0, 255)), range(16)))
+    str_to_hash += settings.SECRET_KEY
+    key = md5(str_to_hash).hexdigest()
+
     run = RunInfo(subject=su, random=key, runid=key, questionset=qs)
     run.save()
+    
     return HttpResponseRedirect(reverse('questionnaire', kwargs={'runcode': key}))
 

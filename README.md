@@ -131,18 +131,22 @@ Add the questionnaire template dir as well as your own to TEMPLATE_DIRS
     os.path.abspath('./apps/seantis-questionnaire/questionnaire/templates'),
     os.path.abspath('./templates'),
 
-And finally, add transmeta, questionnaire and django.contrib.markup to your INSTALLED_APPS
+And finally, add transmeta, questionnaire to your INSTALLED_APPS
 
+    'django.contrib.sites',
     'transmeta',
     'questionnaire',
     'questionnaire.page',
-    'django.contrib.markup',
+
+To get the "sites" framework working you also need to add the following setting:
+
+    SITE = 1
 
 Next up we want to edit the urls.py of your project to hookup the questionnaire views with your site's url configuration.
 
 For an empty site with enabled admin interface you should end up with something like this:
 
-    from django.conf.urls.defaults import patterns, include, url
+    from django.conf.urls import patterns, include, url
 
     from django.contrib import admin
     admin.autodiscover()
@@ -244,11 +248,13 @@ A question is anything you want to ask a subject. Since this is usually not limi
  * **choice-multiple** - A list of choices with multiple answers
  * **choice-multiple-freeform** - Multiple Answers with multiple user defined answers
  * **range** - A range of number from which one number can be chosen
+ * **number** - a number
  * **timeperiod** - A timeperiod
  * **custom** - custom question using a custom template
  * **comment** - Not a question, but only a comment displayed to the user
+ * **sameas** - same type as some other question
 
-*Some of these types, depend on checks or choices. The range question for instance can be controlled by setting the checks to something like "range=1-100 step=1 unit=%". Other questions like the choice-multiple-freeform need a "extracount=10" if ten extra options should be given to the user.
+*Some of these types, depend on checks or choices. The number question for instance can be controlled by setting the checks to something like "range=1-100 step=1". The range question may also use the before-mentioned checks and also "unit=%". Other questions like the choice-multiple-freeform need a "extracount=10" if ten extra options should be given to the user.
 
 I would love to go into all the details here but time I have not so I my only choice is to kindly refer you to the qprocessor submodule which handles all the question types.*
 

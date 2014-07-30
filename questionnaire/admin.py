@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8
 
+from django.utils.translation import ugettext as _
 from django.contrib import admin
 from models import *
 
@@ -27,16 +28,30 @@ class QuestionSetAdmin(admin.ModelAdmin):
 class QuestionAdmin(admin.ModelAdmin):
     ordering = ['questionset__questionnaire', 'questionset', 'number']
     inlines = [ChoiceInline]
+    list_filter = ['questionset__questionnaire']
 
     def changelist_view(self, request, extra_context=None):
         "Hack to have Questionnaire list accessible for custom changelist template"
         if not extra_context:
             extra_context = {}
-        extra_context['questionnaires'] = Questionnaire.objects.all().order_by('name')
+
+        questionnaire_id = request.GET.get('questionset__questionnaire__id__exact', None)
+        if questionnaire_id:
+            args = {"id": questionnaire_id}
+        else:
+            args = {}
+        extra_context['questionnaires'] = Questionnaire.objects.filter(**args).order_by('name')
         return super(QuestionAdmin, self).changelist_view(request, extra_context)
 
 class QuestionnaireAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'redirect_url', 'export')
+    readonly_fields = ('export',)
+
+    def export(self, obj):
+        return '<a href="/q/csv/%s">%s</a>' % (obj.id, _("Download data"))
+
+    export.allow_tags = True
+    export.short_description = _('Export to CSV')
 
 class RunInfoAdmin(admin.ModelAdmin):
     list_display = ['random', 'runid', 'subject', 'created', 'emailsent', 'lastemailerror']

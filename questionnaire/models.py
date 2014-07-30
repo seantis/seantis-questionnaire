@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from questionnaire import QuestionChoices
 import re
 from utils import split_numal
-from django.utils import simplejson as json
+import json
 from parsers import parse_checks, ParseException
 from django.conf import settings
 
@@ -76,6 +76,12 @@ class Questionnaire(models.Model):
             self.__qscache = \
               QuestionSet.objects.filter(questionnaire=self).order_by('sortid')
         return self.__qscache
+
+    def questions(self):
+        questions = []
+        for questionset in self.questionsets():
+            questions += questionset.questions()
+        return questions
 
     class Meta:
         permissions = (
@@ -171,6 +177,25 @@ class RunInfo(models.Model):
         self.random = (self.random or '').lower()
         super(RunInfo, self).save(**kwargs)
 
+    def add_tags(self, tags):
+        for tag in tags:
+            if self.tags:
+                self.tags += ','
+            self.tags += tag
+
+    def remove_tags(self, tags):
+        if not self.tags:
+            return
+
+        current_tags = self.tags.split(',')
+
+        for tag in tags:
+            try:
+                current_tags.remove(tag)
+            except ValueError:
+                pass
+        self.tags = ",".join(current_tags)
+
     def set_cookie(self, key, value):
         "runinfo.set_cookie(key, value). If value is None, delete cookie"
         key = key.lower().strip()
@@ -240,7 +265,7 @@ class Question(models.Model):
     number = models.CharField(max_length=8, help_text=
         "eg. <tt>1</tt>, <tt>2a</tt>, <tt>2b</tt>, <tt>3c</tt><br /> "
         "Number is also used for ordering questions.")
-    text = models.TextField(blank=True)
+    text = models.TextField(blank=True, verbose_name=_("Text"))
     type = models.CharField(u"Type of question", max_length=32,
         choices = QuestionChoices,
         help_text = u"Determines the means of answering the question. " \
@@ -248,8 +273,8 @@ class Question(models.Model):
         "multiple-choice gives the user a number of choices he/she can " \
         "choose from. If a question is multiple-choice, enter the choices " \
         "this user can choose from below'.")
-    extra = models.CharField(u"Extra information", max_length=128, blank=True, null=True, help_text=u"Extra information (use  on question type)")
-    checks = models.CharField(u"Additional checks", max_length=128, blank=True,
+    extra = models.CharField(u"Extra information", max_length=512, blank=True, null=True, help_text=u"Extra information (use  on question type)")
+    checks = models.CharField(u"Additional checks", max_length=512, blank=True,
         null=True, help_text="Additional checks to be performed for this "
         "value (space separated)  <br /><br />"
         "For text fields, <tt>required</tt> is a valid check.<br />"
@@ -281,13 +306,21 @@ class Question(models.Model):
 
     def __unicode__(self):
         return u'{%s} (%s) %s' % (unicode(self.questionset), self.number, self.text)
-        
+
     def sameas(self):
         if self.type == 'sameas':
             try:
-                self.__sameas = res = getattr(self, "__sameas", 
-                    Question.objects.get(number=self.checks, 
-                        questionset__questionnaire=self.questionset.questionnaire))
+                kwargs = {}
+                for check, value in parse_checks(self.checks):
+                    if check == 'sameasid':
+                        kwargs['id'] = value
+                        break
+                    elif check == 'sameas':
+                        kwargs['number'] = value
+                        kwargs['questionset__questionnaire'] = self.questionset.questionnaire
+                        break
+
+                self.__sameas = res = getattr(self, "__sameas", Question.objects.get(**kwargs))
                 return res
             except Question.DoesNotExist:
                 return Question(type='comment') # replace with something benign
@@ -340,6 +373,7 @@ class Choice(models.Model):
     sortid = models.IntegerField()
     value = models.CharField(u"Short Value", max_length=64)
     text = models.CharField(u"Choice Text", max_length=200)
+    tags = models.CharField(u"Tags", max_length=64, blank=True)
 
     def __unicode__(self):
         return u'(%s) %d. %s' % (self.question.number, self.sortid, self.text)
@@ -357,15 +391,6 @@ class Answer(models.Model):
     def __unicode__(self):
         return "Answer(%s: %s, %s)" % (self.question.number, self.subject.surname, self.subject.givenname)
 
-    def choice_str(self, secondary = False):
-        choice_string = ""
-        choices = self.question.get_choices()
-
-        for choice in choices:
-            for split_answer in self.split_answer():
-                if str(split_answer) == choice.value:
-                    choice_string += str(choice.text) + " "
-
     def split_answer(self):
         """
         Decode stored answer value and return as a list of choices.
@@ -377,7 +402,7 @@ class Answer(models.Model):
         try:
             return json.loads(self.answer)
         except ValueError:
-            # this was likely saved as plain text, try to guess what the 
+            # this was likely saved as plain text, try to guess what the
             # value(s) were
             if 'multiple' in self.question.type:
                 return self.answer.split('; ')
@@ -387,3 +412,27 @@ class Answer(models.Model):
     def check_answer(self):
         "Confirm that the supplied answer matches what we expect"
         return True
+
+    def save(self, runinfo=None, **kwargs):
+        self._update_tags(runinfo)
+        super(Answer, self).save(**kwargs)
+
+    def _update_tags(self, runinfo):
+        if not runinfo:
+            return
+
+        tags_to_add = []
+
+        for choice in self.question.choices():
+            tags = choice.tags
+            if not tags:
+                continue
+            tags = tags.split(',')
+            runinfo.remove_tags(tags)
+
+            for split_answer in self.split_answer():
+                if unicode(split_answer) == choice.value:
+                    tags_to_add.extend(tags)
+
+        runinfo.add_tags(tags_to_add)
+        runinfo.save()
