@@ -10,7 +10,7 @@
     {% for x in jsinclude %}
         <script type="text/javascript" src="{{ x }}"></script>
     {% endfor %}
-    
+
     {% for x in cssinclude %}
         <link rel="stylesheet" href="{{ x }}" type="text/css" />
     {% endfor %}
@@ -44,15 +44,15 @@
     </div>
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">
-    
+
         {% csrf_token %}
 
         <input type="hidden" name="questionset_id" value="{{ questionset.id }}">
-    
+
         {% for question, qdict in qlist %}
         {% with errors|dictget:question.number as error %}
 
-            <div class="question type_{{ qdict.qtype }} {% if error %} error prepend-top{% endif %}{{ qdict.qnum_class }}{{ qdict.qalpha_class }}" id="qc_{{ question.number }}" {{qdict.checkstring|safe}} style="{{qdict.css_style}}">                
+            <div class="question type_{{ qdict.qtype }} {% if error %} error prepend-top{% endif %}{{ qdict.qnum_class }}{{ qdict.qalpha_class }}" id="qc_{{ question.number }}" {{qdict.checkstring|safe}} style="{{qdict.css_style}}">
                 {% if request.user.is_staff %}
                     <span class="pull-right">
                         <a href="/admin/questionnaire/question/{{ question.id }}/">
@@ -60,7 +60,7 @@
                         </a>
                     </span>
                 {% endif %}
-                    
+
                 {% if qdict.custom %}
                     {% if error %}
                         <div class="error">
@@ -70,7 +70,7 @@
                     {% include qdict.template %}
                 {% else %}
                     <div class="question-text {% if qdict.required %}required{% endif %}">
-                        <span class="qnumber">{{ question.display_number }}.</span> 
+                        <span class="qnumber">{{ question.display_number }}.</span>
                         {{ question.text }}
                     </div>
                     <div class="answer">
@@ -89,16 +89,16 @@
             {% endif %}
         {% endwith %}
         {% endfor %}
-    
-        
-            
+
+
+
             <div style="text-align: center;" class="well questionset-submit">
                 <input class="btn large primary" name="submit" type="submit" value="{% trans "Continue" %}">
-                
+
             </div>
-            
+
             {% if questionset.prev %}
-                <a class="back-link pull-left" href="javascript:history.back();">{% trans "return to previous page" %}</a>
+                <a class="back-link pull-left" href="{{ prev_url }}">{% trans "return to previous page" %}</a>
             {% endif %}
     </form>
 
@@ -106,11 +106,11 @@
         {% for trigger in triggers %}
             addtrigger("{{trigger}}");
         {% endfor %}
-        
+
         {% for k,v in qvalues.items %}
             qvalues['{{ k|escapejs }}'] = '{{ v|escapejs }}';
         {% endfor %}
-        
+
         for(key in qvalues) {
             valchanged(key, qvalues[key]);
         }

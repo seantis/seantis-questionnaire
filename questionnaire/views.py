@@ -278,6 +278,24 @@ def redirect_to_qs(runinfo, request=None):
     return HttpResponseRedirect(url)
 
 
+def redirect_to_prev_questionnaire(request):
+    """
+    Used only when ```QUESTIONNAIRE_USE_SESSION``` is True.
+    Takes the questionnaire set in the session and redirects to the
+    previous questionnaire if any.
+    """
+    runcode = request.session.get('runcode', None)
+    if runcode is not None:
+        runinfo = get_runinfo(runcode)
+        prev_qs = runinfo.questionset.prev()
+        if runinfo and prev_qs:
+            request.session['runcode'] = runinfo.random
+            request.session['qs'] = prev_qs.sortid
+            return HttpResponseRedirect(reverse('questionnaire'))
+
+    return HttpResponseRedirect('/')
+
+
 @transaction.commit_on_success
 def questionnaire(request, runcode=None, qs=None):
     """
@@ -446,6 +464,8 @@ def questionnaire(request, runcode=None, qs=None):
         next = next.next()
     runinfo.questionset = next
     runinfo.save()
+    if use_session:
+        request.session['prev_runcode'] = runinfo.random
 
     if next is None: # we are finished
         return finish_questionnaire(runinfo, questionnaire)
@@ -587,6 +607,10 @@ def show_questionnaire(request, runinfo, errors={}):
                 else:
                     qvalues[s[1]] = v
 
+    if use_session:
+        prev_url = reverse('redirect_to_prev_questionnaire')
+    else:
+        prev_url = 'javascript:history.back();'
     r = r2r("questionnaire/questionset.html", request,
         questionset=runinfo.questionset,
         runinfo=runinfo,
@@ -598,7 +622,8 @@ def show_questionnaire(request, runinfo, errors={}):
         jsinclude=jsinclude,
         cssinclude=cssinclude,
         async_progress=async_progress,
-        async_url=reverse('progress', args=[runinfo.random])
+        async_url=reverse('progress', args=[runinfo.random]),
+        prev_url=prev_url,
     )
     r['Cache-Control'] = 'no-cache'
     r['Expires'] = "Thu, 24 Jan 1980 00:00:00 GMT"

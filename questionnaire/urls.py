@@ -27,4 +27,7 @@ else:
         '',
         url(r'^$',
             questionnaire, name='questionnaire'),
+        url(r'^prev/$',
+            redirect_to_prev_questionnaire,
+            name='redirect_to_prev_questionnaire')
     )
