@@ -27,6 +27,13 @@ import random
 from hashlib import md5
 import re
 
+
+try:
+    use_session = settings.QUESTIONNAIRE_USE_SESSION
+except AttributeError:
+    use_session = False
+
+
 def r2r(tpl, request, **contextdict):
     "Shortcut to use RequestContext instead of Context in templates"
     contextdict['request'] = request
@@ -51,7 +58,7 @@ def delete_answer(question, subject, runid):
 def add_answer(runinfo, question, answer_dict):
     """
     Add an Answer to a Question for RunInfo, given the relevant form input
-    
+
     answer_dict contains the POST'd elements for this question, minus the
     question_{number} prefix.  The question_{number} form value is accessible
     with the ANSWER key.
@@ -76,7 +83,7 @@ def add_answer(runinfo, question, answer_dict):
 
     # then save the new answer to the database
     answer.save(runinfo)
-    
+
     return True
 
 def check_parser(runinfo, exclude=[]):
@@ -101,7 +108,7 @@ def check_parser(runinfo, exclude=[]):
         checks = parse_checks(checks)
 
         for check, value in checks.items():
-            if check in fnmap:                
+            if check in fnmap:
                 value = value and value.strip()
                 if not fnmap[check](value):
                     return False
@@ -130,9 +137,9 @@ def questionset_satisfies_checks(questionset, runinfo, checks=None):
     """Return True if the runinfo passes the checks specified in the QuestionSet
 
     Checks is an optional dictionary with the keys being questionset.pk and the
-    values being the checks of the contained questions. 
-    
-    This, in conjunction with fetch_checks allows for fewer 
+    values being the checks of the contained questions.
+
+    This, in conjunction with fetch_checks allows for fewer
     db roundtrips and greater performance.
 
     Sadly, checks cannot be hashed and therefore the request cache is useless
@@ -169,7 +176,7 @@ def questionset_satisfies_checks(questionset, runinfo, checks=None):
 def get_progress(runinfo):
 
     position, total = 0, 0
-    
+
     current = runinfo.questionset
     sets = current.questionnaire.questionsets()
 
@@ -190,27 +197,34 @@ def get_progress(runinfo):
         progress = 1
     else:
         progress = float(position) / float(total) * 100.00
-        
+
         # progress is always at least one percent
         progress = progress >= 1.0 and progress or 1
 
     return int(progress)
 
-def get_async_progress(request, runcode, *args, **kwargs):
+def get_async_progress(request, *args, **kwargs):
     """ Returns the progress as json for use with ajax """
+
+    if 'runcode' in kwargs:
+        runcode = kwargs['runcode']
+    else:
+        session_runcode = request.session.get('runcode', None)
+        if session_runcode is not None:
+            runcode = session_runcode
 
     runinfo = get_runinfo(runcode)
     response = dict(progress=get_progress(runinfo))
 
     cache.set('progress' + runinfo.random, response['progress'])
-    response = HttpResponse(json.dumps(response), 
+    response = HttpResponse(json.dumps(response),
                mimetype='application/javascript');
     response["Cache-Control"] = "no-cache"
     return response
 
 def fetch_checks(questionsets):
     ids = [qs.pk for qs in questionsets]
-    
+
     query = Question.objects.filter(questionset__pk__in=ids)
     query = query.values('questionset_id', 'checks', 'number')
 
@@ -225,7 +239,8 @@ def fetch_checks(questionsets):
 
     return checks
 
-def redirect_to_qs(runinfo):
+
+def redirect_to_qs(runinfo, request=None):
     "Redirect to the correct and current questionset URL for this RunInfo"
 
     # cache current questionset
@@ -233,12 +248,12 @@ def redirect_to_qs(runinfo):
 
     # skip questionsets that don't pass
     if not questionset_satisfies_checks(runinfo.questionset, runinfo):
-        
+
         next = runinfo.questionset.next()
 
         while next and not questionset_satisfies_checks(next, runinfo):
             next = next.next()
-        
+
         runinfo.questionset = next
         runinfo.save()
 
@@ -251,9 +266,35 @@ def redirect_to_qs(runinfo):
         logging.warn('no questionset in questionnaire which passes the check')
         return finish_questionnaire(runinfo, qs.questionnaire)
 
-    url = reverse("questionset",
-                args=[ runinfo.random, runinfo.questionset.sortid ])
+    if not use_session:
+        args = [runinfo.random, runinfo.questionset.sortid]
+        urlname = 'questionset'
+    else:
+        args = []
+        request.session['qs'] = runinfo.questionset.sortid
+        request.session['runcode'] = runinfo.random
+        urlname = 'questionnaire'
+    url = reverse(urlname, args=args)
     return HttpResponseRedirect(url)
+
+
+def redirect_to_prev_questionnaire(request):
+    """
+    Used only when ```QUESTIONNAIRE_USE_SESSION``` is True.
+    Takes the questionnaire set in the session and redirects to the
+    previous questionnaire if any.
+    """
+    runcode = request.session.get('runcode', None)
+    if runcode is not None:
+        runinfo = get_runinfo(runcode)
+        prev_qs = runinfo.questionset.prev()
+        if runinfo and prev_qs:
+            request.session['runcode'] = runinfo.random
+            request.session['qs'] = prev_qs.sortid
+            return HttpResponseRedirect(reverse('questionnaire'))
+
+    return HttpResponseRedirect('/')
+
 
 @transaction.commit_on_success
 def questionnaire(request, runcode=None, qs=None):
@@ -269,6 +310,14 @@ def questionnaire(request, runcode=None, qs=None):
     We only commit on success, to maintain consistency.  We also specifically
     rollback if there were errors processing the answers for this questionset.
     """
+    if use_session:
+        session_runcode = request.session.get('runcode', None)
+        if session_runcode is not None:
+            runcode = session_runcode
+
+        session_qs = request.session.get('qs', None)
+        if session_qs is not None:
+            qs = session_qs
 
     # if runcode provided as query string, redirect to the proper page
     if not runcode:
@@ -276,7 +325,12 @@ def questionnaire(request, runcode=None, qs=None):
         if not runcode:
             return HttpResponseRedirect("/")
         else:
-            return HttpResponseRedirect(reverse("questionnaire",args=[runcode]))
+            if not use_session:
+                args = [runcode, ]
+            else:
+                request.session['runcode'] = runcode
+                args = []
+            return HttpResponseRedirect(reverse("questionnaire", args=args))
 
     runinfo = get_runinfo(runcode)
 
@@ -300,7 +354,7 @@ def questionnaire(request, runcode=None, qs=None):
         return set_language(request, runinfo, request.path)
 
     # --------------------------------
-    # --- Handle non-POST requests --- 
+    # --- Handle non-POST requests ---
     # --------------------------------
 
     if request.method != "POST":
@@ -310,13 +364,13 @@ def questionnaire(request, runcode=None, qs=None):
                 pass # ok for testing
             elif qs.sortid > runinfo.questionset.sortid:
                 # you may jump back, but not forwards
-                return redirect_to_qs(runinfo)
+                return redirect_to_qs(runinfo, request)
             runinfo.questionset = qs
             runinfo.save()
             transaction.commit()
         # no questionset id in URL, so redirect to the correct URL
         if qs is None:
-            return redirect_to_qs(runinfo)
+            return redirect_to_qs(runinfo, request)
         return show_questionnaire(request, runinfo)
 
     # -------------------------------------
@@ -325,7 +379,7 @@ def questionnaire(request, runcode=None, qs=None):
 
     # if the submitted page is different to what runinfo says, update runinfo
     # XXX - do we really want this?
-    qs = request.POST.get('questionset_id', None)
+    qs = request.POST.get('questionset_id', qs)
     try:
         qsobj = QuestionSet.objects.filter(pk=qs)[0]
         if qsobj.questionnaire == runinfo.questionset.questionnaire:
@@ -410,12 +464,14 @@ def questionnaire(request, runcode=None, qs=None):
         next = next.next()
     runinfo.questionset = next
     runinfo.save()
+    if use_session:
+        request.session['prev_runcode'] = runinfo.random
 
     if next is None: # we are finished
         return finish_questionnaire(runinfo, questionnaire)
 
     transaction.commit()
-    return redirect_to_qs(runinfo)
+    return redirect_to_qs(runinfo, request)
 
 def finish_questionnaire(runinfo, questionnaire):
     hist = RunInfoHistory()
@@ -462,7 +518,7 @@ def show_questionnaire(request, runinfo, errors={}):
 
     show_all = request.GET.get('show_all') == '1' # for debugging purposes in some cases we may want to show all questions on one screen.
     questionset = runinfo.questionset
-    questions = questionset.questionnaire.questions() if show_all else questionset.questions() 
+    questions = questionset.questionnaire.questions() if show_all else questionset.questions()
 
     qlist = []
     jsinclude = []      # js files to include
@@ -470,7 +526,7 @@ def show_questionnaire(request, runinfo, errors={}):
     jstriggers = []
     qvalues = {}
 
-    # initialize qvalues        
+    # initialize qvalues
     cookiedict = runinfo.get_cookiedict()
 
     for k,v in cookiedict.items():
@@ -496,7 +552,7 @@ def show_questionnaire(request, runinfo, errors={}):
             'qalpha_class' : _qalpha and (ord(_qalpha[-1]) % 2 \
                                           and ' alodd' or ' aleven') or '',
         }
-        
+
         # substitute answer texts
         substitute_answer(qvalues, question)
 
@@ -522,9 +578,9 @@ def show_questionnaire(request, runinfo, errors={}):
                 jstriggers.extend(qdict['jstriggers'])
             if 'qvalue' in qdict and not question.number in cookiedict:
                 qvalues[question.number] = qdict['qvalue']
-                
+
         qlist.append( (question, qdict) )
-    
+
     try:
         has_progress = settings.QUESTIONNAIRE_PROGRESS in ('async', 'default')
         async_progress = settings.QUESTIONNAIRE_PROGRESS == 'async'
@@ -551,6 +607,10 @@ def show_questionnaire(request, runinfo, errors={}):
                 else:
                     qvalues[s[1]] = v
 
+    if use_session:
+        prev_url = reverse('redirect_to_prev_questionnaire')
+    else:
+        prev_url = 'javascript:history.back();'
     r = r2r("questionnaire/questionset.html", request,
         questionset=runinfo.questionset,
         runinfo=runinfo,
@@ -562,7 +622,8 @@ def show_questionnaire(request, runinfo, errors={}):
         jsinclude=jsinclude,
         cssinclude=cssinclude,
         async_progress=async_progress,
-        async_url=reverse('progress', args=[runinfo.random])
+        async_url=reverse('progress', args=[runinfo.random]),
+        prev_url=prev_url,
     )
     r['Cache-Control'] = 'no-cache'
     r['Expires'] = "Thu, 24 Jan 1980 00:00:00 GMT"
@@ -578,7 +639,7 @@ def substitute_answer(qvalues, obj):
     Only answers with 'store' in their check will work with this.
 
     """
-        
+
     if qvalues and obj.text:
         magic = 'subst_with_ans_'
         regex =r'subst_with_ans_(\S+)'
@@ -587,14 +648,14 @@ def substitute_answer(qvalues, obj):
         text_attributes = [a for a in dir(obj) if a.startswith('text_')]
 
         for answerid in replacements:
-            
+
             target = magic + answerid
             replacement = qvalues.get(answerid.lower(), '')
 
             for attr in text_attributes:
                 oldtext = getattr(obj, attr)
                 newtext = oldtext.replace(target, replacement)
-                
+
                 setattr(obj, attr, newtext)
 
 
@@ -715,14 +776,14 @@ def answer_export(questionnaire, answers=None):
     questionnaire -- questionnaire model for export
     answers -- query set of answers to include in export, defaults to all
 
-    Return a flat dump of column headings and all the answers for a 
-    questionnaire (in query set answers) in the form (headings, answers) 
+    Return a flat dump of column headings and all the answers for a
+    questionnaire (in query set answers) in the form (headings, answers)
     where headings is:
         ['question1 number', ...]
     and answers is:
         [(subject1, 'runid1', ['answer1.1', ...]), ... ]
 
-    The headings list might include items with labels like 
+    The headings list might include items with labels like
     'questionnumber-freeform'.  Those columns will contain all the freeform
     answers for that question (separated from the other answer data).
 
@@ -731,7 +792,7 @@ def answer_export(questionnaire, answers=None):
 
     The items in the answers list are unicode strings or empty strings
     if no answer was given.  The number of elements in each answer list will
-    always match the number of headings.    
+    always match the number of headings.
     """
     if answers is None:
         answers = Answer.objects.all()
@@ -756,14 +817,14 @@ def answer_export(questionnaire, answers=None):
     row = []
     for answer in answers:
         if answer.runid != runid or answer.subject != subject:
-            if row: 
+            if row:
                 out.append((subject, runid, row))
             runid = answer.runid
             subject = answer.subject
             row = [""] * len(headings)
         ans = answer.split_answer()
         if type(ans) == int:
-            ans = str(ans) 
+            ans = str(ans)
         for choice in ans:
             col = None
             if type(choice) == list:
@@ -781,7 +842,7 @@ def answer_export(questionnaire, answers=None):
             if col is not None:
                 row[col] = choice
     # and don't forget about the last one
-    if row: 
+    if row:
         out.append((subject, runid, row))
     return headings, out
 
@@ -791,13 +852,13 @@ def answer_summary(questionnaire, answers=None):
     answers -- query set of answers to include in summary, defaults to all
 
     Return a summary of the answer totals in answer_qs in the form:
-    [('q1', 'question1 text', 
-        [('choice1', 'choice1 text', num), ...], 
+    [('q1', 'question1 text',
+        [('choice1', 'choice1 text', num), ...],
         ['freeform1', ...]), ...]
 
     questions are returned in questionnaire order
     choices are returned in question order
-    freeform options are case-insensitive sorted 
+    freeform options are case-insensitive sorted
     """
 
     if answers is None:
@@ -834,7 +895,7 @@ def answer_summary(questionnaire, answers=None):
         summary.append((question.number, question.text, [
             (n, t, choice_totals[n]) for (n, t) in choices], freeforms))
     return summary
-    
+
 def has_tag(tag, runinfo):
     """ Returns true if the given runinfo contains the given tag. """
     return tag in (t.strip() for t in runinfo.tags.split(','))
@@ -859,7 +920,7 @@ def dep_check(expr, runinfo, answerdict):
     When looking up the answer, it first checks if it's in the answerdict,
     then it checks runinfo's cookies, then it does a database lookup to find
     the answer.
-    
+
     The use of the comma separator is purely historical.
     """
 
@@ -908,7 +969,7 @@ def dep_check(expr, runinfo, answerdict):
     if not actual_answer:
         if check_question.getcheckdict():
             actual_answer = check_question.getcheckdict().get('default')
-    
+
     if actual_answer is None:
         actual_answer = u''
     if check_answer[0:1] in "<>":
@@ -969,6 +1030,9 @@ def generate_run(request, questionnaire_id):
 
     run = RunInfo(subject=su, random=key, runid=key, questionset=qs)
     run.save()
-    
-    return HttpResponseRedirect(reverse('questionnaire', kwargs={'runcode': key}))
-
+    if not use_session:
+        kwargs = {'runcode': key}
+    else:
+        kwargs = {}
+        request.session['runcode'] = key
+    return HttpResponseRedirect(reverse('questionnaire', kwargs=kwargs))
