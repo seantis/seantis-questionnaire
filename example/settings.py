@@ -68,7 +68,7 @@ STATIC_URL = '/static/'
 # Additional locations of static files
 STATICFILES_DIRS = (
     os.path.abspath('./static'),
-    os.path.abspath('../questionnaire/static/')    
+    os.path.abspath('../questionnaire/static/')
 )
 
 # List of finder classes that know how to find static files in
@@ -129,15 +129,15 @@ LANGUAGES = (
 # the possible options are 'default', 'async' and 'none'
 #
 #   'default'
-#   The progressbar will be rendered in each questionset together with the 
-#   questions. This is a good choice for smaller questionnaires as the 
+#   The progressbar will be rendered in each questionset together with the
+#   questions. This is a good choice for smaller questionnaires as the
 #   progressbar will always be up to date.
 #
 #   'async'
 #   The progressbar value is updated using ajax once the questions have been
 #   rendered. This approach is the right choice for bigger questionnaires which
 #   result in a long time spent on updating the progressbar with each request.
-#   (The progress calculation is by far the most time consuming method in 
+#   (The progress calculation is by far the most time consuming method in
 #    bigger questionnaires as all questionsets and questions need to be
 #    parsed to decide if they play a role in the current run or not)
 #
@@ -145,6 +145,13 @@ LANGUAGES = (
 #   Completely omits the progressbar. Good if you don't want one or if the
 #   questionnaire is so huge that even the ajax request takes too long.
 QUESTIONNAIRE_PROGRESS = 'async'
+
+# Defines how the questionnaire and questionset id are passed around.
+# If False, the default value, the ids are part of the URLs and visible to the
+# user answering the questions.
+# If True the ids are set in the session and the URL remains unchanged as the
+# user goes through the steps of the question set.
+QUESTIONNAIRE_USE_SESSION = False
 
 try: from local_settings import *
 except: pass
