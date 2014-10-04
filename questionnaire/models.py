@@ -356,11 +356,11 @@ class Question(models.Model):
     def questioninclude(self):
         return "questionnaire/" + self.get_type() + ".html"
 
-    def __cmp__(a, b):
-        anum, astr = split_numal(a.number)
-        bnum, bstr = split_numal(b.number)
-        cmpnum = cmp(anum, bnum)
-        return cmpnum or cmp(astr, bstr)
+#     def __cmp__(a, b):
+#         anum, astr = split_numal(a.number)
+#         bnum, bstr = split_numal(b.number)
+#         cmpnum = cmp(anum, bnum)
+#         return cmpnum or cmp(astr, bstr)
 
     class Meta:
         translate = ('text', 'extra', 'footer')
