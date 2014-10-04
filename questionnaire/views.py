@@ -264,7 +264,7 @@ def redirect_to_qs(runinfo, request=None):
     # empty ?
     if not hasquestionset:
         logging.warn('no questionset in questionnaire which passes the check')
-        return finish_questionnaire(runinfo, qs.questionnaire)
+        return finish_questionnaire(request, runinfo, qs.questionnaire)
 
     if not use_session:
         args = [runinfo.random, runinfo.questionset.sortid]
@@ -468,12 +468,12 @@ def questionnaire(request, runcode=None, qs=None):
         request.session['prev_runcode'] = runinfo.random
 
     if next is None: # we are finished
-        return finish_questionnaire(runinfo, questionnaire)
+        return finish_questionnaire(request, runinfo, questionnaire)
 
     transaction.commit()
     return redirect_to_qs(runinfo, request)
 
-def finish_questionnaire(runinfo, questionnaire):
+def finish_questionnaire(request, runinfo, questionnaire):
     hist = RunInfoHistory()
     hist.subject = runinfo.subject
     hist.runid = runinfo.runid
