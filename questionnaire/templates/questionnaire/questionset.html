@@ -70,7 +70,7 @@
                     {% include qdict.template %}
                 {% else %}
                     <div class="question-text {% if qdict.required %}required{% endif %}">
-                        <span class="qnumber">{{ question.display_number }}.</span>
+                        <span class="qnumber">{{ question.display_number|safe }}.</span>
                         {{ question.text }}
                     </div>
                     <div class="answer">
