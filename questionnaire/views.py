@@ -218,7 +218,7 @@ def get_async_progress(request, *args, **kwargs):
 
     cache.set('progress' + runinfo.random, response['progress'])
     response = HttpResponse(json.dumps(response),
-               mimetype='application/javascript');
+               content_type='application/javascript');
     response["Cache-Control"] = "no-cache"
     return response
 
@@ -765,7 +765,7 @@ def export_csv(request, qid): # questionnaire_id
             a if a else '--' for a in answer_row]
         writer.writerow(row)
 
-    response = HttpResponse(FileWrapper(fd), mimetype="text/csv")
+    response = HttpResponse(FileWrapper(fd), content_type="text/csv")
     response['Content-Length'] = fd.tell()
     response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
     fd.seek(0)
