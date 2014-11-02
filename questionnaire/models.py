@@ -102,7 +102,7 @@ class QuestionSet(models.Model):
 
     def questions(self):
         if not hasattr(self, "__qcache"):
-            self.__qcache = list(Question.objects.filter(questionset=self.id).order_by('number'))
+            self.__qcache = list(Question.objects.filter(questionset=self.id).extra(select={'numericnumber': 'CAST(number AS UNSIGNED)'}).order_by('numericnumber', 'number'))
         return self.__qcache
 
     def next(self):
