@@ -156,5 +156,5 @@ def send_emails(request=None, qname=None):
                 outlog.append("Exception: [%s] %s: %s" % (r.runid, r.subject.surname, str(e)))
     if request:
         return HttpResponse("Sent Questionnaire Emails:\n  "
-            +"\n  ".join(outlog), mimetype="text/plain")
+            +"\n  ".join(outlog), content_type="text/plain")
     return "\n".join(outlog)
