@@ -12,8 +12,7 @@ from datetime import datetime
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from questionnaire import QuestionProcessors
-from questionnaire import questionnaire_done
-from questionnaire import questionset_done
+from questionnaire import questionnaire_start, questionset_start, questionset_done, questionnaire_done
 from questionnaire import AnswerException
 from questionnaire import Processors
 from questionnaire.models import *
@@ -371,6 +370,7 @@ def questionnaire(request, runcode=None, qs=None):
         # no questionset id in URL, so redirect to the correct URL
         if qs is None:
             return redirect_to_qs(runinfo, request)
+        questionset_start.send(sender=None, runinfo=runinfo, questionset=qs)
         return show_questionnaire(request, runinfo)
 
     # -------------------------------------
@@ -1035,4 +1035,6 @@ def generate_run(request, questionnaire_id):
     else:
         kwargs = {}
         request.session['runcode'] = key
+
+    questionnaire_start.send(sender=None, runinfo=run, questionnaire=qu)
     return HttpResponseRedirect(reverse('questionnaire', kwargs=kwargs))

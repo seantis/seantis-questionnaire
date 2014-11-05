@@ -19,6 +19,8 @@ QuestionChoices = []
 QuestionProcessors = {} # supply additional information to the templates
 Processors = {} # for processing answers
 
+questionnaire_start = Signal(providing_args=["runinfo", "questionnaire"])
+questionset_start = Signal(providing_args=["runinfo", "questionset"])
 questionset_done = Signal(providing_args=["runinfo", "questionset"])
 questionnaire_done = Signal(providing_args=["runinfo", "questionnaire"])
 
