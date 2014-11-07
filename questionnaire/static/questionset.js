@@ -82,8 +82,11 @@ function addtrigger(elemid) {
 */
 (function($){
     $(document).ready(function() {
-        $('#qform').submit(function() {
+        // Ensure that the submit button is enabled to prevent a disabled
+        // button when user clicks the back button on their browser
+        $('.questionset-submit input').removeAttr('disabled');
 
+        $('#qform').submit(function() {
             var input = $('.questionset-submit input');
             var interval = 400; // ms
             var duration = 10000; // 10s
@@ -118,4 +121,6 @@ function addtrigger(elemid) {
             var id = setInterval(animate, interval);
         });
     });
+
+    $(window).unload(function() {});
 })(jQuery);
