@@ -1,0 +1,11 @@
+{% load i18n %}
+<div class="clearfix">
+    <div class="input">
+        <select id="{{ question.number }}" name="question_{{ question.number }}" onChange="valchanged('{{ question.number }}', this.value)">
+            <option value="">{% if question.extra %}{{question.extra}}{% else %}--{% endif %}</option>
+        {% for sel, choice in qdict.choices %}
+            <option value="{{ choice.value }}"{% if sel %} selected{% endif %}>{{ choice.text }}</option>
+        {% endfor %}
+        </select>
+    </div>
+</div>
