@@ -1019,11 +1019,8 @@ def generate_run(request, questionnaire_id, subject_id=None):
     qs = qu.questionsets()[0]
 
     if subject_id is not None:
-        try:
-            su = Subject.objects.get(id=subject_id)
-        except Subject.DoesNotExist:
-            su = None
-            
+        su = get_object_or_404(Subject, pk=subject_id)
+
     if not su:
         su = Subject.objects.filter(givenname='Anonymous', surname='User')[0:1]
         if su:
