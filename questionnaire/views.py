@@ -1003,7 +1003,7 @@ def send_email(request, runinfo_id):
     return r2r("emailsent.html", request, runinfo=runinfo, successful=successful)
 
 
-def generate_run(request, questionnaire_id):
+def generate_run(request, questionnaire_id, subject_id=None):
     """
     A view that can generate a RunID instance anonymously,
     and then redirect to the questionnaire itself.
@@ -1017,12 +1017,17 @@ def generate_run(request, questionnaire_id):
     """
     qu = get_object_or_404(Questionnaire, id=questionnaire_id)
     qs = qu.questionsets()[0]
-    su = Subject.objects.filter(givenname='Anonymous', surname='User')[0:1]
-    if su:
-        su = su[0]
-    else:
-        su = Subject(givenname='Anonymous', surname='User')
-        su.save()
+
+    if subject_id is not None:
+        su = get_object_or_404(Subject, pk=subject_id)
+
+    if not su:
+        su = Subject.objects.filter(givenname='Anonymous', surname='User')[0:1]
+        if su:
+            su = su[0]
+        else:
+            su = Subject(givenname='Anonymous', surname='User')
+            su.save()
 
     str_to_hash = "".join(map(lambda i: chr(random.randint(0, 255)), range(16)))
     str_to_hash += settings.SECRET_KEY
