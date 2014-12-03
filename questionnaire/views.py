@@ -1020,8 +1020,7 @@ def generate_run(request, questionnaire_id, subject_id=None):
 
     if subject_id is not None:
         su = get_object_or_404(Subject, pk=subject_id)
-
-    if not su:
+    else:
         su = Subject.objects.filter(givenname='Anonymous', surname='User')[0:1]
         if su:
             su = su[0]
