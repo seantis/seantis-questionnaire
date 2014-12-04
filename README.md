@@ -18,6 +18,23 @@ also developed a management interface and extensions to the models that are
 specific to the study, and have therefore not been made public.  Seantis GmbH
 could, however, provide a similar end-to-end solution for your organisation.
 
+The State of Seantis Questionnaire
+----------------------------------
+
+Seantis Questionnaire was developed a couple of years ago and it serves us
+well on some of our older projects. That being said, we currently have no
+plans to further develop these projects or Seantis Questionnaire itself.
+
+What we do is review pull requests to the best of our abilities and merge
+them, as long as they come in digestable portions. There is still a fair
+amount of pull requests coming in, so we wouldn't consider Seantis 
+Questionnaire dead just yet, but be warned that this project won't see
+big new developments any time soon.
+
+That also means that things might break, since there are barely any tests
+and no continuous integration. You should factor this into your decision
+when looking at Seantis Questionnaire for a new project.
+
 Alternatives
 ------------
 
