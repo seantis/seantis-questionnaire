@@ -991,6 +991,8 @@ def dep_check(expr, runinfo, answerdict):
         if check_answer.startswith(">"):
             return actual_answer > check_value
     if check_answer.startswith("!"):
+        if actual_answer == '':
+            return False
         return check_answer[1:].strip() != actual_answer.strip()
     return check_answer.strip() == actual_answer.strip()
 
