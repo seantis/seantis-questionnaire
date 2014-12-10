@@ -35,6 +35,15 @@ That also means that things might break, since there are barely any tests
 and no continuous integration. You should factor this into your decision
 when looking at Seantis Questionnaire for a new project.
 
+Forks
+-----
+
+Ed Questionnaire is a fork of Seantis Questionnaire. Its mission is to improve
+Seantis Questionnaire by adding new features. If you are looking for further
+development, this is the place to go:
+
+https://github.com/eldest-daughter/ed-questionnaire
+
 Alternatives
 ------------
 
