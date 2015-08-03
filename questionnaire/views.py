@@ -21,6 +21,7 @@ from questionnaire.emails import _send_email, send_emails
 from questionnaire.utils import numal_sort, split_numal
 from questionnaire.request_cache import request_cache
 from questionnaire import profiler
+from compat import commit_on_success
 import logging
 import random
 from hashlib import md5
@@ -295,7 +296,7 @@ def redirect_to_prev_questionnaire(request):
     return HttpResponseRedirect('/')
 
 
-@transaction.commit_on_success
+@commit_on_success
 def questionnaire(request, runcode=None, qs=None):
     """
     Process submitted answers (if present) and redirect to next page
