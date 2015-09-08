@@ -1,3 +1,12 @@
+WARNING
+=======
+
+**Seantis Questionnaire is no longer being developed.** 
+
+There is an active fork you should be using instead:
+
+https://github.com/eldest-daughter/ed-questionnaire
+
 Seantis Questionnaire
 =====================
 
