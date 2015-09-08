@@ -32,7 +32,7 @@ setup(
     install_requires=[
         'django',
         'django-transmeta',
-        'django-compat'
+        'django-compat',
         'pyyaml',
         'pyparsing'
     ],
