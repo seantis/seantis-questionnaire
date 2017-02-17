@@ -64,9 +64,9 @@
   pk: 4
 - fields: {
     cookies: null,
-    created: !!timestamp '2009-05-15 10:19:03.905232',
+    created: '2009-05-15T10:19:03Z',
     emailcount: 0,
-    emailsent: !!timestamp '2009-05-16 15:05:11.775082',
+    emailsent: '2009-05-16T15:05:11Z',
     lastemailerror: null,
     questionset: 1,
     random: 'test:test',
@@ -78,9 +78,9 @@
   pk: 1
 - fields: {
     cookies: null,
-    created: !!timestamp '2009-05-15 10:19:03.905232',
+    created: '2009-05-15T10:19:03Z',
     emailcount: 0,
-    emailsent: !!timestamp '2009-05-16 15:05:11.775082',
+    emailsent: '2009-05-16T15:05:11Z',
     lastemailerror: null,
     questionset: 3,
     random: 'test:withtags',
@@ -93,9 +93,9 @@
   pk: 2
 - fields: {
     cookies: null,
-    created: !!timestamp '2009-05-15 10:19:03.905232',
+    created: '2009-05-15T10:19:03Z',
     emailcount: 0,
-    emailsent: !!timestamp '2009-05-16 15:05:11.775082',
+    emailsent: '2009-05-16T15:05:11Z',
     lastemailerror: null,
     questionset: 3,
     random: 'test:withouttags',
