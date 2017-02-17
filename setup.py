@@ -1,14 +1,17 @@
 import os
-import sys
 from setuptools import setup, find_packages
+
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 setup(
     name="seantis-questionnaire",
     version="2.0.1",
-    description="A Django application for creating online questionnaires/surveys.",
+    description=(
+        "A Django application for creating online questionnaires/surveys."
+    ),
     long_description=read("README.md"),
     author="Seantis GmbH",
     author_email="info@seantis.ch",
@@ -40,4 +43,3 @@ setup(
         'versiontools >= 1.6',
     ],
 )
-

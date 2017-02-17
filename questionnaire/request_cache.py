@@ -1,7 +1,7 @@
 # Per request cache middleware
-
+#
 # Provides a simple cache dictionary only existing for the request's lifetime
-
+#
 # The middleware provides a threadsafe LocMemCache which can be used just
 # like any other django cache facility
 
@@ -12,18 +12,22 @@ from django.core.cache.backends.locmem import LocMemCache
 _request_cache = {}
 _installed_middleware = False
 
+
 def get_request_cache():
     assert _installed_middleware, 'RequestCacheMiddleware not loaded'
     return _request_cache[currentThread()]
 
+
 def clear_request_cache():
     _request_cache[currentThread()].clear()
+
 
 class RequestCache(LocMemCache):
     def __init__(self):
         name = 'locmemcache@%i' % hash(currentThread())
         params = dict()
         super(RequestCache, self).__init__(name, params)
+
 
 class RequestCacheMiddleware(object):
     def __init__(self):
@@ -35,6 +39,7 @@ class RequestCacheMiddleware(object):
         _request_cache[currentThread()] = cache
 
         cache.clear()
+
 
 class request_cache(object):
     """ A decorator for use around functions that should be cached for the current
@@ -63,7 +68,7 @@ class request_cache(object):
 
             cachekey = self.keyfn(*args)
             cacheval = cache.get(cachekey, 'expired')
-            
+
             if not cacheval == 'expired':
                 return cacheval
 

@@ -1,10 +1,8 @@
-# vim: set fileencoding=utf-8
+from django.conf.urls import patterns, url
 
-import questionnaire
-from django.conf.urls.defaults import *
-from views import *
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^q/(?P<runcode>[^/]+)/(?P<qs>\d+)/$',
         'questionnaire.views.questionnaire', name='questionset'),
     url(r'^q/([^/]+)/',
