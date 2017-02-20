@@ -33,13 +33,16 @@ setup(
     ],
     zip_safe=False,
     install_requires=[
-        'django',
-        'django-transmeta',
+        'django>=1.8,<1.9',
         'django-compat',
+        'django-markup',
+        'django-transmeta',
+        'pyparsing',
         'pyyaml',
-        'pyparsing'
+        'textile',
     ],
     setup_requires=[
         'versiontools >= 1.6',
+        'pytest',
     ],
 )
