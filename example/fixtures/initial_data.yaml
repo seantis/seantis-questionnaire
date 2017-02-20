@@ -96,8 +96,8 @@
 - fields: {question: 5, sortid: 4, text_de: CherryPy, text_en: CherryPy, value: cherrypy}
   model: questionnaire.choice
   pk: 16
-- fields: {body_de: "Wilkommen zu der Fragebogenbeispielseite!\r\n\r\nWenn Sie einen\
-      \ einfachen Fragebogen sehen wollen, \"tun Sie's!\":/take/1\r\n\r\nSie k\xF6\
+- fields: {body_de: "Willkommen zu der Fragebogenbeispielseite!\r\n\r\nWenn Sie einen\
+      \ einfachen Fragebogen sehen wollen, \"tun Sie es!\":/take/1\r\n\r\nSie k\xF6\
       nnen das \"Admin Interface\":/admin/ benutzen, um den Fragebogen zu \xE4ndern.",
     body_en: "Welcome to the example Questionnaire website!\r\n\r\nIf you wish to\
       \ take a sample questionnaire, \"go for it!\":/take/1\r\n\r\nUse the \"Admin\
