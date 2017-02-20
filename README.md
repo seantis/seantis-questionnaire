@@ -96,42 +96,18 @@ Open settings.py and add following lines, representing your languages of choice:
     LANGUAGES = (
         ('de', _('German')),
         ('en', _('English')),
-        ('fr', _('French')),
-        ('it', _('Italian')),
-        ('ru', _('Russian')),
     )
 
 At the top of settings.py you should at this point add
 
-    import os.path
     from django.utils.translation import ugettext_lazy as _
 
 We will use that below for the setup of the folders
-
-In the same file add the questionnaire static directory to the STATICFILES_DIRS
-
-    STATICFILES_DIRS = (
-        os.path.abspath('./apps/seantis-questionnaire/questionnaire/static/'),
-    )
 
 Also add the locale and request cache middleware to MIDDLEWARE_CLASSES
 
     'django.middleware.locale.LocaleMiddleware',
     'questionnaire.request_cache.RequestCacheMiddleware',
-
-Add the questionnaire templates
-
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                ],
-            },
-        },
-    ]
 
 
 And finally, add the additional django packages (sites, markup, transmeta), questionnaire and your app to your INSTALLED_APPS
@@ -157,18 +133,22 @@ For an empty site with enabled admin interface you should end up with something 
 
     admin.autodiscover()
 
-    urlpatterns = patterns('',
+    urlpatterns = [
         url(r'^admin/', include(admin.site.urls)),
 
         # questionnaire urls
         url(r'q/', include('questionnaire.urls')),
-
-        url(r'^take/(?P<questionnaire_id>[0-9]+)/$', 'questionnaire.views.generate_run'),
-        url(r'^$', 'questionnaire.page.views.page', {'page_to_render': 'index'}),
-        url(r'^(?P<lang>..)/(?P<page_to_trans>.*)\.html$', 'questionnaire.page.views.langpage'),
-        url(r'^(?P<page_to_render>.*)\.html$', 'questionnaire.page.views.page'),
+        url(r'^take/(?P<questionnaire_id>[0-9]+)/$',
+            'questionnaire.views.generate_run'),
+        url(r'^$', 'questionnaire.page.views.page',
+            {'page_to_render': 'index'}),
+        url(r'^(?P<lang>..)/(?P<page_to_trans>.*)\.html$',
+            'questionnaire.page.views.langpage'),
+        url(r'^(?P<page_to_render>.*)\.html$',
+            'questionnaire.page.views.page'),
         url(r'^setlang/$', 'questionnaire.views.set_language'),
-    )
+    ]
+
 
 For the questionnaire itself it is only necessary to have the urls below `# questionnaire urls
 
@@ -180,7 +160,7 @@ The questionnaire expectes a base.html template to be there, with certain styles
 
 For now you might want to just copy the base.html to your own template folder.
 
-    cp -r apps/seantis-questionnaire/example/templates mysite/
+    cp -r apps/seantis-questionnaire/example/mysite/templates mysite/
 
 Congratulations, you have setup the basics of the questionnaire! At this point this site doesn't really do anything, as there are no questionnaires defined.
 
