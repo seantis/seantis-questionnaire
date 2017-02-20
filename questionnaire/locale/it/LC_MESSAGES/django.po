@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-29 15:51+0100\n"
+"POT-Creation-Date: 2017-02-20 11:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,140 +17,144 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: models.py:16
+#: admin.py:119
+msgid "Download data"
+msgstr ""
+
+#: admin.py:122
+msgid "Export to CSV"
+msgstr ""
+
+#: models.py:17
 msgid "Active"
 msgstr "Attivo"
 
-#: models.py:17
+#: models.py:18
 msgid "Inactive"
 msgstr "Inattivo"
 
-#: models.py:22
+#: models.py:25
 msgid "State"
 msgstr "Stato"
 
-#: models.py:24
+#: models.py:32
 msgid "Surname"
 msgstr "Cognome"
 
-#: models.py:26
+#: models.py:39
 msgid "Given name"
 msgstr "Nome"
 
-#: models.py:27
+#: models.py:45
 msgid "Email"
 msgstr "Email"
 
-#: models.py:29
+#: models.py:52
 msgid "Gender"
 msgstr "Sesso"
 
-#: models.py:30
+#: models.py:54
 msgid "Unset"
 msgstr "Nessun parere"
 
-#: models.py:31
+#: models.py:55
 msgid "Male"
 msgstr "Maschio"
 
-#: models.py:32
+#: models.py:56
 msgid "Female"
 msgstr "Femmina"
 
-#: models.py:35
+#: models.py:61
 msgid "Next Run"
 msgstr "Prossimo"
 
-#: models.py:37
+#: models.py:69
 msgid "Form Type"
 msgstr "Tipo di domanda"
 
-#: models.py:39
+#: models.py:71
 msgid "Subject receives emails"
 msgstr "Persona contattata via email"
 
-#: models.py:40
+#: models.py:72
 msgid "Subject is sent paper form"
 msgstr "Persona contattata via questionario cartaceo"
 
-#: models.py:43
+#: models.py:79
 msgid "Language"
 msgstr "Lingua"
 
-#: views.py:608 templates/questionnaire/choice-yesnocomment.html:2
-msgid "Yes"
-msgstr "Si"
+#: models.py:406
+msgid "Text"
+msgstr ""
 
-#: views.py:608 templates/questionnaire/choice-yesnocomment.html:3
-msgid "No"
-msgstr "No"
-
-#: views.py:610 templates/questionnaire/choice-yesnocomment.html:5
-msgid "Don't Know"
-msgstr "Non so"
-
-#: qprocessors/choice.py:39 qprocessors/simple.py:67
+#: qprocessors/choice.py:45 qprocessors/simple.py:77
 msgid "You must select an option"
 msgstr "Devi scegliere un'opzione"
 
-#: qprocessors/choice.py:43 qprocessors/simple.py:71 qprocessors/simple.py:73
-#: qprocessors/simple.py:75 qprocessors/simple.py:78
-#: qprocessors/timeperiod.py:56
+#: qprocessors/choice.py:49 qprocessors/range_or_number.py:50
+#: qprocessors/simple.py:81 qprocessors/simple.py:83 qprocessors/simple.py:85
+#: qprocessors/simple.py:88 qprocessors/timeperiod.py:63
 msgid "Field cannot be blank"
 msgstr "Domanda richiesta"
 
-#: qprocessors/choice.py:48
+#: qprocessors/choice.py:54
 msgid "Invalid option!"
 msgstr "Opzione non valida"
 
-#: qprocessors/choice.py:110
+#: qprocessors/choice.py:119
 #, python-format
 msgid "You must select at least %d option"
 msgid_plural "You must select at least %d options"
 msgstr[0] "Devi sciegliere almeno %d opzione"
 msgstr[1] "Devi sciegliere almeno %d opzioni"
 
-#: qprocessors/custom.py:27
+#: qprocessors/custom.py:33
 msgid "Processor not defined for this question"
 msgstr ""
 
-#: qprocessors/range.py:36
+#: qprocessors/range_or_number.py:57
+msgid "Could not convert the number"
+msgstr ""
+
+#: qprocessors/range_or_number.py:60
 msgid "Out of range"
 msgstr ""
 
-#: qprocessors/timeperiod.py:5
+#: qprocessors/timeperiod.py:10
 msgid "second(s)"
 msgstr "secondi"
 
-#: qprocessors/timeperiod.py:6
+#: qprocessors/timeperiod.py:11
 msgid "minute(s)"
 msgstr "minuti"
 
-#: qprocessors/timeperiod.py:7
+#: qprocessors/timeperiod.py:12
 msgid "hour(s)"
 msgstr "ora(e)"
 
-#: qprocessors/timeperiod.py:8
+#: qprocessors/timeperiod.py:13
 msgid "day(s)"
 msgstr "giorno(i)"
 
-#: qprocessors/timeperiod.py:9
+#: qprocessors/timeperiod.py:14
 msgid "week(s)"
 msgstr "settimana(e)"
 
-#: qprocessors/timeperiod.py:10
+#: qprocessors/timeperiod.py:15
 msgid "month(s)"
 msgstr "mese(i)"
 
-#: qprocessors/timeperiod.py:11
+#: qprocessors/timeperiod.py:16
 msgid "year(s)"
 msgstr "anno(i)"
 
-#: qprocessors/timeperiod.py:42 qprocessors/timeperiod.py:58
+#: qprocessors/timeperiod.py:49 qprocessors/timeperiod.py:65
 msgid "Invalid time period"
 msgstr "Intervallo di tempo non valido"
 
-#: qprocessors/timeperiod.py:48
+#: qprocessors/timeperiod.py:55
 msgid "Time period must be a whole number"
 msgstr "Angabe muss aus einer ganzen Zahl bestehen"
 
@@ -169,6 +173,30 @@ msgid ""
 "or single words are valid."
 msgstr ""
 
-#: templates/questionnaire/questionset.html:77
+#: templates/questionnaire/choice-yesnocomment.html:10 views.py:960
+msgid "Yes"
+msgstr "Si"
+
+#: templates/questionnaire/choice-yesnocomment.html:18 views.py:960
+msgid "No"
+msgstr "No"
+
+#: templates/questionnaire/choice-yesnocomment.html:27 views.py:962
+msgid "Don't Know"
+msgstr "Non so"
+
+#: templates/questionnaire/choice-yesnocomment.html:35
+msgid "comment"
+msgstr ""
+
+#: templates/questionnaire/questionset.html:61
+msgid "edit"
+msgstr ""
+
+#: templates/questionnaire/questionset.html:98
 msgid "Continue"
 msgstr "Continua"
+
+#: templates/questionnaire/questionset.html:103
+msgid "return to previous page"
+msgstr ""
