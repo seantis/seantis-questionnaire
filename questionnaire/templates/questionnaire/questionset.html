@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load questionnaire i18n %}
 {% load static %}
+{% load markup_tags %}
 
 {% block headextra %}
     <script type="text/javascript" src="{% static 'jquery-1.7.1.min.js' %}"></script>
@@ -40,7 +41,7 @@
     {% endif %}
 
     <div class="questionset-title">
-    {{ questionset.text }}
+    {{ questionset.text|apply_markup:"textile" }}
     </div>
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">

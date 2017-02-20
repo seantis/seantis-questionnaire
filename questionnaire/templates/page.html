@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load markup_tags %}
 
 {% block title %}
     {{ block.super }} - {{ page.title }}
 {% endblock %}
 
 {% block content %}
-    {{ page.body }}
+    {{ page.body|apply_markup:"textile" }}
     {% if user.is_authenticated %}
         <a href="/admin/page/page/{{ page.slug }}/">(edit)</a>
     {% endif %}
