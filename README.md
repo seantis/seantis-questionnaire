@@ -55,7 +55,7 @@ First, create a folder for your new site:
     cd site
 
 Create and activate a virtual environment so your python packages don't influence your system
-​    
+
     virtualenv .
     source bin/activate
 
