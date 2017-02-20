@@ -2,6 +2,8 @@
 {% load questionnaire i18n %}
 {% load static %}
 {% load markup_tags %}
+{% get_available_languages as LANGUAGES %}
+{% get_current_language as LANGUAGE_CODE %}
 
 {% block headextra %}
     <script type="text/javascript" src="{% static 'jquery-1.7.1.min.js' %}"></script>
