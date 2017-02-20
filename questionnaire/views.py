@@ -17,6 +17,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import LANGUAGE_SESSION_KEY
 
 from compat import commit_on_success
 
@@ -742,7 +743,7 @@ def set_language(request, runinfo=None, next=None):
         lang_code = request.GET.get('lang', None)
         if lang_code and translation.check_for_language(lang_code):
             if hasattr(request, 'session'):
-                request.session['django_language'] = lang_code
+                request.session[LANGUAGE_SESSION_KEY] = lang_code
             else:
                 response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code)
             if runinfo:

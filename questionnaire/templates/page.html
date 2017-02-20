@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    {{ page.body|apply_markup:"textile" }}
+    {{ page.body|default:""|apply_markup:"textile" }}
     {% if user.is_authenticated %}
         <a href="/admin/page/page/{{ page.slug }}/">(edit)</a>
     {% endif %}

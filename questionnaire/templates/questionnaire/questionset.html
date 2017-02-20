@@ -26,7 +26,8 @@
 
 {% block language %}
     {% for lang in LANGUAGES %}{% if not forloop.first %} |{% endif %}
-        <a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>
+        {% if lang.0 == LANGUAGE_CODE %}<span>{{ lang.1 }}</span>{% endif %}
+        {% if lang.0 != LANGUAGE_CODE %}<a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>{% endif %}
     {% endfor %}
 {% endblock %}
 
@@ -41,7 +42,7 @@
     {% endif %}
 
     <div class="questionset-title">
-    {{ questionset.text|apply_markup:"textile" }}
+    {{ questionset.text|default:""|apply_markup:"textile" }}
     </div>
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">
