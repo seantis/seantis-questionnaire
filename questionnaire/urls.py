@@ -1,7 +1,10 @@
-# vim: set fileencoding=utf-8
+from django.conf.urls import patterns, url
 
-from django.conf.urls import *
-from views import *
+from views import export_csv
+from views import get_async_progress
+from views import questionnaire
+from views import use_session
+from views import redirect_to_prev_questionnaire
 
 
 urlpatterns = patterns(

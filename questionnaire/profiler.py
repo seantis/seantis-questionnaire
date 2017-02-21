@@ -2,8 +2,9 @@ import hotshot
 import os
 import time
 
-from django.conf import settings
+from pprint import pprint
 
+from django.conf import settings
 from django.db import connection
 
 try:
@@ -20,10 +21,10 @@ def profile(log_file):
     for later processing and examination.
 
     It takes one argument, the profile log name. If it's a relative path, it
-    places it under the PROFILE_LOG_BASE. It also inserts a time stamp into the 
-    file name, such that 'my_view.prof' become 'my_view-20100211T170321.prof', 
-    where the time stamp is in UTC. This makes it easy to run and compare 
-    multiple trials.     
+    places it under the PROFILE_LOG_BASE. It also inserts a time stamp into the
+    file name, such that 'my_view.prof' become 'my_view-20100211T170321.prof',
+    where the time stamp is in UTC. This makes it easy to run and compare
+    multiple trials.
     """
 
     if not os.path.isabs(log_file):
@@ -47,6 +48,7 @@ def profile(log_file):
         return _inner
     return _outer
 
+
 def timethis(fn):
     def wrapper(*args, **kwargs):
         start = time.time()
@@ -56,7 +58,6 @@ def timethis(fn):
 
     return wrapper
 
-from pprint import pprint
 
 def sqlprint(fn):
     def wrapper(*args, **kwargs):

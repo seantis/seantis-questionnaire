@@ -7,6 +7,7 @@ from django.template import TemplateDoesNotExist
 from django.utils._os import safe_join
 from django.utils import translation
 
+
 def get_template_sources(template_name, template_dirs=None):
     """
     Returns the absolute paths to "template_name", when appended to each
@@ -27,18 +28,25 @@ def get_template_sources(template_name, template_dirs=None):
             # fatal).
             pass
 
+
 def _load_template_source(template_name, template_dirs=None):
     tried = []
     for filepath in get_template_sources(template_name, template_dirs):
         try:
-            return (open(filepath).read().decode(settings.FILE_CHARSET), filepath)
+            return (
+                open(filepath).read().decode(settings.FILE_CHARSET), filepath
+            )
         except IOError:
             tried.append(filepath)
     if tried:
         error_msg = "Tried %s" % tried
     else:
-        error_msg = "Your TEMPLATE_DIRS setting is empty. Change it to point to at least one template directory."
-    raise TemplateDoesNotExist, error_msg
+        error_msg = (
+            "Your TEMPLATE_DIRS setting is empty. Change it to point to at "
+            "least one template directory."
+        )
+    raise TemplateDoesNotExist(error_msg)
+
 
 def load_template_source(template_name, template_dirs=None):
     """Assuming the current language is German.
@@ -51,8 +59,10 @@ def load_template_source(template_name, template_dirs=None):
             t = template_name.replace("$LANG", lang)
             res = _load_template_source(t, template_dirs)
             return res
-        except TemplateDoesNotExist: 
-            t = template_name.replace("$LANG", "").replace("..",".")
+        except TemplateDoesNotExist:
+            t = template_name.replace("$LANG", "").replace("..", ".")
             return _load_template_source(t, template_dirs)
     return _load_template_source(template_name, template_dirs)
+
+
 load_template_source.is_usable = True

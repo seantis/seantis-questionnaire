@@ -7,104 +7,105 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 2.0\n"
-"Report-Msgid-Bugs-To: Victor Safronivich <vsafronovich@gmail.com>\n"
-"POT-Creation-Date: 2012-08-24 09:15+0600\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-20 11:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Victor Safronivich <vsafronovich@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
-#: .\models.py:16
+#: admin.py:119
+msgid "Download data"
+msgstr ""
+
+#: admin.py:122
+msgid "Export to CSV"
+msgstr ""
+
+#: models.py:17
 msgid "Active"
 msgstr "Активно"
 
-#: .\models.py:17
+#: models.py:18
 msgid "Inactive"
 msgstr "Не активно"
 
-#: .\models.py:22
+#: models.py:25
 msgid "State"
 msgstr "Состояние"
 
-#: .\models.py:24
+#: models.py:32
 msgid "Surname"
 msgstr "Фамилия"
 
-#: .\models.py:26
+#: models.py:39
 msgid "Given name"
 msgstr "Имя"
 
-#: .\models.py:27
+#: models.py:45
 msgid "Email"
 msgstr "Эл. почта"
 
-#: .\models.py:29
+#: models.py:52
 msgid "Gender"
 msgstr "Пол"
 
-#: .\models.py:30
+#: models.py:54
 msgid "Unset"
 msgstr "Неважно"
 
-#: .\models.py:31
+#: models.py:55
 msgid "Male"
 msgstr "Мужской"
 
-#: .\models.py:32
+#: models.py:56
 msgid "Female"
 msgstr "Женский"
 
-#: .\models.py:35
+#: models.py:61
 msgid "Next Run"
 msgstr "Следующая попытка"
 
-#: .\models.py:37
+#: models.py:69
 msgid "Form Type"
 msgstr "Тип формы"
 
-#: .\models.py:39
+#: models.py:71
 msgid "Subject receives emails"
 msgstr "Тема полученного письма"
 
-#: .\models.py:40
+#: models.py:72
 msgid "Subject is sent paper form"
 msgstr ""
 
-#: .\models.py:43
+#: models.py:79
 msgid "Language"
 msgstr "Язык"
 
-#: .\views.py:805 .\templates\questionnaire\choice-yesnocomment.html.py:10
-msgid "Yes"
-msgstr "Да"
+#: models.py:406
+msgid "Text"
+msgstr ""
 
-#: .\views.py:805 .\templates\questionnaire\choice-yesnocomment.html.py:18
-msgid "No"
-msgstr "Нет"
-
-#: .\views.py:807 .\templates\questionnaire\choice-yesnocomment.html.py:27
-msgid "Don't Know"
-msgstr "Не известно"
-
-#: .\qprocessors\choice.py:38 .\qprocessors\simple.py:68
+#: qprocessors/choice.py:45 qprocessors/simple.py:77
 msgid "You must select an option"
 msgstr "Вы должны выбрать ответ"
 
-#: .\qprocessors\choice.py:42 .\qprocessors\simple.py:72
-#: .\qprocessors\simple.py:74 .\qprocessors\simple.py:76
-#: .\qprocessors\simple.py:79 .\qprocessors\timeperiod.py:56
+#: qprocessors/choice.py:49 qprocessors/range_or_number.py:50
+#: qprocessors/simple.py:81 qprocessors/simple.py:83 qprocessors/simple.py:85
+#: qprocessors/simple.py:88 qprocessors/timeperiod.py:63
 msgid "Field cannot be blank"
 msgstr "Поле не может быть пустым"
 
-#: .\qprocessors\choice.py:47
+#: qprocessors/choice.py:54
 msgid "Invalid option!"
 msgstr "Не правильный ответ!"
 
-#: .\qprocessors\choice.py:108
+#: qprocessors/choice.py:119
 #, python-format
 msgid "You must select at least %d option"
 msgid_plural "You must select at least %d options"
@@ -112,59 +113,63 @@ msgstr[0] "Вы должны выбрать как минимум %d ответ"
 msgstr[1] "Вы должны выбрать как минимум %d ответа"
 msgstr[2] "Вы должны выбрать как минимум %d ответов"
 
-#: .\qprocessors\custom.py:27
+#: qprocessors/custom.py:33
 msgid "Processor not defined for this question"
 msgstr "Для этого вопроса не определен обработчик"
 
-#: .\qprocessors\range.py:41
+#: qprocessors/range_or_number.py:57
+msgid "Could not convert the number"
+msgstr ""
+
+#: qprocessors/range_or_number.py:60
 msgid "Out of range"
 msgstr "Вне диапазона значений"
 
-#: .\qprocessors\timeperiod.py:5
+#: qprocessors/timeperiod.py:10
 msgid "second(s)"
 msgstr "Секунды"
 
-#: .\qprocessors\timeperiod.py:6
+#: qprocessors/timeperiod.py:11
 msgid "minute(s)"
 msgstr "Минуты"
 
-#: .\qprocessors\timeperiod.py:7
+#: qprocessors/timeperiod.py:12
 msgid "hour(s)"
 msgstr "часов"
 
-#: .\qprocessors\timeperiod.py:8
+#: qprocessors/timeperiod.py:13
 msgid "day(s)"
 msgstr "дней"
 
-#: .\qprocessors\timeperiod.py:9
+#: qprocessors/timeperiod.py:14
 msgid "week(s)"
 msgstr "недель"
 
-#: .\qprocessors\timeperiod.py:10
+#: qprocessors/timeperiod.py:15
 msgid "month(s)"
 msgstr "месяцев"
 
-#: .\qprocessors\timeperiod.py:11
+#: qprocessors/timeperiod.py:16
 msgid "year(s)"
 msgstr "лет"
 
-#: .\qprocessors\timeperiod.py:42 .\qprocessors\timeperiod.py:58
+#: qprocessors/timeperiod.py:49 qprocessors/timeperiod.py:65
 msgid "Invalid time period"
 msgstr "Неправильный временной интервал"
 
-#: .\qprocessors\timeperiod.py:48
+#: qprocessors/timeperiod.py:55
 msgid "Time period must be a whole number"
 msgstr "Временной интервал должен быть целым числом"
 
-#: .\templates\admin\questionnaire\question\change_form.html.py:10
+#: templates/admin/questionnaire/question/change_form.html:10
 msgid "Choices"
 msgstr "Варианты ответов"
 
-#: .\templates\admin\questionnaire\question\change_form.html.py:12
+#: templates/admin/questionnaire/question/change_form.html:12
 msgid "Sortid determines the choice order."
 msgstr "Поле обозначает порядок ответов"
 
-#: .\templates\admin\questionnaire\question\change_form.html.py:13
+#: templates/admin/questionnaire/question/change_form.html:13
 msgid ""
 "Short values will appear in exported data and are \n"
 "referenced in 'Additional checks' fields.  Numbers, letters \n"
@@ -173,18 +178,30 @@ msgstr ""
 "Краткие значения появятся в данных экспорта. \n"
 "Допустимы числа, буквы или простые слова."
 
-#: .\templates\questionnaire\choice-yesnocomment.html.py:35
+#: templates/questionnaire/choice-yesnocomment.html:10 views.py:960
+msgid "Yes"
+msgstr "Да"
+
+#: templates/questionnaire/choice-yesnocomment.html:18 views.py:960
+msgid "No"
+msgstr "Нет"
+
+#: templates/questionnaire/choice-yesnocomment.html:27 views.py:962
+msgid "Don't Know"
+msgstr "Не известно"
+
+#: templates/questionnaire/choice-yesnocomment.html:35
 msgid "comment"
 msgstr "комментарий"
 
-#: .\templates\questionnaire\questionset.html.py:58
+#: templates/questionnaire/questionset.html:61
 msgid "edit"
 msgstr "редактировать"
 
-#: .\templates\questionnaire\questionset.html.py:95
+#: templates/questionnaire/questionset.html:98
 msgid "Continue"
 msgstr "далее"
 
-#: .\templates\questionnaire\questionset.html.py:100
+#: templates/questionnaire/questionset.html:103
 msgid "return to previous page"
 msgstr "вернуть на предыдущую страницу"

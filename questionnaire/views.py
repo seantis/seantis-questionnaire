@@ -1,32 +1,43 @@
 #!/usr/bin/python
-# vim: set fileencoding=utf-8
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import RequestContext
-from django.core.urlresolvers import reverse
-from django.core.cache import cache
-from django.contrib.auth.decorators import permission_required
-from django.shortcuts import render_to_response, get_object_or_404
-from django.db import transaction
-from django.conf import settings
-from datetime import datetime
-from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
-from questionnaire import QuestionProcessors
-from questionnaire import questionnaire_start, questionset_start, questionset_done, questionnaire_done
-from questionnaire import AnswerException
-from questionnaire import Processors
-from questionnaire.models import *
-from questionnaire.parsers import *
-from questionnaire.emails import _send_email, send_emails
-from questionnaire.utils import numal_sort, split_numal
-from questionnaire.request_cache import request_cache
-from questionnaire import profiler
-from compat import commit_on_success
+import json
 import logging
 import random
-from hashlib import md5
 import re
 
+from datetime import datetime
+from hashlib import md5
+
+from django.conf import settings
+from django.contrib.auth.decorators import permission_required
+from django.core.cache import cache
+from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import LANGUAGE_SESSION_KEY
+
+from questionnaire import AnswerException
+from questionnaire import Processors
+from questionnaire import questionnaire_done
+from questionnaire import questionnaire_start
+from questionnaire import QuestionProcessors
+from questionnaire import questionset_done
+from questionnaire import questionset_start
+from questionnaire.emails import _send_email
+from questionnaire.models import Answer
+from questionnaire.models import Question
+from questionnaire.models import Questionnaire
+from questionnaire.models import QuestionSet
+from questionnaire.models import RunInfo
+from questionnaire.models import RunInfoHistory
+from questionnaire.models import Subject
+from questionnaire.parsers import BooleanParser
+from questionnaire.parsers import parse_checks
+from questionnaire.request_cache import request_cache
+from questionnaire.utils import numal_sort, split_numal
 
 try:
     use_session = settings.QUESTIONNAIRE_USE_SESSION
@@ -35,24 +46,41 @@ except AttributeError:
 
 
 def r2r(tpl, request, **contextdict):
-    "Shortcut to use RequestContext instead of Context in templates"
+    """Shortcut to use RequestContext instead of Context in templates"""
+
     contextdict['request'] = request
-    return render_to_response(tpl, contextdict, context_instance = RequestContext(request))
+    return render_to_response(
+        tpl, contextdict, context_instance=RequestContext(request)
+    )
+
 
 def get_runinfo(random):
-    "Return the RunInfo entry with the provided random key"
+    """Return the RunInfo entry with the provided random key"""
+
     res = RunInfo.objects.filter(random=random.lower())
     return res and res[0] or None
 
+
 def get_question(number, questionnaire):
-    "Return the specified Question (by number) from the specified Questionnaire"
-    res = Question.objects.filter(number=number, questionset__questionnaire=questionnaire)
+    """
+    Return the specified Question (by number) from the specified Questionnaire
+    """
+
+    res = Question.objects.filter(
+        number=number, questionset__questionnaire=questionnaire
+    )
     return res and res[0] or None
 
 
 def delete_answer(question, subject, runid):
-    "Delete the specified question/subject/runid combination from the Answer table"
-    Answer.objects.filter(subject=subject, runid=runid, question=question).delete()
+    """
+    Delete the specified question/subject/runid combination from the Answer
+    table
+    """
+
+    Answer.objects.filter(
+        subject=subject, runid=runid, question=question
+    ).delete()
 
 
 def add_answer(runinfo, question, answer_dict):
@@ -63,6 +91,7 @@ def add_answer(runinfo, question, answer_dict):
     question_{number} prefix.  The question_{number} form value is accessible
     with the ANSWER key.
     """
+
     answer = Answer()
     answer.question = question
     answer.subject = runinfo.subject
@@ -76,15 +105,19 @@ def add_answer(runinfo, question, answer_dict):
     if type in Processors:
         answer.answer = Processors[type](question, answer_dict) or ''
     else:
-        raise AnswerException("No Processor defined for question type %s" % type)
+        raise AnswerException(
+            "No Processor defined for question type %s" % type
+        )
 
-    # first, delete all existing answers to this question for this particular user+run
+    # first, delete all existing answers to this question for this particular
+    # user+run
     delete_answer(question, runinfo.subject, runinfo.runid)
 
     # then save the new answer to the database
     answer.save(runinfo)
 
     return True
+
 
 def check_parser(runinfo, exclude=[]):
     depparser = BooleanParser(dep_check, runinfo, {})
@@ -117,12 +150,14 @@ def check_parser(runinfo, exclude=[]):
 
     return satisfies_checks
 
+
 @request_cache()
 def skipped_questions(runinfo):
     if not runinfo.skipped:
         return []
 
     return [s.strip() for s in runinfo.skipped.split(',')]
+
 
 @request_cache()
 def question_satisfies_checks(question, runinfo, checkfn=None):
@@ -131,6 +166,7 @@ def question_satisfies_checks(question, runinfo, checkfn=None):
 
     checkfn = checkfn or check_parser(runinfo)
     return checkfn(question.checks)
+
 
 @request_cache(keyfn=lambda *args: args[0].id)
 def questionset_satisfies_checks(questionset, runinfo, checks=None):
@@ -173,6 +209,7 @@ def questionset_satisfies_checks(questionset, runinfo, checks=None):
 
     return False
 
+
 def get_progress(runinfo):
 
     position, total = 0, 0
@@ -203,8 +240,9 @@ def get_progress(runinfo):
 
     return int(progress)
 
+
 def get_async_progress(request, *args, **kwargs):
-    """ Returns the progress as json for use with ajax """
+    """Returns the progress as json for use with ajax"""
 
     if 'runcode' in kwargs:
         runcode = kwargs['runcode']
@@ -217,10 +255,13 @@ def get_async_progress(request, *args, **kwargs):
     response = dict(progress=get_progress(runinfo))
 
     cache.set('progress' + runinfo.random, response['progress'])
-    response = HttpResponse(json.dumps(response),
-               content_type='application/javascript');
+    response = HttpResponse(
+        json.dumps(response),
+        content_type='application/javascript'
+    )
     response["Cache-Control"] = "no-cache"
     return response
+
 
 def fetch_checks(questionsets):
     ids = [qs.pk for qs in questionsets]
@@ -241,7 +282,7 @@ def fetch_checks(questionsets):
 
 
 def redirect_to_qs(runinfo, request=None):
-    "Redirect to the correct and current questionset URL for this RunInfo"
+    """Redirect to the correct and current questionset URL for this RunInfo"""
 
     # cache current questionset
     qs = runinfo.questionset
@@ -296,7 +337,6 @@ def redirect_to_prev_questionnaire(request):
     return HttpResponseRedirect('/')
 
 
-@commit_on_success
 def questionnaire(request, runcode=None, qs=None):
     """
     Process submitted answers (if present) and redirect to next page
@@ -335,13 +375,37 @@ def questionnaire(request, runcode=None, qs=None):
     runinfo = get_runinfo(runcode)
 
     if not runinfo:
-        transaction.commit()
         return HttpResponseRedirect('/')
 
     # let the runinfo have a piggy back ride on the request
     # so we can easily use the runinfo in places like the question processor
     # without passing it around
     request.runinfo = runinfo
+
+    errors = {}
+    try:
+        # res = _questionnaire(request, runcode, qs)
+        with transaction.atomic():
+            res = _questionnaire(request, runinfo, errors, qs)
+    except AnswerException:
+        res = show_questionnaire(request, runinfo, errors=errors)
+
+    return res
+
+
+def _questionnaire(request, runinfo, errors, qs):
+    """
+    Process submitted answers (if present) and redirect to next page
+
+    If this is a POST request, parse the submitted data in order to store
+    all the submitted answers.  Then return to the next questionset or
+    return a completed response.
+
+    If this isn't a POST request, redirect to the main page.
+
+    We only commit on success, to maintain consistency.  We also specifically
+    rollback if there were errors processing the answers for this questionset.
+    """
 
     if not qs:
         # Only change the language to the subjects choice for the initial
@@ -359,15 +423,18 @@ def questionnaire(request, runcode=None, qs=None):
 
     if request.method != "POST":
         if qs is not None:
-            qs = get_object_or_404(QuestionSet, sortid=qs, questionnaire=runinfo.questionset.questionnaire)
+            qs = get_object_or_404(
+                QuestionSet,
+                sortid=qs,
+                questionnaire=runinfo.questionset.questionnaire
+            )
             if runinfo.random.startswith('test:'):
-                pass # ok for testing
+                pass  # ok for testing
             elif qs.sortid > runinfo.questionset.sortid:
                 # you may jump back, but not forwards
                 return redirect_to_qs(runinfo, request)
             runinfo.questionset = qs
             runinfo.save()
-            transaction.commit()
         # no questionset id in URL, so redirect to the correct URL
         if qs is None:
             return redirect_to_qs(runinfo, request)
@@ -379,16 +446,12 @@ def questionnaire(request, runcode=None, qs=None):
     # -------------------------------------
 
     # if the submitted page is different to what runinfo says, update runinfo
-    # XXX - do we really want this?
     qs = request.POST.get('questionset_id', qs)
-    try:
-        qsobj = QuestionSet.objects.filter(pk=qs)[0]
-        if qsobj.questionnaire == runinfo.questionset.questionnaire:
-            if runinfo.questionset != qsobj:
-                runinfo.questionset = qsobj
-                runinfo.save()
-    except:
-        pass
+    qsobj = QuestionSet.objects.filter(pk=qs)[0]
+    if qsobj.questionnaire == runinfo.questionset.questionnaire:
+        if runinfo.questionset != qsobj:
+            runinfo.questionset = qsobj
+            runinfo.save()
 
     questionnaire = runinfo.questionset.questionnaire
     questionset = runinfo.questionset
@@ -397,12 +460,13 @@ def questionnaire(request, runcode=None, qs=None):
     expected = questionset.questions()
 
     items = request.POST.items()
-    extra = {} # question_object => { "ANSWER" : "123", ... }
+    extra = {}  # question_object => { "ANSWER" : "123", ... }
 
-    # this will ensure that each question will be processed, even if we did not receive
-    # any fields for it. Also works to ensure the user doesn't add extra fields in
+    # this will ensure that each question will be processed, even if we did
+    # not receive any fields for it. Also works to ensure the user doesn't
+    # add extra fields in
     for x in expected:
-        items.append( (u'question_%s_Trigger953' % x.number, None) )
+        items.append((u'question_%s_Trigger953' % x.number, None))
 
     # generate the answer_dict for each question, and place in extra
     for item in items:
@@ -411,7 +475,9 @@ def questionnaire(request, runcode=None, qs=None):
             answer = key.split("_", 2)
             question = get_question(answer[1], questionnaire)
             if not question:
-                logging.warn("Unknown question when processing: %s" % answer[1])
+                logging.warn(
+                    "Unknown question when processing: %s" % answer[1]
+                )
                 continue
             extra[question] = ans = extra.get(question, {})
             if(len(answer) == 2):
@@ -423,17 +489,18 @@ def questionnaire(request, runcode=None, qs=None):
                 continue
             extra[question] = ans
 
-    errors = {}
     for question, ans in extra.items():
         if not question_satisfies_checks(question, runinfo):
             continue
         if u"Trigger953" not in ans:
-            logging.warn("User attempted to insert extra question (or it's a bug)")
+            logging.warn(
+                "User attempted to insert extra question (or it's a bug)"
+            )
             continue
         try:
             cd = question.getcheckdict()
             # requiredif is the new way
-            depon = cd.get('requiredif',None) or cd.get('dependent',None)
+            depon = cd.get('requiredif', None) or cd.get('dependent', None)
             if depon:
                 depparser = BooleanParser(dep_check, runinfo, extra)
                 if not depparser.parse(depon):
@@ -450,15 +517,14 @@ def questionnaire(request, runcode=None, qs=None):
             errors[question.number] = e
         except Exception:
             logging.exception("Unexpected Exception")
-            transaction.rollback()
             raise
 
     if len(errors) > 0:
-        res = show_questionnaire(request, runinfo, errors=errors)
-        transaction.rollback()
-        return res
+        raise AnswerException
 
-    questionset_done.send(sender=None,runinfo=runinfo,questionset=questionset)
+    questionset_done.send(
+        sender=None, runinfo=runinfo, questionset=questionset
+    )
 
     next = questionset.next()
     while next and not questionset_satisfies_checks(next, runinfo):
@@ -468,11 +534,11 @@ def questionnaire(request, runcode=None, qs=None):
     if use_session:
         request.session['prev_runcode'] = runinfo.random
 
-    if next is None: # we are finished
+    if next is None:  # we are finished
         return finish_questionnaire(request, runinfo, questionnaire)
 
-    transaction.commit()
     return redirect_to_qs(runinfo, request)
+
 
 def finish_questionnaire(request, runinfo, questionnaire):
     hist = RunInfoHistory()
@@ -488,21 +554,23 @@ def finish_questionnaire(request, runinfo, questionnaire):
                             questionnaire=questionnaire)
 
     redirect_url = questionnaire.redirect_url
-    for x,y in (('$LANG', translation.get_language()),
-                ('$SUBJECTID', runinfo.subject.id),
-                ('$RUNID', runinfo.runid),):
+    for x, y in (('$LANG', translation.get_language()),
+                 ('$SUBJECTID', runinfo.subject.id),
+                 ('$RUNID', runinfo.runid),):
         redirect_url = redirect_url.replace(x, str(y))
 
     if runinfo.runid in ('12345', '54321') \
-    or runinfo.runid.startswith('test:'):
-        runinfo.questionset = QuestionSet.objects.filter(questionnaire=questionnaire).order_by('sortid')[0]
+            or runinfo.runid.startswith('test:'):
+        runinfo.questionset = QuestionSet.objects.filter(
+            questionnaire=questionnaire
+        ).order_by('sortid')[0]
         runinfo.save()
     else:
         runinfo.delete()
-    transaction.commit()
     if redirect_url:
         return HttpResponseRedirect(redirect_url)
     return r2r("questionnaire/complete.$LANG.html", request)
+
 
 def show_questionnaire(request, runinfo, errors={}):
     """
@@ -512,14 +580,15 @@ def show_questionnaire(request, runinfo, errors={}):
     """
 
     request.runinfo = runinfo
-    if request.GET.get('show_all') == '1': # for debugging purposes.
+    if request.GET.get('show_all') == '1':  # for debugging purposes.
         questions = runinfo.questionset.questionnaire.questions()
     else:
         questions = runinfo.questionset.questions()
 
-    show_all = request.GET.get('show_all') == '1' # for debugging purposes in some cases we may want to show all questions on one screen.
+    show_all = request.GET.get('show_all') == '1'
     questionset = runinfo.questionset
-    questions = questionset.questionnaire.questions() if show_all else questionset.questions()
+    questions = questionset.questionnaire.questions() if show_all \
+        else questionset.questions()
 
     qlist = []
     jsinclude = []      # js files to include
@@ -530,7 +599,7 @@ def show_questionnaire(request, runinfo, errors={}):
     # initialize qvalues
     cookiedict = runinfo.get_cookiedict()
 
-    for k,v in cookiedict.items():
+    for k, v in cookiedict.items():
         qvalues[k] = v
 
     substitute_answer(qvalues, runinfo.questionset)
@@ -538,20 +607,22 @@ def show_questionnaire(request, runinfo, errors={}):
     for question in questions:
         # if we got here the questionset will at least contain one question
         # which passes, so this is all we need to check for
-        question_visible = question_satisfies_checks(question, runinfo) or show_all
+        question_visible = question_satisfies_checks(question, runinfo) \
+            or show_all
 
         Type = question.get_type()
         _qnum, _qalpha = split_numal(question.number)
 
         qdict = {
             'css_style': '' if question_visible else 'display:none;',
-            'template' : 'questionnaire/%s.html' % (Type),
-            'qnum' : _qnum,
-            'qalpha' : _qalpha,
-            'qtype' : Type,
-            'qnum_class' : (_qnum % 2 == 0) and " qeven" or " qodd",
-            'qalpha_class' : _qalpha and (ord(_qalpha[-1]) % 2 \
-                                          and ' alodd' or ' aleven') or '',
+            'template': 'questionnaire/%s.html' % (Type),
+            'qnum': _qnum,
+            'qalpha': _qalpha,
+            'qtype': Type,
+            'qnum_class': (_qnum % 2 == 0) and " qeven" or " qodd",
+            'qalpha_class': _qalpha and (
+                ord(_qalpha[-1]) % 2 and ' alodd' or ' aleven'
+            ) or '',
         }
 
         # substitute answer texts
@@ -559,13 +630,13 @@ def show_questionnaire(request, runinfo, errors={}):
 
         # add javascript dependency checks
         cd = question.getcheckdict()
-        depon = cd.get('requiredif',None) or cd.get('dependent',None)
+        depon = cd.get('requiredif', None) or cd.get('dependent', None)
         if depon:
             # extra args to BooleanParser are not required for toString
             parser = BooleanParser(dep_check)
             qdict['checkstring'] = ' checks="%s"' % parser.toString(depon)
             jstriggers.append('qc_%s' % question.number)
-        if 'default' in cd and not question.number in cookiedict:
+        if 'default' in cd and question.number not in cookiedict:
             qvalues[question.number] = cd['default']
         if Type in QuestionProcessors:
             qdict.update(QuestionProcessors[Type](request, question))
@@ -577,10 +648,10 @@ def show_questionnaire(request, runinfo, errors={}):
                     cssinclude.extend(qdict['jsinclude'])
             if 'jstriggers' in qdict:
                 jstriggers.extend(qdict['jstriggers'])
-            if 'qvalue' in qdict and not question.number in cookiedict:
+            if 'qvalue' in qdict and question.number not in cookiedict:
                 qvalues[question.number] = qdict['qvalue']
 
-        qlist.append( (question, qdict) )
+        qlist.append((question, qdict))
 
     try:
         has_progress = settings.QUESTIONNAIRE_PROGRESS in ('async', 'default')
@@ -598,13 +669,13 @@ def show_questionnaire(request, runinfo, errors={}):
         progress = 0
 
     if request.POST:
-        for k,v in request.POST.items():
+        for k, v in request.POST.items():
             if k.startswith("question_"):
                 s = k.split("_")
                 if len(s) == 4:
-                    qvalues[s[1]+'_'+v] = '1' # evaluates true in JS
+                    qvalues[s[1] + '_' + v] = '1'  # evaluates true in JS
                 elif len(s) == 3 and s[2] == 'comment':
-                    qvalues[s[1]+'_'+s[2]] = v
+                    qvalues[s[1] + '_' + s[2]] = v
                 else:
                     qvalues[s[1]] = v
 
@@ -612,7 +683,9 @@ def show_questionnaire(request, runinfo, errors={}):
         prev_url = reverse('redirect_to_prev_questionnaire')
     else:
         prev_url = 'javascript:history.back();'
-    r = r2r("questionnaire/questionset.html", request,
+    r = r2r(
+        "questionnaire/questionset.html",
+        request,
         questionset=runinfo.questionset,
         runinfo=runinfo,
         errors=errors,
@@ -630,6 +703,7 @@ def show_questionnaire(request, runinfo, errors={}):
     r['Expires'] = "Thu, 24 Jan 1980 00:00:00 GMT"
     return r
 
+
 def substitute_answer(qvalues, obj):
     """Objects with a 'text/text_xx' attribute can contain magic strings
     referring to the answers of other questions. This function takes
@@ -643,7 +717,7 @@ def substitute_answer(qvalues, obj):
 
     if qvalues and obj.text:
         magic = 'subst_with_ans_'
-        regex =r'subst_with_ans_(\S+)'
+        regex = r'subst_with_ans_(\S+)'
 
         replacements = re.findall(regex, obj.text)
         text_attributes = [a for a in dir(obj) if a.startswith('text_')]
@@ -666,6 +740,7 @@ def set_language(request, runinfo=None, next=None):
     redirect to the provided URL (or the last URL).
     Can also be used by a url handler, w/o runinfo & next.
     """
+
     if not next:
         next = request.REQUEST.get('next', None)
     if not next:
@@ -678,7 +753,7 @@ def set_language(request, runinfo=None, next=None):
         lang_code = request.GET.get('lang', None)
         if lang_code and translation.check_for_language(lang_code):
             if hasattr(request, 'session'):
-                request.session['django_language'] = lang_code
+                request.session[LANGUAGE_SESSION_KEY] = lang_code
             else:
                 response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code)
             if runinfo:
@@ -694,6 +769,7 @@ def _table_headers(questions):
     This will create separate columns for each multiple-choice possiblity
     and freeform options, to avoid mixing data types and make charting easier.
     """
+
     ql = list(questions)
     ql.sort(lambda x, y: numal_sort(x.number, y.number))
     columns = []
@@ -713,14 +789,17 @@ def _table_headers(questions):
     return columns
 
 
-
 @permission_required("questionnaire.export")
-def export_csv(request, qid): # questionnaire_id
+def export_csv(request, qid):  # questionnaire_id
     """
     For a given questionnaire id, generaete a CSV containing all the
     answers for all subjects.
     """
-    import tempfile, csv, cStringIO, codecs
+
+    import tempfile
+    import csv
+    import cStringIO
+    import codecs
     from django.core.servers.basehttp import FileWrapper
 
     class UnicodeWriter:
@@ -768,9 +847,11 @@ def export_csv(request, qid): # questionnaire_id
 
     response = HttpResponse(FileWrapper(fd), content_type="text/csv")
     response['Content-Length'] = fd.tell()
-    response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
+    response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' \
+        % qid
     fd.seek(0)
     return response
+
 
 def answer_export(questionnaire, answers=None):
     """
@@ -795,18 +876,21 @@ def answer_export(questionnaire, answers=None):
     if no answer was given.  The number of elements in each answer list will
     always match the number of headings.
     """
+
     if answers is None:
         answers = Answer.objects.all()
     answers = answers.filter(
-        question__questionset__questionnaire=questionnaire).order_by(
-        'subject', 'runid', 'question__questionset__sortid', 'question__number')
+        question__questionset__questionnaire=questionnaire
+    ).order_by(
+        'subject', 'runid', 'question__questionset__sortid', 'question__number'
+    )
     answers = answers.select_related()
     questions = Question.objects.filter(
         questionset__questionnaire=questionnaire)
     headings = _table_headers(questions)
 
     coldict = {}
-    for num, col in enumerate(headings): # use coldict to find column indexes
+    for num, col in enumerate(headings):  # use coldict to find column indexes
         coldict[col] = num
     # collect choices for each question
     qchoicedict = {}
@@ -832,13 +916,20 @@ def answer_export(questionnaire, answers=None):
                 # freeform choice
                 choice = choice[0]
                 col = coldict.get(answer.question.number + '-freeform', None)
-            if col is None: # look for enumerated choice column (multiple-choice)
-                col = coldict.get(answer.question.number + '-' + unicode(choice), None)
-            if col is None: # single-choice items
-                if ((not qchoicedict[answer.question.id]) or
-                    choice in qchoicedict[answer.question.id]):
+            if col is None:
+                # look for enumerated choice column (multiple-choice)
+                col = coldict.get(
+                    answer.question.number + '-' + unicode(choice), None
+                )
+            if col is None:
+                # single-choice items
+                if (
+                    (not qchoicedict[answer.question.id]) or
+                    choice in qchoicedict[answer.question.id]
+                ):
                     col = coldict.get(answer.question.number, None)
-            if col is None: # last ditch, if not found throw it in a freeform column
+            if col is None:
+                # last ditch, if not found throw it in a freeform column
                 col = coldict.get(answer.question.number + '-freeform', None)
             if col is not None:
                 row[col] = choice
@@ -846,6 +937,7 @@ def answer_export(questionnaire, answers=None):
     if row:
         out.append((subject, runid, row))
     return headings, out
+
 
 def answer_summary(questionnaire, answers=None):
     """
@@ -864,7 +956,9 @@ def answer_summary(questionnaire, answers=None):
 
     if answers is None:
         answers = Answer.objects.all()
-    answers = answers.filter(question__questionset__questionnaire=questionnaire)
+    answers = answers.filter(
+        question__questionset__questionnaire=questionnaire
+    )
     questions = Question.objects.filter(
         questionset__questionnaire=questionnaire).order_by(
         'questionset__sortid', 'number')
@@ -897,9 +991,11 @@ def answer_summary(questionnaire, answers=None):
             (n, t, choice_totals[n]) for (n, t) in choices], freeforms))
     return summary
 
+
 def has_tag(tag, runinfo):
-    """ Returns true if the given runinfo contains the given tag. """
+    """Returns true if the given runinfo contains the given tag."""
     return tag in (t.strip() for t in runinfo.tags.split(','))
+
 
 def dep_check(expr, runinfo, answerdict):
     """
@@ -935,10 +1031,12 @@ def dep_check(expr, runinfo, answerdict):
     if "," not in expr:
         expr = expr + ",yes"
 
-    check_questionnum, check_answer = expr.split(",",1)
+    check_questionnum, check_answer = expr.split(",", 1)
     try:
-        check_question = Question.objects.get(number=check_questionnum,
-          questionset__questionnaire = questionnaire)
+        check_question = Question.objects.get(
+            number=check_questionnum,
+            questionset__questionnaire=questionnaire
+        )
     except Question.DoesNotExist:
         return False
 
@@ -954,16 +1052,22 @@ def dep_check(expr, runinfo, answerdict):
             elif check_answer.strip() == v.strip():
                 return True
         actual_answer = answerdict[check_question].get('ANSWER', '')
-    elif hasattr(runinfo, 'get_cookie') and runinfo.get_cookie(check_questionnum, False):
+    elif hasattr(runinfo, 'get_cookie') and \
+            runinfo.get_cookie(check_questionnum, False):
         actual_answer = runinfo.get_cookie(check_questionnum)
     else:
         # retrieve from database
-        ansobj = Answer.objects.filter(question=check_question,
-            runid=runinfo.runid, subject=runinfo.subject)
+        ansobj = Answer.objects.filter(
+            question=check_question,
+            runid=runinfo.runid,
+            subject=runinfo.subject
+        )
         if ansobj:
             actual_answer = ansobj[0].split_answer()[0]
-            logging.warn("Put `store` in checks field for question %s" \
-            % check_questionnum)
+            logging.warn(
+                "Put `store` in checks field for question %s"
+                % check_questionnum
+            )
         else:
             actual_answer = None
 
@@ -981,7 +1085,10 @@ def dep_check(expr, runinfo, answerdict):
             else:
                 check_value = float(check_answer[1:])
         except:
-            logging.error("ERROR: must use numeric values with < <= => > checks (%r)" % check_question)
+            logging.error(
+                "ERROR: must use numeric values with < <= => > checks (%r)"
+                % check_question
+            )
             return False
         if check_answer.startswith("<="):
             return actual_answer <= check_value
@@ -997,13 +1104,16 @@ def dep_check(expr, runinfo, answerdict):
         return check_answer[1:].strip() != actual_answer.strip()
     return check_answer.strip() == actual_answer.strip()
 
+
 @permission_required("questionnaire.management")
 def send_email(request, runinfo_id):
     if request.method != "POST":
         return HttpResponse("This page MUST be called as a POST request.")
     runinfo = get_object_or_404(RunInfo, pk=int(runinfo_id))
     successful = _send_email(runinfo)
-    return r2r("emailsent.html", request, runinfo=runinfo, successful=successful)
+    return r2r(
+        "emailsent.html", request, runinfo=runinfo, successful=successful
+    )
 
 
 def generate_run(request, questionnaire_id, subject_id=None):
@@ -1016,8 +1126,10 @@ def generate_run(request, questionnaire_id, subject_id=None):
     be created.
 
     This can be used with a URL pattern like:
-    (r'^take/(?P<questionnaire_id>[0-9]+)/$', 'questionnaire.views.generate_run'),
+    (r'^take/(?P<questionnaire_id>[0-9]+)/$',
+     'questionnaire.views.generate_run'),
     """
+
     qu = get_object_or_404(Questionnaire, id=questionnaire_id)
     qs = qu.questionsets()[0]
 
@@ -1031,7 +1143,9 @@ def generate_run(request, questionnaire_id, subject_id=None):
             su = Subject(givenname='Anonymous', surname='User')
             su.save()
 
-    str_to_hash = "".join(map(lambda i: chr(random.randint(0, 255)), range(16)))
+    str_to_hash = "".join(
+        map(lambda i: chr(random.randint(0, 255)), range(16))
+    )
     str_to_hash += settings.SECRET_KEY
     key = md5(str_to_hash).hexdigest()
 

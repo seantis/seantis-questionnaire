@@ -1,6 +1,12 @@
-from questionnaire import *
-from django.utils.translation import ugettext as _, ungettext
 from json import dumps
+
+from django.utils.translation import ugettext as _, ungettext
+
+from questionnaire import add_type
+from questionnaire import answer_proc
+from questionnaire import AnswerException
+from questionnaire import question_proc
+
 
 @question_proc('choice', 'choice-freeform', 'dropdown')
 def question_choice(request, question):
@@ -17,19 +23,20 @@ def question_choice(request, question):
         if 'default' in cd:
             val = cd['default']
     for choice in question.choices():
-        choices.append( ( choice.value == val, choice, ) )
+        choices.append((choice.value == val, choice,))
 
     if question.type == 'choice-freeform':
         jstriggers.append('%s_comment' % question.number)
 
     return {
-        'choices'   : choices,
-        'sel_entry' : val == '_entry_',
-        'qvalue'    : val or '',
-        'required'  : True,
-        'comment'   : request.POST.get(key2, ""),
+        'choices': choices,
+        'sel_entry': val == '_entry_',
+        'qvalue': val or '',
+        'required': True,
+        'comment': request.POST.get(key2, ""),
         'jstriggers': jstriggers,
     }
+
 
 @answer_proc('choice', 'choice-freeform', 'dropdown')
 def process_choice(question, answer):
@@ -37,7 +44,7 @@ def process_choice(question, answer):
     if not opt:
         raise AnswerException(_(u'You must select an option'))
     if opt == '_entry_' and question.type == 'choice-freeform':
-        opt = answer.get('comment','')
+        opt = answer.get('comment', '')
         if not opt:
             raise AnswerException(_(u'Field cannot be blank'))
         return dumps([[opt]])
@@ -46,6 +53,8 @@ def process_choice(question, answer):
         if opt not in valid:
             raise AnswerException(_(u'Invalid option!'))
     return dumps([opt])
+
+
 add_type('choice', 'Choice [radio]')
 add_type('choice-freeform', 'Choice with a freeform option [radio]')
 add_type('dropdown', 'Dropdown choice [select]')
@@ -57,32 +66,33 @@ def question_multiple(request, question):
     choices = []
     counter = 0
     cd = question.getcheckdict()
-    defaults = cd.get('default','').split(',')
+    defaults = cd.get('default', '').split(',')
     for choice in question.choices():
         counter += 1
         key = "question_%s_multiple_%d" % (question.number, choice.sortid)
         if key in request.POST or \
-          (request.method == 'GET' and choice.value in defaults):
-            choices.append( (choice, key, ' checked',) )
+                (request.method == 'GET' and choice.value in defaults):
+            choices.append((choice, key, ' checked',))
         else:
-            choices.append( (choice, key, '',) )
+            choices.append((choice, key, '',))
     extracount = int(cd.get('extracount', 0))
     if not extracount and question.type == 'choice-multiple-freeform':
         extracount = 1
     extras = []
-    for x in range(1, extracount+1):
+    for x in range(1, extracount + 1):
         key = "question_%s_more%d" % (question.number, x)
         if key in request.POST:
-            extras.append( (key, request.POST[key],) )
+            extras.append((key, request.POST[key],))
         else:
-            extras.append( (key, '',) )
+            extras.append((key, '',))
     return {
         "choices": choices,
         "extras": extras,
-        "template"  : "questionnaire/choice-multiple-freeform.html",
-        "required" : cd.get("required", False) and cd.get("required") != "0",
+        "template": "questionnaire/choice-multiple-freeform.html",
+        "required": cd.get("required", False) and cd.get("required") != "0",
 
     }
+
 
 @answer_proc('choice-multiple', 'choice-multiple-freeform')
 def process_multiple(question, answer):
@@ -113,7 +123,8 @@ def process_multiple(question, answer):
     if multiple_freeform:
         multiple.append(multiple_freeform)
     return dumps(multiple)
+
+
 add_type('choice-multiple', 'Multiple-Choice, Multiple-Answers [checkbox]')
-add_type('choice-multiple-freeform', 'Multiple-Choice, Multiple-Answers, plus freeform [checkbox, input]')
-
-
+add_type('choice-multiple-freeform',
+         'Multiple-Choice, Multiple-Answers, plus freeform [checkbox, input]')

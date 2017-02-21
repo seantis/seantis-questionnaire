@@ -2,21 +2,20 @@
 """
 Functions to send email reminders to users.
 """
+import random
+import time
+import smtplib
 
 from django.core.mail import get_connection, EmailMessage
-from django.contrib.auth.decorators import login_required
 from django.template import Context, loader
 from django.utils import translation
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from models import Subject, QuestionSet, RunInfo, Questionnaire
 from datetime import datetime
-from django.shortcuts import render_to_response, get_object_or_404
-import random, time, smtplib, rfc822
 from email.Header import Header
 from email.Utils import formataddr, parseaddr
-try: from hashlib import md5
-except: from md5 import md5
+from hashlib import md5
 
 
 def encode_emailaddress(address):
@@ -24,10 +23,13 @@ def encode_emailaddress(address):
     Encode an email address as ASCII using the Encoded-Word standard.
     Needed to work around http://code.djangoproject.com/ticket/11144
     """
-    try: return address.encode('ascii')
-    except UnicodeEncodeError: pass
+
+    try:
+        return address.encode('ascii')
+    except UnicodeEncodeError:
+        pass
     nm, addr = parseaddr(address)
-    return formataddr( (str(Header(nm, settings.DEFAULT_CHARSET)), addr) )
+    return formataddr((str(Header(nm, settings.DEFAULT_CHARSET)), addr))
 
 
 def _new_random(subject):
@@ -36,7 +38,14 @@ def _new_random(subject):
     Returns: subject_id + 'z' +
         md5 hexdigest of subject's surname, nextrun date, and a random number
     """
-    return "%dz%s" % (subject.id, md5(subject.surname + str(subject.nextrun) + hex(random.randint(1,999999))).hexdigest()[:6])
+
+    return "%dz%s" % (
+        subject.id,
+        md5(
+            subject.surname + str(subject.nextrun) +
+            hex(random.randint(1, 999999))
+        ).hexdigest()[:6]
+    )
 
 
 def _new_runinfo(subject, questionset):
@@ -46,10 +55,11 @@ def _new_runinfo(subject, questionset):
     If a unique subject+runid entry already exists, return that instead..
     That should only occurs with manual database changes
     """
+
     nextrun = subject.nextrun
     runid = str(nextrun.year)
     entries = list(RunInfo.objects.filter(runid=runid, subject=subject))
-    if len(entries)>0:
+    if len(entries) > 0:
         r = entries[0]
     else:
         r = RunInfo()
@@ -60,12 +70,15 @@ def _new_runinfo(subject, questionset):
         r.created = datetime.now()
     r.questionset = questionset
     r.save()
-    if nextrun.month == 2 and nextrun.day == 29: # the only exception?
+    if nextrun.month == 2 and nextrun.day == 29:  # the only exception?
         subject.nextrun = datetime(nextrun.year + 1, 2, 28)
     else:
-        subject.nextrun = datetime(nextrun.year + 1, nextrun.month, nextrun.day)
+        subject.nextrun = datetime(
+            nextrun.year + 1, nextrun.month, nextrun.day
+        )
     subject.save()
     return r
+
 
 def _send_email(runinfo):
     "Send the email for a specific runinfo entry"
@@ -80,21 +93,26 @@ def _send_email(runinfo):
     c['random'] = runinfo.random
     c['runid'] = runinfo.runid
     c['created'] = runinfo.created
-    c['site'] = getattr(settings, 'QUESTIONNAIRE_URL', '(settings.QUESTIONNAIRE_URL not set)')
+    c['site'] = getattr(
+        settings, 'QUESTIONNAIRE_URL', '(settings.QUESTIONNAIRE_URL not set)'
+    )
     email = tmpl.render(c)
     emailFrom = settings.QUESTIONNAIRE_EMAIL_FROM
-    emailSubject, email = email.split("\n",1) # subject must be on first line
+    emailSubject, email = email.split("\n", 1)  # subject must be on first line
     emailSubject = emailSubject.strip()
     emailFrom = emailFrom.replace("$RUNINFO", runinfo.random)
-    emailTo = '"%s, %s" <%s>' % (subject.surname, subject.givenname, subject.email)
+    emailTo = '"%s, %s" <%s>' % (
+        subject.surname, subject.givenname, subject.email
+    )
 
     emailTo = encode_emailaddress(emailTo)
     emailFrom = encode_emailaddress(emailFrom)
 
     try:
         conn = get_connection()
-        msg = EmailMessage(emailSubject, email, emailFrom, [ emailTo ],
-            connection=conn)
+        msg = EmailMessage(
+            emailSubject, email, emailFrom, [emailTo], connection=conn
+        )
         msg.send()
         runinfo.emailcount = 1 + runinfo.emailcount
         runinfo.emailsent = datetime.now()
@@ -115,31 +133,43 @@ def _send_email(runinfo):
 
 def send_emails(request=None, qname=None):
     """
-    1. Create a runinfo entry for each subject who is due and has state 'active'
+    1. Create a runinfo entry for each subject who is due and has state
+       'active'
     2. Send an email for each runinfo entry whose subject receives email,
        providing that the last sent email was sent more than a week ago.
 
     This can be called either by "./manage.py questionnaire_emails" (without
     request) or through the web, if settings.EMAILCODE is set and matches.
+
     """
-    if request and request.GET.get('code') != getattr(settings,'EMAILCODE', False):
+
+    if request and request.GET.get('code') != \
+            getattr(settings, 'EMAILCODE', False):
         raise Http404
     if not qname:
         qname = getattr(settings, 'QUESTIONNAIRE_DEFAULT', None)
     if not qname:
         raise Exception("QUESTIONNAIRE_DEFAULT not in settings")
     questionnaire = Questionnaire.objects.get(name=qname)
-    questionset = QuestionSet.objects.filter(questionnaire__name=qname).order_by('sortid')
+    questionset = QuestionSet.objects.filter(
+        questionnaire__name=qname
+    ).order_by('sortid')
     if not questionset:
-        raise Exception("No questionsets for questionnaire '%s' (in settings.py)" % qname)
+        raise Exception(
+            "No questionsets for questionnaire '%s' (in settings.py)" % qname
+        )
         return
     questionset = questionset[0]
 
-    viablesubjects = Subject.objects.filter(nextrun__lte = datetime.now(), state='active')
+    viablesubjects = Subject.objects.filter(
+        nextrun__lte=datetime.now(), state='active'
+    )
     for s in viablesubjects:
         r = _new_runinfo(s, questionset)
-    runinfos = RunInfo.objects.filter(subject__formtype='email', questionset__questionnaire=questionnaire)
-    WEEKAGO = time.time() - (60 * 60 * 24 * 7) # one week ago
+    runinfos = RunInfo.objects.filter(
+        subject__formtype='email', questionset__questionnaire=questionnaire
+    )
+    WEEKAGO = time.time() - (60 * 60 * 24 * 7)  # one week ago
     outlog = []
     for r in runinfos:
         if r.runid.startswith('test:'):
@@ -149,12 +179,27 @@ def send_emails(request=None, qname=None):
         if r.emailcount == 0 or time.mktime(r.emailsent.timetuple()) < WEEKAGO:
             try:
                 if _send_email(r):
-                    outlog.append(u"[%s] %s, %s: OK" % (r.runid, r.subject.surname, r.subject.givenname))
+                    outlog.append(
+                        u"[%s] %s, %s: OK" % (
+                            r.runid, r.subject.surname, r.subject.givenname
+                        )
+                    )
                 else:
-                    outlog.append(u"[%s] %s, %s: %s" % (r.runid, r.subject.surname, r.subject.givenname, r.lastemailerror))
+                    outlog.append(
+                        u"[%s] %s, %s: %s" % (
+                            r.runid, r.subject.surname, r.subject.givenname,
+                            r.lastemailerror
+                        )
+                    )
             except Exception, e:
-                outlog.append("Exception: [%s] %s: %s" % (r.runid, r.subject.surname, str(e)))
+                outlog.append(
+                    "Exception: [%s] %s: %s" % (
+                        r.runid, r.subject.surname, str(e)
+                    )
+                )
     if request:
-        return HttpResponse("Sent Questionnaire Emails:\n  "
-            +"\n  ".join(outlog), content_type="text/plain")
+        return HttpResponse(
+            "Sent Questionnaire Emails:\n  " + "\n  ".join(outlog),
+            content_type="text/plain"
+        )
     return "\n".join(outlog)

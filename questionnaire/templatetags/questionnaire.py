@@ -1,8 +1,5 @@
 #!/usr/bin/python
-
 from django import template
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 
 register = template.Library()
@@ -25,10 +22,11 @@ def spanclass(string):
         return "span-10"
     return "span-%d" % l
 
+
 @register.filter(name="qtesturl")
 def qtesturl(question):
     qset = question.questionset
-    return reverse("questionset",
-        args=("test:%s" % qset.questionnaire.id,
-         qset.sortid))
-
+    return reverse(
+        "questionset",
+        args=("test:%s" % qset.questionnaire.id, qset.sortid)
+    )

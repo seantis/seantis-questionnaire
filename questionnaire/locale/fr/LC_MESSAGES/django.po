@@ -8,153 +8,197 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-04 10:11+0200\n"
+"POT-Creation-Date: 2017-02-20 11:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: models.py:16
-msgid "Active"
+#: admin.py:119
+msgid "Download data"
+msgstr ""
+
+#: admin.py:122
+msgid "Export to CSV"
 msgstr ""
 
 #: models.py:17
+msgid "Active"
+msgstr ""
+
+#: models.py:18
 msgid "Inactive"
 msgstr ""
 
-#: models.py:22
+#: models.py:25
 msgid "State"
 msgstr ""
 
-#: models.py:24
+#: models.py:32
 msgid "Surname"
 msgstr ""
 
-#: models.py:26
+#: models.py:39
 msgid "Given name"
 msgstr ""
 
-#: models.py:27
+#: models.py:45
 msgid "Email"
 msgstr ""
 
-#: models.py:29
+#: models.py:52
 msgid "Gender"
 msgstr ""
 
-#: models.py:30
+#: models.py:54
 msgid "Unset"
 msgstr ""
 
-#: models.py:31
+#: models.py:55
 msgid "Male"
 msgstr ""
 
-#: models.py:32
+#: models.py:56
 msgid "Female"
 msgstr ""
 
-#: models.py:35
+#: models.py:61
 msgid "Next Run"
 msgstr ""
 
-#: models.py:37
+#: models.py:69
 msgid "Form Type"
 msgstr ""
 
-#: models.py:39
+#: models.py:71
 msgid "Subject receives emails"
 msgstr ""
 
-#: models.py:40
+#: models.py:72
 msgid "Subject is sent paper form"
 msgstr ""
 
-#: models.py:43
+#: models.py:79
 msgid "Language"
 msgstr ""
 
-#: qprocessors/choice.py:38 qprocessors/simple.py:66
+#: models.py:406
+msgid "Text"
+msgstr ""
+
+#: qprocessors/choice.py:45 qprocessors/simple.py:77
 msgid "You must select an option"
 msgstr "Veuillez choisir une option!"
 
-#: qprocessors/choice.py:42 qprocessors/simple.py:70 qprocessors/simple.py:72
-#: qprocessors/simple.py:74 qprocessors/simple.py:77
-#: qprocessors/timeperiod.py:56
+#: qprocessors/choice.py:49 qprocessors/range_or_number.py:50
+#: qprocessors/simple.py:81 qprocessors/simple.py:83 qprocessors/simple.py:85
+#: qprocessors/simple.py:88 qprocessors/timeperiod.py:63
 msgid "Field cannot be blank"
 msgstr ""
 "Merci de donner une réponse à cette question; ce champs ne peut rester vide."
 
-#: qprocessors/choice.py:46
+#: qprocessors/choice.py:54
 #, fuzzy
 msgid "Invalid option!"
 msgstr "Option non valable"
 
-#: qprocessors/choice.py:107
+#: qprocessors/choice.py:119
 #, python-format
 msgid "You must select at least %d option"
 msgid_plural "You must select at least %d options"
 msgstr[0] "Vous devez cocher au moins %d option"
 msgstr[1] "Vous devez cocher au moins %d options"
 
-#: qprocessors/custom.py:27
+#: qprocessors/custom.py:33
 msgid "Processor not defined for this question"
 msgstr ""
 
-#: qprocessors/range.py:35
+#: qprocessors/range_or_number.py:57
+msgid "Could not convert the number"
+msgstr ""
+
+#: qprocessors/range_or_number.py:60
 msgid "Out of range"
 msgstr ""
 
-#: qprocessors/timeperiod.py:5
+#: qprocessors/timeperiod.py:10
 msgid "second(s)"
 msgstr "seconde(s)"
 
-#: qprocessors/timeperiod.py:6
+#: qprocessors/timeperiod.py:11
 msgid "minute(s)"
 msgstr "minute(s)"
 
-#: qprocessors/timeperiod.py:7
+#: qprocessors/timeperiod.py:12
 msgid "hour(s)"
 msgstr "heure(s)"
 
-#: qprocessors/timeperiod.py:8
+#: qprocessors/timeperiod.py:13
 msgid "day(s)"
 msgstr "jour(s)"
 
-#: qprocessors/timeperiod.py:9
+#: qprocessors/timeperiod.py:14
 msgid "week(s)"
 msgstr "semaine(s)"
 
-#: qprocessors/timeperiod.py:10
+#: qprocessors/timeperiod.py:15
 msgid "month(s)"
 msgstr "mois"
 
-#: qprocessors/timeperiod.py:11
+#: qprocessors/timeperiod.py:16
 msgid "year(s)"
 msgstr "année(s)"
 
-#: qprocessors/timeperiod.py:42 qprocessors/timeperiod.py:58
+#: qprocessors/timeperiod.py:49 qprocessors/timeperiod.py:65
 msgid "Invalid time period"
 msgstr "Période non valable"
 
-#: qprocessors/timeperiod.py:48
+#: qprocessors/timeperiod.py:55
 msgid "Time period must be a whole number"
 msgstr "La période doit être un chiffre entier"
 
-#: templates/questionnaire/choice-yesnocomment.html:3
+#: templates/admin/questionnaire/question/change_form.html:10
+msgid "Choices"
+msgstr ""
+
+#: templates/admin/questionnaire/question/change_form.html:12
+msgid "Sortid determines the choice order."
+msgstr ""
+
+#: templates/admin/questionnaire/question/change_form.html:13
+msgid ""
+"Short values will appear in exported data and are \n"
+"referenced in 'Additional checks' fields.  Numbers, letters \n"
+"or single words are valid."
+msgstr ""
+
+#: templates/questionnaire/choice-yesnocomment.html:10 views.py:960
 msgid "Yes"
 msgstr "Oui"
 
-#: templates/questionnaire/choice-yesnocomment.html:5
+#: templates/questionnaire/choice-yesnocomment.html:18 views.py:960
 msgid "No"
 msgstr "Non"
 
-#: templates/questionnaire/choice-yesnocomment.html:8
+#: templates/questionnaire/choice-yesnocomment.html:27 views.py:962
 msgid "Don't Know"
 msgstr "Ne sais pas"
 
-#: templates/questionnaire/questionset.html:72
+#: templates/questionnaire/choice-yesnocomment.html:35
+msgid "comment"
+msgstr ""
+
+#: templates/questionnaire/questionset.html:61
+msgid "edit"
+msgstr ""
+
+#: templates/questionnaire/questionset.html:98
 msgid "Continue"
 msgstr "Continuer"
+
+#: templates/questionnaire/questionset.html:103
+msgid "return to previous page"
+msgstr ""

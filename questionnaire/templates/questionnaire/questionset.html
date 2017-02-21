@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load questionnaire i18n %}
 {% load static %}
+{% load markup_tags %}
+{% get_available_languages as LANGUAGES %}
+{% get_current_language as LANGUAGE_CODE %}
 
 {% block headextra %}
     <script type="text/javascript" src="{% static 'jquery-1.7.1.min.js' %}"></script>
@@ -25,7 +28,8 @@
 
 {% block language %}
     {% for lang in LANGUAGES %}{% if not forloop.first %} |{% endif %}
-        <a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>
+        {% if lang.0 == LANGUAGE_CODE %}<span>{{ lang.1 }}</span>{% endif %}
+        {% if lang.0 != LANGUAGE_CODE %}<a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>{% endif %}
     {% endfor %}
 {% endblock %}
 
@@ -40,7 +44,7 @@
     {% endif %}
 
     <div class="questionset-title">
-    {{ questionset.text }}
+    {{ questionset.text|default:""|apply_markup:"textile" }}
     </div>
 
     <form name="qform" id="qform" action="{{ request.path }}" method="POST">

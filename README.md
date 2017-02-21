@@ -1,11 +1,11 @@
+
 WARNING
 =======
 
-**Seantis Questionnaire is no longer being developed.** 
+**Seantis Questionnaire is no longer being developed.**
 
-There is an active fork you should be using instead:
+Have a look at this fork: https://github.com/eldest-daughter/ed-questionnaire
 
-https://github.com/eldest-daughter/ed-questionnaire
 
 Seantis Questionnaire
 =====================
@@ -13,69 +13,10 @@ Seantis Questionnaire
 Introduction
 ------------
 
-Seantis Questionnaire is a django questionnaire app which is easily customised
-and includes advanced dependency support using boolean expressions.
+Seantis Questionnaire is a django questionnaire app which is easily customised and includes advanced dependency support using boolean expressions.
 
-It allows an administrator to create and edit questionnaires in the django
-admin interface, with support for multiple languages.
+It allows an administrator to create and edit questionnaires in the django admin interface, with support for multiple languages.
 
-It was originally created to support an annually recurring questionnnaire for a
-medical study.
-
-This repository only contains the Questionnaire side of the application.  We
-also developed a management interface and extensions to the models that are
-specific to the study, and have therefore not been made public.  Seantis GmbH
-could, however, provide a similar end-to-end solution for your organisation.
-
-The State of Seantis Questionnaire
-----------------------------------
-
-Seantis Questionnaire was developed a couple of years ago and it serves us
-well on some of our older projects. That being said, we currently have no
-plans to further develop these projects or Seantis Questionnaire itself.
-
-What we do is review pull requests to the best of our abilities and merge
-them, as long as they come in digestable portions. There is still a fair
-amount of pull requests coming in, so we wouldn't consider Seantis 
-Questionnaire dead just yet, but be warned that this project won't see
-big new developments any time soon.
-
-That also means that things might break, since there are barely any tests
-and no continuous integration. You should factor this into your decision
-when looking at Seantis Questionnaire for a new project.
-
-Forks
------
-
-Ed Questionnaire is a fork of Seantis Questionnaire. Its mission is to improve
-Seantis Questionnaire by adding new features. If you are looking for further
-development, this is the place to go:
-
-https://github.com/eldest-daughter/ed-questionnaire
-
-Alternatives
-------------
-
-There are two other questionnaire-type applications that we stumbled upon, but
-they both didn't quite scratch our itch, but they may scratch yours.
-
-Django Survey (slightly outdated, last change 2009) - [django-survey](http://code.google.com/p/django-survey/)
-
-History
--------
-
-The questionnaire app was originally developed by [rmt](https://github.com/rmt) for Seantis. We picked up the project again in 2011 for yet another medical study. At this point we decided to introduce features and changes that break backwards compatibility with existing questionnaires that use this app.
-
-The old versions are tagged as follows:
-
- * tag 1.0 - state of last commit by the original developer (rmt)
- * tag 1.1 - contains merged changes by other forks improving the orignal
-
-The new version is the current trunk and is dubbed v2.0.
-
-It is still possible to use a questionnaire defined for 1.0 and use it in 2.0 and we cover that topic later in this manual. However, if you used 1.0 and integrated it into your own page you are on your own. We only cover data-migration from an existing questionnaire 1.0 instance to a new questionnaire 2.0 instance.
-
-A lot of template code has changed from 1.0 to 2.0 because we switched from the blueprint CSS framework to the Twitter bootstrap CSS framework. There is also some cleanup around the urls and static files. That's why moving to 2.0 might be a somewhat hairy task to accomplish.
 
 About this Manual
 -----------------
@@ -84,10 +25,24 @@ Seantis Questionnaire is not a very well documented app so far to say the least.
 
 What it does cover is the following:
 
- * **Integration** talks lays out the steps needed to create a new Django page together with the questionnaire. The same steps can be used to integrate the questionnaire into an existing site (though you would be entering unpaved ways).
- * **Conecpts** talks about the data model and the design of the application.
- * **Migration** explains how a questionnaire defined with 1.0 can be used in 2.0.
- * **2.0 Postmortem** talks about some experiences made during the development of 2.0.
+* **Settings** explains the available options in the `settings.py`.
+* **Integration** talks lays out the steps needed to create a new Django page together with the questionnaire. The same steps can be used to integrate the questionnaire into an existing site (though you would be entering unpaved ways).
+* **Conecpts** talks about the data model and the design of the application.
+
+Settings
+--------
+
+### `QUESTIONNAIRE_PROGRESS`
+Defines the progressbar behavior in the questionnaire the possible options are `default`, `async` and `none`:
+
+- `default`: The progressbar will be rendered in each questionset together with the questions. This is a good choice for smaller questionnaires as the progressbar will always be up to date.
+- `async`:The progressbar value is updated using ajax once the questions have been rendered. This approach is the right choice for bigger questionnaires which
+result in a long time spent on updating the progressbar with each request. The progress calculation is by far the most time consuming method in bigger questionnaires as all questionsets and questions need to be parsed to decide if they play a role in the current run or not.
+- `none`: Completely omits the progressbar. Good if you don't want one or if the questionnaire is so huge that even the ajax request takes too long.
+
+### `QUESTIONNAIRE_USE_SESSION`
+Defines how the questionnaire and questionset id are passed around. If `False`, the default value, the ids are part of the URLs and visible to the user answering the questions. If `True`, the ids are set in the session and the URL remains unchanged as the user goes through the steps of the question set.
+
 
 Integration
 -----------
@@ -99,17 +54,14 @@ First, create a folder for your new site:
     mkdir site
     cd site
 
-Create a virtual environment so your python packages don't influence your system
-    
-    virtualenv --no-site-packages -p python2.5 .
+Create and activate a virtual environment so your python packages don't influence your system
 
-Activate your virtual environment
-
+    virtualenv .
     source bin/activate
 
 Install Django
 
-    pip install django
+    pip install django==1.8.17
 
 Create your Django site
 
@@ -123,7 +75,7 @@ Create a place for the questionnare
 
 Clone the questionnaire source
 
-    git clone git://github.com/seantis/seantis-questionnaire.git
+    git clone git@github.com:seantis/seantis-questionnaire.git
 
 You should now have a seantis-questionnaire folder in your apps folder
 
@@ -142,62 +94,61 @@ First, you want to setup the languages used in your questionnaire, by opening se
 Open settings.py and add following lines, representing your languages of choice:
 
     LANGUAGES = (
-        ('en', 'English'),
-        ('de', 'Deutsch')
+        ('de', _('German')),
+        ('en', _('English')),
     )
 
 At the top of settings.py you should at this point add
 
-    import os.path
+    from django.utils.translation import ugettext_lazy as _
 
 We will use that below for the setup of the folders
-
-In the same file add the questionnaire static directory to your STATICFILES_DIRS
-
-    os.path.abspath('./apps/seantis-questionnaire/questionnaire/static/')
 
 Also add the locale and request cache middleware to MIDDLEWARE_CLASSES
 
     'django.middleware.locale.LocaleMiddleware',
     'questionnaire.request_cache.RequestCacheMiddleware',
 
-Add the questionnaire template dir as well as your own to TEMPLATE_DIRS
 
-    os.path.abspath('./apps/seantis-questionnaire/questionnaire/templates'),
-    os.path.abspath('./templates'),
-
-And finally, add transmeta, questionnaire to your INSTALLED_APPS
+And finally, add the additional django packages (sites, markup, transmeta), questionnaire and your app to your INSTALLED_APPS
 
     'django.contrib.sites',
+    'django_markup',
     'transmeta',
     'questionnaire',
     'questionnaire.page',
+    'mysite'
 
 To get the "sites" framework working you also need to add the following setting:
 
-    SITE = 1
+    SITE_ID = 1
 
 Next up we want to edit the urls.py of your project to hookup the questionnaire views with your site's url configuration.
 
 For an empty site with enabled admin interface you should end up with something like this:
 
-    from django.conf.urls import patterns, include, url
-
+    from django.conf.urls import include, url
     from django.contrib import admin
+
+
     admin.autodiscover()
 
-    urlpatterns = patterns('',
+    urlpatterns = [
         url(r'^admin/', include(admin.site.urls)),
-        
+
         # questionnaire urls
         url(r'q/', include('questionnaire.urls')),
-        
-        url(r'^take/(?P<questionnaire_id>[0-9]+)/$', 'questionnaire.views.generate_run'),
-        url(r'^$', 'questionnaire.page.views.page', {'page_to_render' : 'index'}),
-        url(r'^(?P<lang>..)/(?P<page_to_trans>.*)\.html$', 'questionnaire.page.views.langpage'),
-        url(r'^(?P<page_to_render>.*)\.html$', 'questionnaire.page.views.page'),
+        url(r'^take/(?P<questionnaire_id>[0-9]+)/$',
+            'questionnaire.views.generate_run'),
+        url(r'^$', 'questionnaire.page.views.page',
+            {'page_to_render': 'index'}),
+        url(r'^(?P<lang>..)/(?P<page_to_trans>.*)\.html$',
+            'questionnaire.page.views.langpage'),
+        url(r'^(?P<page_to_render>.*)\.html$',
+            'questionnaire.page.views.page'),
         url(r'^setlang/$', 'questionnaire.views.set_language'),
-    )
+    ]
+
 
 For the questionnaire itself it is only necessary to have the urls below `# questionnaire urls
 
@@ -209,9 +160,7 @@ The questionnaire expectes a base.html template to be there, with certain styles
 
 For now you might want to just copy the base.html to your own template folder.
 
-    mkdir templates
-    cd templates
-    cp ../apps/seantis-questionnaire/example/templates/base.html .
+    cp -r apps/seantis-questionnaire/example/mysite/templates mysite/
 
 Congratulations, you have setup the basics of the questionnaire! At this point this site doesn't really do anything, as there are no questionnaires defined.
 
@@ -219,35 +168,41 @@ To see an example questionnaire you can do the following (unfortunately, this wi
 
     python manage.py loaddata ./apps/seantis-questionnaire/example/fixtures/initial_data.yaml
 
+Run the tests to make sure the questionnaire runs as expected
+
+    python manage.py test questionnaire
+
 You may then start your development server
 
     python manage.py runserver
 
-And navigate your browser to `localhost:8000`
+And navigate your browser to `http://127.0.0.1:8000/`
+
+Have a look at the example folder!
 
 Concepts
 --------
 
 The Seantis Questionnaire sports the following tables, described in detail below.
 
- * Subject
- * RunInfo
- * RunInfoHistory
- * Question
- * Choice
- * QuestionSet
- * Questionnaire
- * Answer
+* Subject
+* RunInfo
+* RunInfoHistory
+* Question
+* Choice
+* QuestionSet
+* Questionnaire
+* Answer
 
 ### Subject
 
-A subject is someone filling out a questionnaire. 
+A subject is someone filling out a questionnaire.
 
 Subjects are primarily useful in a study where the participants answer a questionnaire repeatedly. In this case a subject may be entered. Whoever is conducting the study (i.e. the person running the questionnaire app), may then periodically send emails inviting the subjects to fill out the questionnaire.
 
 Sending Emails is covered in detail later.
 
-Of course, not every questionnaire is part of a study. Sometimes you just want to find out what people regard as more awesome: pirates or ninjas*? 
+Of course, not every questionnaire is part of a study. Sometimes you just want to find out what people regard as more awesome: pirates or ninjas*?
 
 *(it's pirates!)
 
@@ -273,21 +228,21 @@ The runinfo history is used to refer to a set of answers.
 
 A question is anything you want to ask a subject. Since this is usually not limited to yes or no type questions there are a number of different types you can use:
 
- * **choice-yesno** - Yes or No
- * **choice-yesnocomment** - Yes or No with a chance to comment on the answer
- * **choice-yesnodontknow** - Yes or No or Whaaa?
- * **open** - A simple one line input box
- * **open-textfield** - A box for lengthy answers
- * **choice** - A list of choices to choose from
- * **choice-freeform** - A list of choices with a chance to enter something else
- * **choice-multiple** - A list of choices with multiple answers
- * **choice-multiple-freeform** - Multiple Answers with multiple user defined answers
- * **range** - A range of number from which one number can be chosen
- * **number** - a number
- * **timeperiod** - A timeperiod
- * **custom** - custom question using a custom template
- * **comment** - Not a question, but only a comment displayed to the user
- * **sameas** - same type as some other question
+* **choice-yesno** - Yes or No
+* **choice-yesnocomment** - Yes or No with a chance to comment on the answer
+* **choice-yesnodontknow** - Yes or No or Whaaa?
+* **open** - A simple one line input box
+* **open-textfield** - A box for lengthy answers
+* **choice** - A list of choices to choose from
+* **choice-freeform** - A list of choices with a chance to enter something else
+* **choice-multiple** - A list of choices with multiple answers
+* **choice-multiple-freeform** - Multiple Answers with multiple user defined answers
+* **range** - A range of number from which one number can be chosen
+* **number** - a number
+* **timeperiod** - A timeperiod
+* **custom** - custom question using a custom template
+* **comment** - Not a question, but only a comment displayed to the user
+* **sameas** - same type as some other question
 
 *Some of these types, depend on checks or choices. The number question for instance can be controlled by setting the checks to something like "range=1-100 step=1". The range question may also use the before-mentioned checks and also "unit=%". Other questions like the choice-multiple-freeform need a "extracount=10" if ten extra options should be given to the user.
 
@@ -303,12 +258,12 @@ An important aspect of questions (and their parents, QuestionSets) is the checks
 
 The most important checks on the question are the following:
 
- * **required** A required question must be answered by the user
- * **requiredif="number,answer"**  Means that the question is required if the question with *number* is equal to *answer*.
- * **shownif** Same as requiredif, but defining if the question is shown at all.
- * **maleonly** Only shown to male subjects
- * **femaleonly** Only shown to female subjects
- * **iftag="tag"** Question is only shown if the given tag is in the RunInfo
+* **required** A required question must be answered by the user
+* **requiredif="number,answer"**  Means that the question is required if the question with *number* is equal to *answer*.
+* **shownif** Same as requiredif, but defining if the question is shown at all.
+* **maleonly** Only shown to male subjects
+* **femaleonly** Only shown to female subjects
+* **iftag="tag"** Question is only shown if the given tag is in the RunInfo
 
 Checks allow for simple boolean expressions like this:
 `iftag="foo or bar"` or `requiredif="1,yes and 2,no"`
@@ -329,58 +284,6 @@ A questionset which contains no visible questions (as defined by **shownif**) is
 
 Contains the answer to a question. The value of the answer is stored as JSON.
 
-### Questionnaire 
+### Questionnaire
 
 A questionnaire is a bunch of questionsets together.
-
-
-Migration of 1.x to 2.0
------------------------
-
-2.0 added new fields to the questionnaire, but it did so in a backwards compatible way. None of the new fields are mandatory and no changes should be necessary to your existing questionnaire. Since we do not have any relevant testing data however, you might find yourself on your own if it doesn't work. Please file an issue if you think we did something wrong, so we can fix it and help you.
-
-As Django per default does not provide a way to migrate database schemas, we pretty much make use of the bulldozer way of migrating, by exporting the data from one database and import it into a newly created one.
-
-From you existing 1.x site do
-
-    python manage.py dumpdata >> export.yaml
-
-Copy your file to your new site and in your new site, create your empty database
-
-    python manage.py syncdb
-
-You may then import your data from your old site, which should probably work :)
-
-    python manage.py loaddata export.yaml
-
-This of course covers only the data migration. How to migrate your custom tailored site to use questionnaire 2.0 is unfortunately something we cannot really document.
-
-2.0 Postmortem
---------------
-
-2.0 was the result of the work we put into seantis questionnaire for our second project with it. We did this project without the help of questionnaire's creator and were pretty much on our own during that time.
-
-Here's what we think we learned:
-
-### Seantis.questionnaire is a Framework
-
-More than anything else seantis.questionnaire should be thought of as a framework. Your site has to provide and do certain things for the questionnaire to work. If your site is a customized questionnaire for a company with other needs on the same site you will end up integrating code which will call questionnaire to setup runs and you will probably work through the answer records to provide some sort of summary. 
-
-If it was a library you could just work with a nice API, which does not exist.
-
-### Don't Go Crazy with Your Checks
-
-We used a fair amount of checks in both questionset and questions to control a complex questionnaire. We offloaded the complexity of the questionnaire into an Excel file defined by the customer and generated checks to copy that complexity into our application.
-
-Though this approach certainly works fine it does not give you a good performance. The problem is, if you have hundreds of questions controlled by runinfo tags, that you end up with most CPU cycles spent on calculating the progress bar on each request. It is precisely for that reason that we implemented the QUESTIONNAIRE_PROGRESS setting (you can learn more about that by looking at the example settings.py).
-
-We managed to keep our rendering time low by doing the progress bar using ajax after a page was rendered. It is only a workaround though. Calculating the progress of a run in a huge questionnaire remains a heavy operation, so for really huge questionnaires one might consider removing the progress bar alltogether. There is still some optimization to be had, but it essentially will remain the slowest part of the questionnaire, because at the end of the day interpreting loads of checks is not something you can do in a fast way, unless your name is PyPy and your programmers are insanly talented.
-
-### There are not Enough Tests
-
-There are a couple of tests which do some simple testing, but it's not enough. We failed to add more so far, so we can't shift the blame, but the fact remains still. More tests would mean that more refactoring could be done which would be nice, because there certainly is a need for some refactoring.
-
-### The Admin Interface is not Good Enough
-
-Django admin is a nice feature to have, but we either don't leverage it well enough, or it is not the right tool for the questionnaire. In any case, if you are expecting your customer to work with the questionnaire's structure you might have to write your own admin interface. The current one is not good enough.
-

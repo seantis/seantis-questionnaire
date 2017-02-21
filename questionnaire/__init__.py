@@ -6,23 +6,30 @@ Create flexible questionnaires.
 
 Author: Robert Thomson <git AT corporatism.org>
 """
+import imp
 
 from django.conf import settings
 from django.dispatch import Signal
-import os, os.path
-import imp
 
-__all__ = [ 'question_proc', 'answer_proc', 'add_type', 'AnswerException',
-            'questionset_done', 'questionnaire_done', ]
+
+__all__ = [
+    'question_proc',
+    'answer_proc',
+    'add_type',
+    'AnswerException',
+    'questionset_done',
+    'questionnaire_done'
+]
 
 QuestionChoices = []
-QuestionProcessors = {} # supply additional information to the templates
-Processors = {} # for processing answers
+QuestionProcessors = {}  # supply additional information to the templates
+Processors = {}  # for processing answers
 
 questionnaire_start = Signal(providing_args=["runinfo", "questionnaire"])
 questionset_start = Signal(providing_args=["runinfo", "questionset"])
 questionset_done = Signal(providing_args=["runinfo", "questionset"])
 questionnaire_done = Signal(providing_args=["runinfo", "questionnaire"])
+
 
 class AnswerException(Exception):
     "Thrown from an answer processor to generate an error message"
@@ -46,11 +53,12 @@ def question_proc(*names):
         return func
     return decorator
 
+
 def answer_proc(*names):
     """
     Decorator to create an answer processor for one or more
     question types.
-    
+
     Usage:
     @question_proc('typename1', 'typename2')
     def qproc_blah(request, question):
@@ -63,22 +71,31 @@ def answer_proc(*names):
         return func
     return decorator
 
+
 def add_type(id, name):
     """
     Register a new question type in the admin interface.
     At least an answer processor must also be defined for this
     type.
-    
+
     Usage:
         add_type('mysupertype', 'My Super Type [radio]')
     """
     global QuestionChoices
-    QuestionChoices.append( (id, name) )
+    QuestionChoices.append((id, name))
 
 
-import questionnaire.qprocessors # make sure ours are imported first
+add_type(
+    'sameas',
+    (
+        'Same as Another Question (put sameas=question.number in checks or '
+        'sameasid=question.id)'
+    )
+)
 
-add_type('sameas', 'Same as Another Question (put sameas=question.number in checks or sameasid=question.id)')
+
+# make sure ours are imported first
+import questionnaire.qprocessors  # noqa
 
 for app in settings.INSTALLED_APPS:
     try:

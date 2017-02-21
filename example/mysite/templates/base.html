@@ -1,20 +1,24 @@
+{% load i18n %}
+{% get_available_languages as LANGUAGES %}
+{% get_current_language as LANGUAGE_CODE %}
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    
+
     <title>{% block title %}Questionnaire{% endblock title %}</title>
-    
+
     <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css" type="text/css"/>
     <link rel="stylesheet" href="/static/questionnaire.css"></script>
-    
+
     <style type="text/css">
     {% block styleextra %}
-        
+
     {% endblock %}
     </style>
-    
+
     {% block headextra %}
     {% endblock %}
 
@@ -31,7 +35,8 @@
                 {% block language %}
                     {% for lang in LANGUAGES %}
                         {% if not forloop.first %} | {% endif %}
-                        <a href="/setlang/?lang={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
+                        {% if lang.0 == LANGUAGE_CODE %}<span>{{ lang.1 }}</span>{% endif %}
+                        {% if lang.0 != LANGUAGE_CODE %}<a href="/setlang/?lang={{ lang.0 }}&amps;next={{ request.path }}">{{ lang.1 }}</a>{% endif %}
                     {% endfor %}
                 {% endblock language %}
             </div>
