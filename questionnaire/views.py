@@ -19,8 +19,6 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import LANGUAGE_SESSION_KEY
 
-from compat import commit_on_success
-
 from questionnaire import AnswerException
 from questionnaire import Processors
 from questionnaire import questionnaire_done
@@ -339,7 +337,6 @@ def redirect_to_prev_questionnaire(request):
     return HttpResponseRedirect('/')
 
 
-@commit_on_success
 def questionnaire(request, runcode=None, qs=None):
     """
     Process submitted answers (if present) and redirect to next page
@@ -378,13 +375,37 @@ def questionnaire(request, runcode=None, qs=None):
     runinfo = get_runinfo(runcode)
 
     if not runinfo:
-        transaction.commit()
         return HttpResponseRedirect('/')
 
     # let the runinfo have a piggy back ride on the request
     # so we can easily use the runinfo in places like the question processor
     # without passing it around
     request.runinfo = runinfo
+
+    errors = {}
+    try:
+        # res = _questionnaire(request, runcode, qs)
+        with transaction.atomic():
+            res = _questionnaire(request, runinfo, errors, qs)
+    except AnswerException:
+        res = show_questionnaire(request, runinfo, errors=errors)
+
+    return res
+
+
+def _questionnaire(request, runinfo, errors, qs):
+    """
+    Process submitted answers (if present) and redirect to next page
+
+    If this is a POST request, parse the submitted data in order to store
+    all the submitted answers.  Then return to the next questionset or
+    return a completed response.
+
+    If this isn't a POST request, redirect to the main page.
+
+    We only commit on success, to maintain consistency.  We also specifically
+    rollback if there were errors processing the answers for this questionset.
+    """
 
     if not qs:
         # Only change the language to the subjects choice for the initial
@@ -414,7 +435,6 @@ def questionnaire(request, runcode=None, qs=None):
                 return redirect_to_qs(runinfo, request)
             runinfo.questionset = qs
             runinfo.save()
-            transaction.commit()
         # no questionset id in URL, so redirect to the correct URL
         if qs is None:
             return redirect_to_qs(runinfo, request)
@@ -426,16 +446,12 @@ def questionnaire(request, runcode=None, qs=None):
     # -------------------------------------
 
     # if the submitted page is different to what runinfo says, update runinfo
-    # XXX - do we really want this?
     qs = request.POST.get('questionset_id', qs)
-    try:
-        qsobj = QuestionSet.objects.filter(pk=qs)[0]
-        if qsobj.questionnaire == runinfo.questionset.questionnaire:
-            if runinfo.questionset != qsobj:
-                runinfo.questionset = qsobj
-                runinfo.save()
-    except:
-        pass
+    qsobj = QuestionSet.objects.filter(pk=qs)[0]
+    if qsobj.questionnaire == runinfo.questionset.questionnaire:
+        if runinfo.questionset != qsobj:
+            runinfo.questionset = qsobj
+            runinfo.save()
 
     questionnaire = runinfo.questionset.questionnaire
     questionset = runinfo.questionset
@@ -473,7 +489,6 @@ def questionnaire(request, runcode=None, qs=None):
                 continue
             extra[question] = ans
 
-    errors = {}
     for question, ans in extra.items():
         if not question_satisfies_checks(question, runinfo):
             continue
@@ -502,13 +517,10 @@ def questionnaire(request, runcode=None, qs=None):
             errors[question.number] = e
         except Exception:
             logging.exception("Unexpected Exception")
-            transaction.rollback()
             raise
 
     if len(errors) > 0:
-        res = show_questionnaire(request, runinfo, errors=errors)
-        transaction.rollback()
-        return res
+        raise AnswerException
 
     questionset_done.send(
         sender=None, runinfo=runinfo, questionset=questionset
@@ -525,7 +537,6 @@ def questionnaire(request, runcode=None, qs=None):
     if next is None:  # we are finished
         return finish_questionnaire(request, runinfo, questionnaire)
 
-    transaction.commit()
     return redirect_to_qs(runinfo, request)
 
 
@@ -556,7 +567,6 @@ def finish_questionnaire(request, runinfo, questionnaire):
         runinfo.save()
     else:
         runinfo.delete()
-    transaction.commit()
     if redirect_url:
         return HttpResponseRedirect(redirect_url)
     return r2r("questionnaire/complete.$LANG.html", request)

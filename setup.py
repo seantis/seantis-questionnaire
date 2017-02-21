@@ -34,7 +34,6 @@ setup(
     zip_safe=False,
     install_requires=[
         'django>=1.8,<1.9',
-        'django-compat',
         'django-markup',
         'django-transmeta',
         'pyparsing',
