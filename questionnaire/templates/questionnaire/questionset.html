@@ -87,7 +87,7 @@
             </div> <!-- /question container -->
             {% if question.footer %}
                 <div class="question-footer">
-                    {{ question.footer }}
+                    {{ question.footer|default:""|apply_markup:"textile" }}
                     <div class="clearfix"></div>
                 </div>
             {% endif %}
