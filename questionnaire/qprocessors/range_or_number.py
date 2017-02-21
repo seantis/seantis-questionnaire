@@ -21,7 +21,7 @@ def question_range_or_number(request, question):
 
     jsinclude = []
     if question.type == 'range':
-        jsinclude = [settings.STATIC_URL + 'range.js']
+        jsinclude = [settings.STATIC_URL + 'js/range.js']
 
     return {
         'required': True,

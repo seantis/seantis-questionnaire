@@ -6,9 +6,9 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 {% block headextra %}
-    <script type="text/javascript" src="{% static 'jquery-1.7.1.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'questionset.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'progressbar.css' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-1.7.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/questionset.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/progressbar.css' %}"></script>
 
     {% for x in jsinclude %}
         <script type="text/javascript" src="{{ x }}"></script>
@@ -22,7 +22,7 @@
         <script type="text/javascript">
             var progress_url = "{{ async_url }}";
         </script>
-        <script type="text/javascript" src="{% static 'progress.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/progress.js' %}"></script>
     {% endif %}
 {% endblock %}
 
