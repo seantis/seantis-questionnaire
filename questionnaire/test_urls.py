@@ -12,5 +12,7 @@ urlpatterns = patterns(
     url(r'^q/manage/sendemail/(\d+)/$',
         'questionnaire.views.send_email'),
     url(r'^q/manage/manage/sendemails/$',
-        'questionnaire.views.send_emails'),
+        'questionnaire.emails.send_emails'),
+    url(r'^q/(?P<runcode>[^/]+)/progress/$',
+        'questionnaire.views.get_async_progress', name='progress'),
 )

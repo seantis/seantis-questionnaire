@@ -60,7 +60,7 @@ class TypeTest(TestCase):
 
         response = self.client.get('/q/test:test/1/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template[0].name,
+        self.assertEqual(response.templates[0].name,
                          'questionnaire/questionset.html')
 
     def test030_language_setting(self):
@@ -119,7 +119,7 @@ class TypeTest(TestCase):
 
         response = c.get('/q/1real/1/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template[0].name,
+        self.assertEqual(response.templates[0].name,
                          'questionnaire/questionset.html')
         response = c.post('/q/1real/', ansdict1)
         self.assertEqual(response.status_code, 302)
@@ -130,7 +130,7 @@ class TypeTest(TestCase):
         ansdict2 = self.ansdict2
         response = c.get('/q/1real/2/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.template[0].name,
+        self.assertEqual(response.templates[0].name,
                          'questionnaire/questionset.html')
         response = c.post('/q/1real/', ansdict2)
         self.assertEqual(response.status_code, 302)
@@ -181,12 +181,22 @@ class TypeTest(TestCase):
         # so we'll get two questions shown if the run is tagged
         self.assertEqual(with_tags.status_code, 200)
         self.assertEqual(len(with_tags.context['qlist']), 2)
+        self.assertEqual(
+            with_tags.context['qlist'][0][1]['css_style'] +
+            with_tags.context['qlist'][1][1]['css_style'],
+            ''
+        )
 
-        # one question, if the run is not tagged
+        # one visible question, if the run is not tagged
         without_tags = c.get('/q/test:withouttags/1/')
 
         self.assertEqual(without_tags.status_code, 200)
-        self.assertEqual(len(without_tags.context['qlist']), 1)
+        self.assertEqual(len(without_tags.context['qlist']), 2)
+        self.assertEqual(
+            without_tags.context['qlist'][0][1]['css_style'] +
+            without_tags.context['qlist'][1][1]['css_style'],
+            'display:none;'
+        )
 
         # the second questionset is only shown if the run is tagged
         with_tags = c.get('/q/test:withtags/2/')
@@ -201,8 +211,9 @@ class TypeTest(TestCase):
 
         # the progress values of the first questionset should reflect
         # the fact that in one run there's only one questionset
-        with_tags = c.get('/q/test:withtags/1/')
-        without_tags = c.get('/q/test:withouttags/1/')
+        with self.settings(QUESTIONNAIRE_PROGRESS='default'):
+            with_tags = c.get('/q/test:withtags/1/')
+            without_tags = c.get('/q/test:withouttags/1/')
 
-        self.assertEqual(with_tags.context['progress'], 50)
-        self.assertEqual(without_tags.context['progress'], 100)
+            self.assertEqual(with_tags.context['progress'], 50)
+            self.assertEqual(without_tags.context['progress'], 100)

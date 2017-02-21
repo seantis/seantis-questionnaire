@@ -168,6 +168,10 @@ To see an example questionnaire you can do the following (unfortunately, this wi
 
     python manage.py loaddata ./apps/seantis-questionnaire/example/fixtures/initial_data.yaml
 
+Run the tests to make sure the questionnaire runs as expected
+
+    python manage.py test questionnaire
+
 You may then start your development server
 
     python manage.py runserver
