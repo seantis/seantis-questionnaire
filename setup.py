@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name="seantis-questionnaire",
-    version="2.1",
+    version="2.1.1",
     description=(
         "A Django application for creating online questionnaires/surveys."
     ),
